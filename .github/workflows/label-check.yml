@@ -1,0 +1,31 @@
+name: Enforce Mandatory Labels
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches:
+      - master
+
+jobs:
+  label_check:
+    if: github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Verify mandatory labels
+        id: label-check
+        run: |
+          MANDATORY_LABELS=("release:major" "release:minor" "release:patch")
+          PR_LABELS=$(jq -r '.pull_request.labels[].name' "$GITHUB_EVENT_PATH")
+
+          for label in "${MANDATORY_LABELS[@]}"; do
+            if echo "$PR_LABELS" | grep -q "$label"; then
+              echo "Mandatory label $label found"
+              exit 0
+            fi
+          done
+
+          echo "Error: None of the mandatory labels (${MANDATORY_LABELS[*]}) are present on this pull request."
+#          exit 1
