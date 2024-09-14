@@ -9,7 +9,7 @@
     </parent>
     <groupId>fr.robate</groupId>
     <artifactId>dashboard</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
     <name>Dashboard</name>
     <description>A dashboard to display my favourite links and other informations that I'll be adding as development progresses</description>
     <url />
