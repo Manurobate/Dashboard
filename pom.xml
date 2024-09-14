@@ -9,7 +9,7 @@
     </parent>
     <groupId>fr.robate</groupId>
     <artifactId>dashboard</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <name>Dashboard</name>
     <description>A dashboard to display my favourite links and other informations that I'll be adding as development progresses</description>
     <url />
@@ -70,7 +70,7 @@
         <connection>scm:git:https://github.com/Manurobate/Dashboard.git</connection>
         <developerConnection>scm:git:https://github.com/Manurobate/Dashboard.git</developerConnection>
         <url>https://github.com/Manurobate/Dashboard</url>
-        <tag>HEAD</tag>
+        <tag>dashboard-0.1.1</tag>
     </scm>
 
     <build>
