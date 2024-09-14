@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # Copy the packaged jar file into the container at /app
-COPY target/torrentsUploaderWeb-*.jar /app/app.jar
+COPY target/dashboard-*.jar /app/app.jar
 
 # Make port 9999 available to the world outside this container
 EXPOSE 9999
