@@ -1,0 +1,15 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: builder
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  db:
+    ports:
+      - "127.0.0.1:3306:3306"
