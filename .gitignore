@@ -46,3 +46,8 @@ coverage/
 
 # Misc
 .nyc_output
+
+# IA
+.claude
+_bmad
+_bmad-output
