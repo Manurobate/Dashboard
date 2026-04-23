@@ -13,11 +13,13 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   if (process.env.NODE_ENV === 'development') {
     const config = new DocumentBuilder()
@@ -33,7 +35,7 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`Application running on port ${port}`);
 }
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
   logger.error(err);
   process.exit(1);
 });

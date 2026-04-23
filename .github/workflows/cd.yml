@@ -1,0 +1,60 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+# Secrets requis dans les paramètres du dépôt GitHub :
+# SSH_HOST        : adresse IP ou hostname du serveur
+# SSH_USERNAME    : utilisateur SSH (ex: deploy, ubuntu, manu)
+# SSH_PRIVATE_KEY : clé privée RSA/Ed25519 (contenu complet du fichier id_rsa ou id_ed25519)
+# DEPLOY_PATH     : chemin absolu du répertoire du projet sur le serveur (ex: /home/manu/dashboard)
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Déploiement SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Valider les secrets requis
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          missing=()
+          [[ -z "$SSH_HOST" ]] && missing+=("SSH_HOST")
+          [[ -z "$SSH_USERNAME" ]] && missing+=("SSH_USERNAME")
+          [[ -z "$SSH_PRIVATE_KEY" ]] && missing+=("SSH_PRIVATE_KEY")
+          [[ -z "$DEPLOY_PATH" ]] && missing+=("DEPLOY_PATH")
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "::error::Secrets manquants : ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Configurer la clé SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Déployer sur le serveur
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/id_deploy "$SSH_USERNAME@$SSH_HOST" \
+            "cd '$DEPLOY_PATH' && git pull --ff-only origin main && docker-compose up -d --build"
