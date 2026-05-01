@@ -53,6 +53,34 @@ services:
       timeout: 5s
       retries: 3
 
+  backup:
+    image: mariadb:11-lts
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "[$(date)] Service backup démarré — premier dump dans 30s, puis toutes les 24h"
+        sleep 30
+        while true; do
+          sh /scripts/backup.sh
+          sleep 86400
+        done
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER:?DB_USER requis dans .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis dans .env}
+      DB_NAME: ${DB_NAME:?DB_NAME requis dans .env}
+    volumes:
+      - ./scripts/backup.sh:/scripts/backup.sh:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+
 networks:
   dashboard_net:
 

@@ -47,6 +47,9 @@ coverage/
 # Misc
 .nyc_output
 
+# Database backups
+backups/*.sql
+
 # IA
 .claude
 _bmad
