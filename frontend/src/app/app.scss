@@ -1,0 +1,6 @@
+.app-content {
+  @media (max-width: 767px) {
+    min-height: calc(100dvh - var(--bottom-nav-height));
+    padding-bottom: var(--bottom-nav-height);
+  }
+}

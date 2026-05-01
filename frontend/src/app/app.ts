@@ -1,14 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ThemeService } from './core/services/theme.service';
+import { TopBarComponent } from './core/components/top-bar/top-bar.component';
+import { BottomNavComponent } from './core/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TopBarComponent, BottomNavComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('frontend');
-  protected readonly themeService = inject(ThemeService);
-}
+export class App {}
