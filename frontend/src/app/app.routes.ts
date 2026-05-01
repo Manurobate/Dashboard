@@ -14,4 +14,8 @@ export const routes: Routes = [
     path: 'notes',
     loadComponent: () => import('./notes/notes.component').then(m => m.NotesComponent),
   },
+  {
+    path: 'share',
+    loadChildren: () => import('./share/share.routes').then(r => r.shareRoutes),
+  },
 ];
