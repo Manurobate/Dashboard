@@ -25,6 +25,9 @@ describe('UsersService', () => {
           provide: getRepositoryToken(UserEntity),
           useValue: {
             findOne: jest.fn(),
+            count: jest.fn(),
+            create: jest.fn(),
+            save: jest.fn(),
           },
         },
       ],
@@ -32,6 +35,56 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     repo = module.get(getRepositoryToken(UserEntity));
+  });
+
+  describe('findById', () => {
+    it('should return user when id exists', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+
+      const result = await service.findById(1);
+
+      expect(repo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should return null when id does not exist', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      const result = await service.findById(999);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('findAdminCount', () => {
+    it('should return count of admin users', async () => {
+      (repo as any).count.mockResolvedValue(1);
+
+      const result = await service.findAdminCount();
+
+      expect((repo as any).count).toHaveBeenCalledWith({ where: { role: 'admin' } });
+      expect(result).toBe(1);
+    });
+  });
+
+  describe('createUser', () => {
+    it('should create and save user with isActive=true', async () => {
+      const userData = {
+        username: 'newuser',
+        passwordHash: 'hashed',
+        role: 'user' as const,
+        mustChangePassword: false,
+      };
+      const createdUser = { ...userData, isActive: true, id: 2 };
+      (repo as any).create.mockReturnValue(createdUser);
+      (repo as any).save.mockResolvedValue(createdUser);
+
+      const result = await service.createUser(userData);
+
+      expect((repo as any).create).toHaveBeenCalledWith({ ...userData, isActive: true });
+      expect((repo as any).save).toHaveBeenCalledWith(createdUser);
+      expect(result).toEqual(createdUser);
+    });
   });
 
   describe('findByUsername', () => {
