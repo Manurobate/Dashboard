@@ -1,5 +1,5 @@
-import { Controller, Post, Get, Req, Res, UseGuards, HttpCode } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { Controller, Post, Get, Req, Res, UseGuards, HttpCode, UnauthorizedException } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
@@ -67,6 +67,37 @@ export class AuthController {
 
     const { passwordHash: _, refreshTokens: __, ...safeUser } = req.user;
     return safeUser;
+  }
+
+  @Post('refresh')
+  @HttpCode(200)
+  @SkipThrottle()
+  @ApiOperation({ summary: 'Rafraîchissement silencieux du JWT via cookie refresh_token' })
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const rawToken = req.cookies?.refresh_token as string | undefined;
+    if (!rawToken) {
+      throw new UnauthorizedException();
+    }
+
+    const { accessToken, refreshToken, user } = await this.authService.refresh(rawToken);
+
+    const jwtExpiry = this.configService.get<string>('JWT_EXPIRY', '15m');
+    const refreshDays = this.configService.get<number>('REFRESH_TOKEN_EXPIRY_DAYS', 30);
+
+    res.cookie('jwt', accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: parseJwtExpiry(jwtExpiry),
+    });
+    res.cookie('refresh_token', refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: refreshDays * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
+
+    return user;
   }
 
   @Get('me')

@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { UsersService } from '../users/users.service';
@@ -25,7 +26,7 @@ describe('AuthService', () => {
   let usersService: jest.Mocked<UsersService>;
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
-  let refreshTokenRepo: { save: jest.Mock };
+  let refreshTokenRepo: { save: jest.Mock; findOne: jest.Mock; delete: jest.Mock };
 
   beforeEach(async () => {
     const hashedPassword = await bcrypt.hash('password123', 10);
@@ -51,7 +52,11 @@ describe('AuthService', () => {
         },
         {
           provide: getRepositoryToken(RefreshTokenEntity),
-          useValue: { save: jest.fn().mockResolvedValue({}) },
+          useValue: {
+            save: jest.fn().mockResolvedValue({}),
+            findOne: jest.fn(),
+            delete: jest.fn().mockResolvedValue({}),
+          },
         },
       ],
     }).compile();
@@ -147,6 +152,45 @@ describe('AuthService', () => {
       const result = await service.me(999);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('refresh', () => {
+    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const expiredDate = new Date(Date.now() - 1000);
+    const rawToken = 'a'.repeat(64);
+
+    it('should return new tokens and user on valid token with rotation', async () => {
+      refreshTokenRepo.findOne.mockResolvedValue({ id: 10, token: 'hashed', userId: 1, expiresAt: futureDate });
+      usersService.findById.mockResolvedValue(mockUser);
+
+      const result = await service.refresh(rawToken);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result.user).not.toHaveProperty('passwordHash');
+      expect(refreshTokenRepo.delete).toHaveBeenCalledWith(10);
+      expect(refreshTokenRepo.save).toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException when token is expired and clean it up', async () => {
+      refreshTokenRepo.findOne.mockResolvedValue({ id: 11, token: 'hashed', userId: 1, expiresAt: expiredDate });
+
+      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      expect(refreshTokenRepo.delete).toHaveBeenCalledWith(11);
+    });
+
+    it('should throw UnauthorizedException when token is not found', async () => {
+      refreshTokenRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException when user is inactive', async () => {
+      refreshTokenRepo.findOne.mockResolvedValue({ id: 12, token: 'hashed', userId: 1, expiresAt: futureDate });
+      usersService.findById.mockResolvedValue({ ...mockUser, isActive: false } as UserEntity);
+
+      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
     });
   });
 });

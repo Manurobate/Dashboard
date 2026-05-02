@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable, map, tap, catchError, of } from 'rxjs';
 
 export interface AuthUser {
   id: number;
@@ -37,5 +37,16 @@ export class AuthService {
       }
       throw err;
     }
+  }
+
+  refreshToken(): Observable<boolean> {
+    return this.http.post<AuthUser>('/api/auth/refresh', {}).pipe(
+      tap(user => this.currentUser.set(user)),
+      map(() => true),
+      catchError(() => {
+        this.currentUser.set(null);
+        return of(false);
+      }),
+    );
   }
 }

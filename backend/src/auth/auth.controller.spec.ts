@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserEntity } from '../users/user.entity';
@@ -34,6 +35,11 @@ describe('AuthController', () => {
               refreshToken: 'mock-refresh',
             }),
             me: jest.fn().mockResolvedValue(mockUser),
+            refresh: jest.fn().mockResolvedValue({
+              accessToken: 'new-jwt',
+              refreshToken: 'new-refresh',
+              user: mockUser,
+            }),
           },
         },
         {
@@ -74,6 +80,45 @@ describe('AuthController', () => {
 
       expect(authService.me).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockUser);
+    });
+  });
+
+  describe('refresh', () => {
+    it('should call authService.refresh and set new cookies on success', async () => {
+      const mockReq = { cookies: { refresh_token: 'raw-token' } } as any;
+      const mockRes = { cookie: jest.fn() } as any;
+
+      const result = await controller.refresh(mockReq, mockRes);
+
+      expect(authService.refresh).toHaveBeenCalledWith('raw-token');
+      expect(mockRes.cookie).toHaveBeenCalledWith('jwt', 'new-jwt', expect.objectContaining({
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: false,
+        path: '/',
+      }));
+      expect(mockRes.cookie).toHaveBeenCalledWith('refresh_token', 'new-refresh', expect.objectContaining({
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: false,
+        path: '/api/auth',
+      }));
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw UnauthorizedException when refresh_token cookie is absent', async () => {
+      const mockReq = { cookies: {} } as any;
+      const mockRes = { cookie: jest.fn() } as any;
+
+      await expect(controller.refresh(mockReq, mockRes)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should propagate UnauthorizedException from authService.refresh', async () => {
+      authService.refresh.mockRejectedValue(new UnauthorizedException());
+      const mockReq = { cookies: { refresh_token: 'expired-token' } } as any;
+      const mockRes = { cookie: jest.fn() } as any;
+
+      await expect(controller.refresh(mockReq, mockRes)).rejects.toThrow(UnauthorizedException);
     });
   });
 });

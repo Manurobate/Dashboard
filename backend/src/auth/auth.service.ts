@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -55,5 +55,37 @@ export class AuthService {
     if (!user) return null;
     const { passwordHash: _, refreshTokens: __, ...safeUser } = user;
     return safeUser;
+  }
+
+  async refresh(rawToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: Omit<UserEntity, 'passwordHash' | 'refreshTokens'>;
+  }> {
+    const tokenHash = sha256(rawToken);
+
+    const tokenRecord = await this.refreshTokenRepository.findOne({
+      where: { token: tokenHash },
+    });
+
+    if (!tokenRecord) {
+      throw new UnauthorizedException();
+    }
+
+    if (tokenRecord.expiresAt < new Date()) {
+      try { await this.refreshTokenRepository.delete(tokenRecord.id); } catch { /* best effort */ }
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.usersService.findById(tokenRecord.userId);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException();
+    }
+
+    await this.refreshTokenRepository.delete(tokenRecord.id);
+    const { accessToken, refreshToken } = await this.login(user);
+
+    const { passwordHash: _, refreshTokens: __, ...safeUser } = user;
+    return { accessToken, refreshToken, user: safeUser };
   }
 }
