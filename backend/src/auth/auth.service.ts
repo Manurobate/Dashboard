@@ -50,6 +50,12 @@ export class AuthService {
     return { accessToken, refreshToken: rawRefreshToken };
   }
 
+  async logout(rawToken: string | undefined): Promise<void> {
+    if (!rawToken) return;
+    const tokenHash = sha256(rawToken);
+    await this.refreshTokenRepository.delete({ token: tokenHash });
+  }
+
   async me(userId: number): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'> | null> {
     const user = await this.usersService.findById(userId);
     if (!user) return null;

@@ -40,6 +40,7 @@ describe('AuthController', () => {
               refreshToken: 'new-refresh',
               user: mockUser,
             }),
+            logout: jest.fn().mockResolvedValue(undefined),
           },
         },
         {
@@ -119,6 +120,29 @@ describe('AuthController', () => {
       const mockRes = { cookie: jest.fn() } as any;
 
       await expect(controller.refresh(mockReq, mockRes)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('logout', () => {
+    it('should call authService.logout and clear both cookies on success', async () => {
+      const mockReq = { cookies: { refresh_token: 'raw-token' } } as any;
+      const mockRes = { clearCookie: jest.fn() } as any;
+
+      await controller.logout(mockReq, mockRes);
+
+      expect(authService.logout).toHaveBeenCalledWith('raw-token');
+      expect(mockRes.clearCookie).toHaveBeenCalledWith('jwt', expect.objectContaining({ httpOnly: true, path: '/' }));
+      expect(mockRes.clearCookie).toHaveBeenCalledWith('refresh_token', expect.objectContaining({ httpOnly: true, path: '/api/auth' }));
+    });
+
+    it('should clear cookies even without refresh_token cookie', async () => {
+      const mockReq = { cookies: {} } as any;
+      const mockRes = { clearCookie: jest.fn() } as any;
+
+      await controller.logout(mockReq, mockRes);
+
+      expect(authService.logout).toHaveBeenCalledWith(undefined);
+      expect(mockRes.clearCookie).toHaveBeenCalledTimes(2);
     });
   });
 });

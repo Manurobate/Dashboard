@@ -155,6 +155,30 @@ describe('AuthService', () => {
     });
   });
 
+  describe('logout', () => {
+    it('should delete hashed token when rawToken is provided', async () => {
+      const rawToken = 'a'.repeat(64);
+      refreshTokenRepo.delete.mockResolvedValue({});
+
+      await service.logout(rawToken);
+
+      const deletedHash = (refreshTokenRepo.delete.mock.calls[0][0] as { token: string }).token;
+      expect(deletedHash).toMatch(/^[a-f0-9]{64}$/);
+
+      refreshTokenRepo.delete.mockClear();
+      await service.logout('b'.repeat(64));
+      const secondHash = (refreshTokenRepo.delete.mock.calls[0][0] as { token: string }).token;
+      expect(secondHash).toMatch(/^[a-f0-9]{64}$/);
+      expect(secondHash).not.toBe(deletedHash);
+    });
+
+    it('should not call delete when rawToken is undefined', async () => {
+      await service.logout(undefined);
+
+      expect(refreshTokenRepo.delete).not.toHaveBeenCalled();
+    });
+  });
+
   describe('refresh', () => {
     const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const expiredDate = new Date(Date.now() - 1000);

@@ -21,7 +21,7 @@
     <mat-icon>account_circle</mat-icon>
   </button>
   <mat-menu #userMenu>
-    <button mat-menu-item disabled>
+    <button mat-menu-item (click)="onLogout()">
       <mat-icon>logout</mat-icon>
       <span>Déconnexion</span>
     </button>

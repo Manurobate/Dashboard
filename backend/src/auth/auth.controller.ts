@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Req, Res, UseGuards, HttpCode, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Req, Res, UseGuards, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -98,6 +98,19 @@ export class AuthController {
     });
 
     return user;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Déconnexion — invalide le refresh token et efface les cookies' })
+  async logout(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const rawToken = req.cookies?.refresh_token;
+    await this.authService.logout(rawToken);
+    res.clearCookie('jwt', COOKIE_OPTIONS);
+    res.clearCookie('refresh_token', { ...COOKIE_OPTIONS, path: '/api/auth' });
   }
 
   @Get('me')

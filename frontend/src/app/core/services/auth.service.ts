@@ -49,4 +49,11 @@ export class AuthService {
       }),
     );
   }
+
+  logout(): Observable<void> {
+    return this.http.post<void>('/api/auth/logout', {}).pipe(
+      catchError(() => of(undefined as void)),
+      tap(() => this.currentUser.set(null)),
+    );
+  }
 }
