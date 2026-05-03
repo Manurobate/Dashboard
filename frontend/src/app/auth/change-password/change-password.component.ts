@@ -57,6 +57,7 @@ export class ChangePasswordComponent {
     const { newPassword, confirmPassword } = this.form.getRawValue();
     this.authService.changePassword(newPassword, confirmPassword).subscribe({
       next: () => {
+        this.isLoading.set(false);
         void this.router.navigate(['/links']);
       },
       error: (err: unknown) => {

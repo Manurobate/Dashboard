@@ -8,7 +8,11 @@ export const mustChangePasswordGuard: CanActivateFn = async () => {
 
   let user = authService.currentUser();
   if (!user) {
-    user = await authService.me();
+    try {
+      user = await authService.me();
+    } catch {
+      return router.createUrlTree(['/login']);
+    }
   }
   if (!user) return router.createUrlTree(['/login']);
   if (user.mustChangePassword) return router.createUrlTree(['/change-password']);
