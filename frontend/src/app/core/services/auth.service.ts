@@ -50,6 +50,12 @@ export class AuthService {
     );
   }
 
+  updatePassword(currentPassword: string, newPassword: string, confirmPassword: string): Observable<AuthUser> {
+    return this.http.patch<AuthUser>('/api/auth/update-password', { currentPassword, newPassword, confirmPassword }).pipe(
+      tap(user => this.currentUser.set(user)),
+    );
+  }
+
   changePassword(newPassword: string, confirmPassword: string): Observable<AuthUser> {
     return this.http.patch<AuthUser>('/api/auth/change-password', { newPassword, confirmPassword }).pipe(
       tap(user => this.currentUser.set(user)),

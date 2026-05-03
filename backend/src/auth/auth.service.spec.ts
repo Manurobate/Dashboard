@@ -23,7 +23,7 @@ const mockUser: UserEntity = {
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: jest.Mocked<UsersService> & { updatePasswordAndClearFlag: jest.Mock };
+  let usersService: jest.Mocked<UsersService> & { updatePasswordAndClearFlag: jest.Mock; updatePasswordHash: jest.Mock };
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
   let refreshTokenRepo: { save: jest.Mock; findOne: jest.Mock; delete: jest.Mock };
@@ -41,6 +41,7 @@ describe('AuthService', () => {
             findByUsername: jest.fn(),
             findById: jest.fn(),
             updatePasswordAndClearFlag: jest.fn(),
+            updatePasswordHash: jest.fn(),
           },
         },
         {
@@ -114,6 +115,56 @@ describe('AuthService', () => {
       );
       expect(result).not.toHaveProperty('passwordHash');
       expect(result).not.toHaveProperty('refreshTokens');
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should hash with cost 12, keep mustChangePassword unchanged, and return safeUser', async () => {
+      const userWithPwd = { ...mockUser, mustChangePassword: false };
+      const hashedPwd = await bcrypt.hash('currentPass1', 10);
+      userWithPwd.passwordHash = hashedPwd;
+      usersService.findById.mockResolvedValue(userWithPwd as UserEntity);
+
+      const updatedUser: UserEntity = { ...userWithPwd, passwordHash: 'new-hash' };
+      usersService.updatePasswordHash = jest.fn().mockResolvedValue(updatedUser);
+
+      const result = await service.updatePassword(1, 'currentPass1', 'newPass123', 'newPass123');
+
+      const callArgs = (usersService.updatePasswordHash as jest.Mock).mock.calls[0];
+      const storedHash = callArgs[1] as string;
+      const isValid = await bcrypt.compare('newPass123', storedHash);
+      expect(isValid).toBe(true);
+
+      const cost = parseInt(storedHash.split('$')[2], 10);
+      expect(cost).toBeGreaterThanOrEqual(12);
+
+      expect(result).not.toHaveProperty('passwordHash');
+      expect(result).not.toHaveProperty('refreshTokens');
+      expect(result).toHaveProperty('mustChangePassword', false);
+    });
+
+    it('should throw UnauthorizedException when current password is incorrect', async () => {
+      usersService.findById.mockResolvedValue(mockUser);
+
+      await expect(
+        service.updatePassword(1, 'wrongPass', 'newPass123', 'newPass123'),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw BadRequestException when new passwords do not match', async () => {
+      usersService.findById.mockResolvedValue(mockUser);
+
+      await expect(
+        service.updatePassword(1, 'password123', 'newPass123', 'differentPass'),
+      ).rejects.toThrow(new BadRequestException('Les mots de passe ne correspondent pas'));
+    });
+
+    it('should throw UnauthorizedException when userId not found', async () => {
+      usersService.findById.mockResolvedValue(null);
+
+      await expect(
+        service.updatePassword(999, 'currentPass1', 'newPass123', 'newPass123'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 

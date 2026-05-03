@@ -70,6 +70,28 @@ export class AuthService {
     return safeUser;
   }
 
+  async updatePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'>> {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException();
+
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) throw new UnauthorizedException('Mot de passe actuel incorrect');
+
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('Les mots de passe ne correspondent pas');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const updatedUser = await this.usersService.updatePasswordHash(userId, passwordHash);
+    const { passwordHash: _, refreshTokens: __, ...safeUser } = updatedUser;
+    return safeUser;
+  }
+
   async me(userId: number): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'> | null> {
     const user = await this.usersService.findById(userId);
     if (!user) return null;

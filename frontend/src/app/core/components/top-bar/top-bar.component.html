@@ -21,6 +21,10 @@
     <mat-icon>account_circle</mat-icon>
   </button>
   <mat-menu #userMenu>
+    <a mat-menu-item routerLink="/account/change-password">
+      <mat-icon>lock</mat-icon>
+      <span>Changer le mot de passe</span>
+    </a>
     <button mat-menu-item (click)="onLogout()">
       <mat-icon>logout</mat-icon>
       <span>Déconnexion</span>

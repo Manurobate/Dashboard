@@ -28,6 +28,7 @@ describe('UsersService', () => {
             count: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
+            update: jest.fn(),
           },
         },
       ],
@@ -35,6 +36,26 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     repo = module.get(getRepositoryToken(UserEntity));
+  });
+
+  describe('updatePasswordHash', () => {
+    it('should update passwordHash and return entity', async () => {
+      const updatedUser = { ...mockUser, passwordHash: 'new-hash' } as UserEntity;
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      repo.findOne.mockResolvedValue(updatedUser);
+
+      const result = await service.updatePasswordHash(1, 'new-hash');
+
+      expect((repo as any).update).toHaveBeenCalledWith({ id: 1 }, { passwordHash: 'new-hash' });
+      expect(result.passwordHash).toBe('new-hash');
+    });
+
+    it('should throw NotFoundException when userId not found', async () => {
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 0 });
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.updatePasswordHash(999, 'new-hash')).rejects.toThrow('Not Found');
+    });
   });
 
   describe('findById', () => {

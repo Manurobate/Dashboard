@@ -42,6 +42,7 @@ describe('AuthController', () => {
             }),
             logout: jest.fn().mockResolvedValue(undefined),
             changePassword: jest.fn().mockResolvedValue({ ...mockUser, mustChangePassword: false }),
+            updatePassword: jest.fn().mockResolvedValue({ ...mockUser, mustChangePassword: false }),
           },
         },
         {
@@ -141,6 +142,36 @@ describe('AuthController', () => {
 
       await expect(
         controller.changePassword({ id: 1 } as any, dto as any),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should return 200 with safeUser on success', async () => {
+      const dto = { currentPassword: 'currentPass1', newPassword: 'newPass123', confirmPassword: 'newPass123' };
+      const result = await controller.updatePassword({ id: 1 } as any, dto as any);
+
+      expect(authService.updatePassword).toHaveBeenCalledWith(1, 'currentPass1', 'newPass123', 'newPass123');
+      expect(result).toEqual(expect.objectContaining({ id: 1 }));
+    });
+
+    it('should propagate UnauthorizedException on incorrect current password', async () => {
+      authService.updatePassword.mockRejectedValue(new UnauthorizedException('Mot de passe actuel incorrect'));
+      const dto = { currentPassword: 'wrong', newPassword: 'newPass123', confirmPassword: 'newPass123' };
+
+      await expect(
+        controller.updatePassword({ id: 1 } as any, dto as any),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should propagate BadRequestException on passwords mismatch', async () => {
+      authService.updatePassword.mockRejectedValue(
+        new BadRequestException('Les mots de passe ne correspondent pas'),
+      );
+      const dto = { currentPassword: 'currentPass1', newPassword: 'newPass123', confirmPassword: 'different' };
+
+      await expect(
+        controller.updatePassword({ id: 1 } as any, dto as any),
       ).rejects.toThrow(BadRequestException);
     });
   });

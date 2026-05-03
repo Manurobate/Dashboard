@@ -22,6 +22,13 @@ export class UsersService {
     return this.userRepository.count({ where: { role: 'admin' } });
   }
 
+  async updatePasswordHash(userId: number, passwordHash: string): Promise<UserEntity> {
+    await this.userRepository.update({ id: userId }, { passwordHash });
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException();
+    return user;
+  }
+
   async updatePasswordAndClearFlag(userId: number, passwordHash: string): Promise<UserEntity> {
     await this.userRepository.update({ id: userId }, { passwordHash, mustChangePassword: false });
     const user = await this.findById(userId);

@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserEntity } from '../users/user.entity';
 
@@ -131,5 +132,17 @@ export class AuthController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(user.id, dto.newPassword, dto.confirmPassword);
+  }
+
+  @Patch('update-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  @ApiOperation({ summary: 'Changement volontaire de mot de passe' })
+  async updatePassword(
+    @CurrentUser() user: { id: number },
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    return this.authService.updatePassword(user.id, dto.currentPassword, dto.newPassword, dto.confirmPassword);
   }
 }
