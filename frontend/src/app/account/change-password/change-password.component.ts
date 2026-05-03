@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, FormControl, FormGroupDirective, NgForm, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -48,7 +47,6 @@ class PasswordMismatchStateMatcher implements ErrorStateMatcher {
 })
 export class ChangePasswordComponent {
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
@@ -89,7 +87,7 @@ export class ChangePasswordComponent {
       next: () => {
         this.isLoading.set(false);
         this.snackBar.open('Mot de passe mis à jour', undefined, { duration: 3000 });
-        void this.router.navigate(['/links']);
+        this.form.reset();
       },
       error: (err: unknown) => {
         const status = (err as { status?: number })?.status;

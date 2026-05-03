@@ -138,6 +138,8 @@ describe('AuthService', () => {
       const cost = parseInt(storedHash.split('$')[2], 10);
       expect(cost).toBeGreaterThanOrEqual(12);
 
+      expect(refreshTokenRepo.delete).toHaveBeenCalledWith({ userId: 1 });
+
       expect(result).not.toHaveProperty('passwordHash');
       expect(result).not.toHaveProperty('refreshTokens');
       expect(result).toHaveProperty('mustChangePassword', false);
@@ -157,6 +159,15 @@ describe('AuthService', () => {
       await expect(
         service.updatePassword(1, 'password123', 'newPass123', 'differentPass'),
       ).rejects.toThrow(new BadRequestException('Les mots de passe ne correspondent pas'));
+    });
+
+    it('should throw BadRequestException when new password equals current password', async () => {
+      const hashedCurrentPass = await bcrypt.hash('currentPass1', 10);
+      usersService.findById.mockResolvedValue({ ...mockUser, passwordHash: hashedCurrentPass } as UserEntity);
+
+      await expect(
+        service.updatePassword(1, 'currentPass1', 'currentPass1', 'currentPass1'),
+      ).rejects.toThrow(new BadRequestException('Le nouveau mot de passe doit être différent du mot de passe actuel'));
     });
 
     it('should throw UnauthorizedException when userId not found', async () => {

@@ -79,15 +79,20 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
 
-    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
-    if (!isMatch) throw new UnauthorizedException('Mot de passe actuel incorrect');
-
     if (newPassword !== confirmPassword) {
       throw new BadRequestException('Les mots de passe ne correspondent pas');
     }
 
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) throw new UnauthorizedException('Mot de passe actuel incorrect');
+
+    if (newPassword === currentPassword) {
+      throw new BadRequestException('Le nouveau mot de passe doit être différent du mot de passe actuel');
+    }
+
     const passwordHash = await bcrypt.hash(newPassword, 12);
     const updatedUser = await this.usersService.updatePasswordHash(userId, passwordHash);
+    await this.refreshTokenRepository.delete({ userId });
     const { passwordHash: _, refreshTokens: __, ...safeUser } = updatedUser;
     return safeUser;
   }
