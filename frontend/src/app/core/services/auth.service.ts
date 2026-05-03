@@ -50,6 +50,12 @@ export class AuthService {
     );
   }
 
+  changePassword(newPassword: string, confirmPassword: string): Observable<AuthUser> {
+    return this.http.patch<AuthUser>('/api/auth/change-password', { newPassword, confirmPassword }).pipe(
+      tap(user => this.currentUser.set(user)),
+    );
+  }
+
   logout(): Observable<void> {
     return this.http.post<void>('/api/auth/logout', {}).pipe(
       catchError(() => of(undefined as void)),

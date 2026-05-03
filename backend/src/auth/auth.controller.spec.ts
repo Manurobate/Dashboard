@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserEntity } from '../users/user.entity';
@@ -41,6 +41,7 @@ describe('AuthController', () => {
               user: mockUser,
             }),
             logout: jest.fn().mockResolvedValue(undefined),
+            changePassword: jest.fn().mockResolvedValue({ ...mockUser, mustChangePassword: false }),
           },
         },
         {
@@ -120,6 +121,27 @@ describe('AuthController', () => {
       const mockRes = { cookie: jest.fn() } as any;
 
       await expect(controller.refresh(mockReq, mockRes)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should return 200 with safeUser (mustChangePassword=false) on success', async () => {
+      const dto = { newPassword: 'newPass123', confirmPassword: 'newPass123' };
+      const result = await controller.changePassword({ id: 1 } as any, dto as any);
+
+      expect(authService.changePassword).toHaveBeenCalledWith(1, 'newPass123', 'newPass123');
+      expect(result).toEqual(expect.objectContaining({ mustChangePassword: false }));
+    });
+
+    it('should propagate BadRequestException on password mismatch (delegated to service)', async () => {
+      authService.changePassword.mockRejectedValue(
+        new BadRequestException('Les mots de passe ne correspondent pas'),
+      );
+      const dto = { newPassword: 'pass1234', confirmPassword: 'pass5678' };
+
+      await expect(
+        controller.changePassword({ id: 1 } as any, dto as any),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

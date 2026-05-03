@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { UsersService } from '../users/users.service';
@@ -23,7 +23,7 @@ const mockUser: UserEntity = {
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: jest.Mocked<UsersService>;
+  let usersService: jest.Mocked<UsersService> & { updatePasswordAndClearFlag: jest.Mock };
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
   let refreshTokenRepo: { save: jest.Mock; findOne: jest.Mock; delete: jest.Mock };
@@ -40,6 +40,7 @@ describe('AuthService', () => {
           useValue: {
             findByUsername: jest.fn(),
             findById: jest.fn(),
+            updatePasswordAndClearFlag: jest.fn(),
           },
         },
         {
@@ -66,6 +67,54 @@ describe('AuthService', () => {
     jwtService = module.get(JwtService);
     configService = module.get(ConfigService);
     refreshTokenRepo = module.get(getRepositoryToken(RefreshTokenEntity));
+  });
+
+  describe('changePassword', () => {
+    it('should hash with cost ≥12, set mustChangePassword=false, and return safeUser', async () => {
+      const updatedUser: UserEntity = {
+        ...mockUser,
+        mustChangePassword: false,
+        passwordHash: 'new-hash',
+      };
+      usersService.updatePasswordAndClearFlag = jest.fn().mockResolvedValue(updatedUser);
+
+      const result = await service.changePassword(1, 'newPassword1', 'newPassword1');
+
+      const callArgs = (usersService.updatePasswordAndClearFlag as jest.Mock).mock.calls[0];
+      const storedHash = callArgs[1] as string;
+      const isHashValid = await bcrypt.compare('newPassword1', storedHash);
+      expect(isHashValid).toBe(true);
+
+      const cost = parseInt(storedHash.split('$')[2], 10);
+      expect(cost).toBeGreaterThanOrEqual(12);
+
+      expect(result).not.toHaveProperty('passwordHash');
+      expect(result).not.toHaveProperty('refreshTokens');
+      expect(result).toHaveProperty('mustChangePassword', false);
+    });
+
+    it('should throw BadRequestException when passwords do not match', async () => {
+      await expect(
+        service.changePassword(1, 'password1', 'password2'),
+      ).rejects.toThrow(new BadRequestException('Les mots de passe ne correspondent pas'));
+    });
+
+    it('should return safeUser with correct fields after updatePasswordAndClearFlag', async () => {
+      const updatedUser: UserEntity = {
+        ...mockUser,
+        mustChangePassword: false,
+        passwordHash: 'hashed',
+      };
+      usersService.updatePasswordAndClearFlag = jest.fn().mockResolvedValue(updatedUser);
+
+      const result = await service.changePassword(1, 'samePass1', 'samePass1');
+
+      expect(result).toEqual(
+        expect.objectContaining({ id: 1, username: 'admin', mustChangePassword: false }),
+      );
+      expect(result).not.toHaveProperty('passwordHash');
+      expect(result).not.toHaveProperty('refreshTokens');
+    });
   });
 
   describe('validateUser', () => {

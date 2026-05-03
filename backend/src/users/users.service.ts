@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity, UserRole } from './user.entity';
@@ -20,6 +20,13 @@ export class UsersService {
 
   async findAdminCount(): Promise<number> {
     return this.userRepository.count({ where: { role: 'admin' } });
+  }
+
+  async updatePasswordAndClearFlag(userId: number, passwordHash: string): Promise<UserEntity> {
+    await this.userRepository.update({ id: userId }, { passwordHash, mustChangePassword: false });
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException();
+    return user;
   }
 
   async createUser(data: {

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Req, Res, UseGuards, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -7,6 +7,7 @@ import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserEntity } from '../users/user.entity';
 
@@ -118,5 +119,17 @@ export class AuthController {
   @ApiOperation({ summary: "Récupérer l'utilisateur courant" })
   async me(@CurrentUser() user: { id: number }) {
     return this.authService.me(user.id);
+  }
+
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  @ApiOperation({ summary: 'Changement de mot de passe temporaire forcé' })
+  async changePassword(
+    @CurrentUser() user: { id: number },
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.id, dto.newPassword, dto.confirmPassword);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -54,6 +54,20 @@ export class AuthService {
     if (!rawToken) return;
     const tokenHash = sha256(rawToken);
     await this.refreshTokenRepository.delete({ token: tokenHash });
+  }
+
+  async changePassword(
+    userId: number,
+    newPassword: string,
+    confirmPassword: string,
+  ): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'>> {
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('Les mots de passe ne correspondent pas');
+    }
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const updatedUser = await this.usersService.updatePasswordAndClearFlag(userId, passwordHash);
+    const { passwordHash: _, refreshTokens: __, ...safeUser } = updatedUser;
+    return safeUser;
   }
 
   async me(userId: number): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'> | null> {
