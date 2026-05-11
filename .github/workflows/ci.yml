@@ -76,3 +76,74 @@ jobs:
 
       - name: Build Angular
         run: npm run build
+
+  e2e:
+    name: E2E — Playwright (Chromium)
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Créer backend/.env pour CI
+        env:
+          ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
+          ADMIN_INITIAL_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        run: |
+          cat > backend/.env <<'ENVFILE'
+          PORT=3000
+          DB_HOST=db
+          DB_PORT=3306
+          DB_USER=ci_user
+          DB_PASSWORD=ci_password
+          DB_NAME=ci_db
+          DB_ROOT_PASSWORD=ci_root_password
+          JWT_SECRET=ci_jwt_secret_minimum_32_chars_long
+          JWT_EXPIRES_IN=15m
+          REFRESH_TOKEN_EXPIRES_IN=7d
+          ENVFILE
+          printf 'ADMIN_USERNAME=%s\n' "$ADMIN_USERNAME" >> backend/.env
+          printf 'ADMIN_INITIAL_PASSWORD=%s\n' "$ADMIN_INITIAL_PASSWORD" >> backend/.env
+
+      - name: Démarrer la stack
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Attendre que le frontend soit prêt
+        run: |
+          timeout 120 bash -c 'until curl -sf http://localhost/ > /dev/null; do sleep 3; done'
+
+      - name: Installer dépendances Playwright
+        working-directory: e2e
+        run: npm ci
+
+      - name: Installer browsers Playwright
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Lancer les tests E2E
+        working-directory: e2e
+        env:
+          BASE_URL: http://localhost
+          E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        run: npx playwright test
+
+      - name: Uploader le rapport Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7
+
+      - name: Arrêter la stack
+        if: always()
+        run: docker compose -f docker-compose.yml down
