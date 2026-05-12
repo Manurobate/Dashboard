@@ -13,6 +13,11 @@ export interface UserListItem {
   updatedAt: string;
 }
 
+export interface CreateUserResponse {
+  user: UserListItem;
+  temporaryPassword: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -33,5 +38,9 @@ export class AdminService {
       }),
       finalize(() => this.isLoading.set(false)),
     );
+  }
+
+  createUser(username: string, name: string): Observable<CreateUserResponse> {
+    return this.http.post<CreateUserResponse>('/api/users', { username, name });
   }
 }

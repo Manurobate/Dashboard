@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConflictException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
@@ -127,6 +128,103 @@ describe('UsersService', () => {
       expect((repo as any).create).toHaveBeenCalledWith({ ...userData, isActive: true });
       expect((repo as any).save).toHaveBeenCalledWith(createdUser);
       expect(result).toEqual(createdUser);
+    });
+
+    it('should create user with optional name', async () => {
+      const userData = {
+        username: 'newuser',
+        name: 'John Doe',
+        passwordHash: 'hashed',
+        role: 'user' as const,
+        mustChangePassword: true,
+      };
+      const createdUser = { ...userData, isActive: true, id: 3 };
+      (repo as any).create.mockReturnValue(createdUser);
+      (repo as any).save.mockResolvedValue(createdUser);
+
+      const result = await service.createUser(userData);
+
+      expect((repo as any).create).toHaveBeenCalledWith({ ...userData, isActive: true });
+      expect(result.name).toBe('John Doe');
+    });
+  });
+
+  describe('createUserWithTempPassword', () => {
+    it('should create a user and return temporaryPassword', async () => {
+      repo.findOne.mockResolvedValue(null);
+      const createdUser = {
+        id: 5,
+        username: 'newuser',
+        name: 'New User',
+        passwordHash: 'hashed',
+        role: 'user' as const,
+        mustChangePassword: true,
+        isActive: true,
+      } as UserEntity;
+      (repo as any).create.mockReturnValue(createdUser);
+      (repo as any).save.mockResolvedValue(createdUser);
+
+      const result = await service.createUserWithTempPassword('newuser', 'New User');
+
+      expect(result.user).toEqual(createdUser);
+      expect(typeof result.temporaryPassword).toBe('string');
+      expect(result.temporaryPassword.length).toBeGreaterThan(0);
+    });
+
+    it('should set mustChangePassword=true and role=user', async () => {
+      repo.findOne.mockResolvedValue(null);
+      const createdUser = {
+        id: 6,
+        username: 'testuser',
+        name: undefined,
+        passwordHash: 'hashed',
+        role: 'user' as const,
+        mustChangePassword: true,
+        isActive: true,
+      } as unknown as UserEntity;
+      (repo as any).create.mockReturnValue(createdUser);
+      (repo as any).save.mockResolvedValue(createdUser);
+
+      const result = await service.createUserWithTempPassword('testuser');
+
+      expect(result.user.mustChangePassword).toBe(true);
+      expect(result.user.role).toBe('user');
+      expect(result.user.isActive).toBe(true);
+    });
+
+    it('should generate a temporary password with base64url encoding (16 chars)', async () => {
+      repo.findOne.mockResolvedValue(null);
+      const createdUser = {
+        id: 7,
+        username: 'passuser',
+        passwordHash: 'hashed',
+        role: 'user' as const,
+        mustChangePassword: true,
+        isActive: true,
+      } as UserEntity;
+      (repo as any).create.mockReturnValue(createdUser);
+      (repo as any).save.mockResolvedValue(createdUser);
+
+      const result = await service.createUserWithTempPassword('passuser');
+
+      // base64url from 12 bytes = 16 chars
+      expect(result.temporaryPassword).toMatch(/^[A-Za-z0-9_-]{16}$/);
+    });
+
+    it('should throw ConflictException when username already exists', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+
+      await expect(
+        service.createUserWithTempPassword('admin'),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw ConflictException with correct message', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+
+      await expect(
+        service.createUserWithTempPassword('admin'),
+      ).rejects.toThrow('Cet identifiant est déjà utilisé');
     });
   });
 

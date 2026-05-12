@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConflictException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
 import { UserListItemDto } from './dto/user-list-item.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 const mockUser: Partial<UserEntity> = {
   id: 1,
@@ -26,7 +28,7 @@ describe('UsersController', () => {
       providers: [
         {
           provide: UsersService,
-          useValue: { findAll: jest.fn() },
+          useValue: { findAll: jest.fn(), createUserWithTempPassword: jest.fn() },
         },
       ],
     }).compile();
@@ -77,6 +79,71 @@ describe('UsersController', () => {
       const result = await controller.findAll();
 
       expect(result[0].name).toBe('');
+    });
+  });
+
+  describe('create', () => {
+    const newUser: Partial<UserEntity> = {
+      id: 2,
+      username: 'newuser',
+      name: 'New User',
+      passwordHash: '$2b$12$hashedtemp',
+      role: 'user',
+      mustChangePassword: true,
+      isActive: true,
+      createdAt: new Date('2026-05-12'),
+      updatedAt: new Date('2026-05-12'),
+    };
+
+    it('should create a user and return CreateUserResponseDto with temporaryPassword', async () => {
+      const tempPassword = 'TempPass1234XY';
+      (usersService as any).createUserWithTempPassword.mockResolvedValue({
+        user: newUser as UserEntity,
+        temporaryPassword: tempPassword,
+      });
+
+      const dto: CreateUserDto = { username: 'newuser', name: 'New User' };
+      const result = await controller.create(dto);
+
+      expect((usersService as any).createUserWithTempPassword).toHaveBeenCalledWith('newuser', 'New User');
+      expect(result.user).toBeInstanceOf(UserListItemDto);
+      expect(result.temporaryPassword).toBe(tempPassword);
+    });
+
+    it('should never include passwordHash in the response', async () => {
+      const tempPassword = 'TempPass1234XY';
+      (usersService as any).createUserWithTempPassword.mockResolvedValue({
+        user: newUser as UserEntity,
+        temporaryPassword: tempPassword,
+      });
+
+      const dto: CreateUserDto = { username: 'newuser' };
+      const result = await controller.create(dto);
+
+      expect((result.user as Record<string, unknown>)['passwordHash']).toBeUndefined();
+    });
+
+    it('should set mustChangePassword=true and role=user in the response', async () => {
+      (usersService as any).createUserWithTempPassword.mockResolvedValue({
+        user: newUser as UserEntity,
+        temporaryPassword: 'somepassword',
+      });
+
+      const dto: CreateUserDto = { username: 'newuser' };
+      const result = await controller.create(dto);
+
+      expect(result.user.mustChangePassword).toBe(true);
+      expect(result.user.role).toBe('user');
+    });
+
+    it('should propagate ConflictException when username already exists', async () => {
+      (usersService as any).createUserWithTempPassword.mockRejectedValue(
+        new ConflictException('Cet identifiant est déjà utilisé'),
+      );
+
+      const dto: CreateUserDto = { username: 'admin' };
+
+      await expect(controller.create(dto)).rejects.toThrow(ConflictException);
     });
   });
 });

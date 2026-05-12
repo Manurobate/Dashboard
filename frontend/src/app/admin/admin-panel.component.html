@@ -1,6 +1,13 @@
 <div class="admin-panel">
   <h1 class="admin-title">Administration — Comptes utilisateurs</h1>
 
+  <div class="admin-actions">
+    <button mat-flat-button color="primary" (click)="openCreateUserDialog()">
+      <mat-icon>person_add</mat-icon>
+      Nouvel utilisateur
+    </button>
+  </div>
+
   @if (adminService.isLoading()) {
     <div class="loading-container">
       <mat-spinner diameter="48" />

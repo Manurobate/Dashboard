@@ -37,11 +37,61 @@ test('AC2 — Utilisateur non authentifié redirigé vers /login', async ({ page
   await expect(page).toHaveURL('/login');
 });
 
-// AC2 (non-admin → /links) sera activé en Story 3.2 quand la création d'utilisateurs est en place
-test.fixme('AC2 — Utilisateur standard redirigé vers /links (requiert Story 3.2)', async ({ page }) => {
-  void page;
-  // Créer un utilisateur via POST /api/users (disponible en Story 3.2)
-  // Se connecter avec cet utilisateur
-  // Naviguer vers /admin
-  // Vérifier redirection vers /links
+test('AC2 — Utilisateur standard redirigé vers /links depuis /admin', async ({ page, request }) => {
+  const loginRes = await request.post('/api/auth/login', {
+    data: { username: adminUsername, password: adminPassword },
+  });
+  expect(loginRes.ok()).toBeTruthy();
+
+  const uniqueUsername = `e2e-standard-user-${Date.now()}`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueUsername, name: 'E2E Standard User' },
+  });
+  expect(createRes.status()).toBe(201);
+  const { temporaryPassword } = await createRes.json();
+
+  await page.goto('/login');
+  await page.fill('input[autocomplete="username"]', uniqueUsername);
+  await page.fill('input[autocomplete="current-password"]', temporaryPassword);
+  await page.click('button[type="submit"]');
+  await page.waitForURL(/\/(change-password)$/);
+
+  await page.fill('input[name="newPassword"]', 'NewSecure@2026');
+  await page.fill('input[name="confirmPassword"]', 'NewSecure@2026');
+  await page.click('button[type="submit"]');
+  await page.waitForURL(/\/links$/);
+
+  await page.goto('/admin');
+  await expect(page).toHaveURL('/links');
+});
+
+test('AC1 — Admin peut créer un utilisateur et voir le mot de passe temporaire', async ({ page }) => {
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  await page.click('button:has-text("Nouvel utilisateur")');
+  await expect(page.locator('mat-dialog-container')).toBeVisible();
+
+  const uniqueUsername = `e2e-new-user-${Date.now()}`;
+  await page.fill('input[formControlName="username"]', uniqueUsername);
+  await page.fill('input[formControlName="name"]', 'Test User');
+  await page.click('button:has-text("Créer")');
+
+  await expect(page.locator('.temp-password-value')).toBeVisible();
+  await expect(page.locator('button[aria-label="Copier le mot de passe"]')).toBeVisible();
+
+  await page.click('button:has-text("Fermer")');
+  await expect(page.locator('[data-testid="user-list"]')).toContainText(uniqueUsername);
+});
+
+test('AC3 — Création avec identifiant existant affiche une erreur inline', async ({ page }) => {
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  await page.click('button:has-text("Nouvel utilisateur")');
+  await page.fill('input[formControlName="username"]', adminUsername!);
+  await page.click('button:has-text("Créer")');
+  await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
+
+  await expect(page.locator('mat-error')).toContainText('déjà utilisé');
 });
