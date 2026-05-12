@@ -36,6 +36,10 @@ export class UsersService {
     return user;
   }
 
+  async findAll(): Promise<UserEntity[]> {
+    return this.userRepository.find();
+  }
+
   async createUser(data: {
     username: string;
     passwordHash: string;

@@ -7,6 +7,7 @@ import { UserEntity } from './user.entity';
 const mockUser: Partial<UserEntity> = {
   id: 1,
   username: 'admin',
+  name: '',
   passwordHash: '$2b$10$hashedpassword',
   role: 'admin',
   mustChangePassword: false,
@@ -24,6 +25,7 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(UserEntity),
           useValue: {
+            find: jest.fn(),
             findOne: jest.fn(),
             count: jest.fn(),
             create: jest.fn(),
@@ -36,6 +38,26 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     repo = module.get(getRepositoryToken(UserEntity));
+  });
+
+  describe('findAll', () => {
+    it('should return all users', async () => {
+      (repo as any).find.mockResolvedValue([mockUser as UserEntity]);
+
+      const result = await service.findAll();
+
+      expect((repo as any).find).toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].username).toBe('admin');
+    });
+
+    it('should return empty array when no users', async () => {
+      (repo as any).find.mockResolvedValue([]);
+
+      const result = await service.findAll();
+
+      expect(result).toHaveLength(0);
+    });
   });
 
   describe('updatePasswordHash', () => {

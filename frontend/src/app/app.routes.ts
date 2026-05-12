@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'links', pathMatch: 'full' },
@@ -34,6 +35,11 @@ export const routes: Routes = [
     path: 'notes',
     canActivate: [authGuard, mustChangePasswordGuard],
     loadComponent: () => import('./notes/notes.component').then(m => m.NotesComponent),
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard, mustChangePasswordGuard, adminGuard],
+    loadComponent: () => import('./admin/admin-panel.component').then(m => m.AdminPanelComponent),
   },
   {
     path: 'share',

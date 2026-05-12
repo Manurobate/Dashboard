@@ -1,0 +1,57 @@
+<div class="admin-panel">
+  <h1 class="admin-title">Administration — Comptes utilisateurs</h1>
+
+  @if (adminService.isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  @if (!adminService.isLoading() && adminService.users().length === 0) {
+    <p class="empty-message">Aucun compte utilisateur trouvé.</p>
+  }
+
+  @if (adminService.users().length > 0) {
+    <table mat-table [dataSource]="adminService.users()" data-testid="user-list" class="user-table mat-elevation-z2">
+      <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef>Identifiant</th>
+        <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nom</th>
+        <td mat-cell *matCellDef="let user">{{ user.name || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Rôle</th>
+        <td mat-cell *matCellDef="let user">
+          <mat-chip [class]="'role-' + user.role">{{ user.role }}</mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let user">
+          @if (user.isActive) {
+            <mat-chip class="badge-active">Actif</mat-chip>
+          } @else {
+            <mat-chip class="badge-inactive">Inactif</mat-chip>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="mustChangePassword">
+        <th mat-header-cell *matHeaderCellDef>Mdp temp.</th>
+        <td mat-cell *matCellDef="let user">
+          @if (user.mustChangePassword) {
+            <mat-chip class="badge-warning">Oui</mat-chip>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>

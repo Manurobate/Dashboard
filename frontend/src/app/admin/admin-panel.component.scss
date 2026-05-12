@@ -1,0 +1,40 @@
+.admin-panel {
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.admin-title {
+  margin-bottom: 1.5rem;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 2rem 0;
+}
+
+.user-table {
+  width: 100%;
+}
+
+.badge-active {
+  --mdc-chip-label-text-color: var(--mat-sys-on-primary);
+  background-color: var(--mat-sys-primary);
+}
+
+.badge-inactive {
+  --mdc-chip-label-text-color: var(--mat-sys-on-error);
+  background-color: var(--mat-sys-error);
+}
+
+.badge-warning {
+  --mdc-chip-label-text-color: var(--mat-sys-on-tertiary);
+  background-color: var(--mat-sys-tertiary);
+}

@@ -27,7 +27,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class TopBarComponent {
   protected readonly themeService = inject(ThemeService);
-  private readonly authService = inject(AuthService);
+  protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   onLogout(): void {
