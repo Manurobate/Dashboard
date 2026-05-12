@@ -4,11 +4,13 @@ import { ForbiddenException, ExecutionContext } from '@nestjs/common';
 import { RolesGuard } from './roles.guard';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
-const buildContext = (role: string) =>
+const buildContext = (role: string | undefined) =>
   ({
     getHandler: () => ({}),
     getClass: () => ({}),
-    switchToHttp: () => ({ getRequest: () => ({ user: { role } }) }),
+    switchToHttp: () => ({
+      getRequest: () => (role !== undefined ? { user: { role } } : {}),
+    }),
   }) as unknown as ExecutionContext;
 
 describe('RolesGuard', () => {
@@ -47,5 +49,10 @@ describe('RolesGuard', () => {
     const ctx = buildContext('admin');
     guard.canActivate(ctx);
     expect(reflector.getAllAndOverride).toHaveBeenCalledWith(ROLES_KEY, expect.any(Array));
+  });
+
+  it('throws ForbiddenException when user is missing from request', () => {
+    reflector.getAllAndOverride.mockReturnValue(['admin']);
+    expect(() => guard.canActivate(buildContext(undefined))).toThrow(ForbiddenException);
   });
 });

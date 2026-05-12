@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
+import { Observable, tap, finalize, catchError, of } from 'rxjs';
 
 export interface UserListItem {
   id: number;
@@ -19,11 +19,18 @@ export class AdminService {
 
   readonly users = signal<UserListItem[]>([]);
   readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
 
   loadUsers(): Observable<UserListItem[]> {
     this.isLoading.set(true);
+    this.users.set([]);
+    this.error.set(null);
     return this.http.get<UserListItem[]>('/api/users').pipe(
       tap(users => this.users.set(users)),
+      catchError(() => {
+        this.error.set('Impossible de charger la liste des utilisateurs.');
+        return of([]);
+      }),
       finalize(() => this.isLoading.set(false)),
     );
   }
