@@ -32,13 +32,8 @@ export class CreateUserDialogComponent {
   readonly genericError = signal(false);
 
   readonly form = this.fb.group({
-    username: ['', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.maxLength(50),
-      Validators.pattern(/^[a-zA-Z0-9_-]+$/),
-    ]],
-    name: ['', [Validators.maxLength(255)]],
+    username: ['', [Validators.required, Validators.email]],
+    name: ['', [Validators.required, Validators.maxLength(255)]],
   });
 
   submit(): void {
@@ -48,7 +43,7 @@ export class CreateUserDialogComponent {
     this.isSubmitting.set(true);
 
     const { username, name } = this.form.value;
-    this.adminService.createUser(username!, name || undefined).subscribe({
+    this.adminService.createUser(username!, name!).subscribe({
       next: (response) => {
         this.tempPassword.set(response.temporaryPassword);
         this.dialogRef.disableClose = true;

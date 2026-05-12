@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,7 +17,7 @@ export class UsersService {
   ) {}
 
   async findByUsername(username: string): Promise<UserEntity | null> {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({ where: { username: username.toLowerCase() } });
   }
 
   async findById(id: number): Promise<UserEntity | null> {
@@ -24,15 +28,24 @@ export class UsersService {
     return this.userRepository.count({ where: { role: 'admin' } });
   }
 
-  async updatePasswordHash(userId: number, passwordHash: string): Promise<UserEntity> {
+  async updatePasswordHash(
+    userId: number,
+    passwordHash: string,
+  ): Promise<UserEntity> {
     await this.userRepository.update({ id: userId }, { passwordHash });
     const user = await this.findById(userId);
     if (!user) throw new NotFoundException();
     return user;
   }
 
-  async updatePasswordAndClearFlag(userId: number, passwordHash: string): Promise<UserEntity> {
-    await this.userRepository.update({ id: userId }, { passwordHash, mustChangePassword: false });
+  async updatePasswordAndClearFlag(
+    userId: number,
+    passwordHash: string,
+  ): Promise<UserEntity> {
+    await this.userRepository.update(
+      { id: userId },
+      { passwordHash, mustChangePassword: false },
+    );
     const user = await this.findById(userId);
     if (!user) throw new NotFoundException();
     return user;
@@ -44,21 +57,22 @@ export class UsersService {
 
   async createUser(data: {
     username: string;
-    name?: string;
+    name: string;
     passwordHash: string;
     role: UserRole;
     mustChangePassword: boolean;
   }): Promise<UserEntity> {
-    const user = this.userRepository.create({ ...data, isActive: true });
+    const user = this.userRepository.create({ ...data, username: data.username.toLowerCase(), isActive: true });
     return this.userRepository.save(user);
   }
 
   async createUserWithTempPassword(
     username: string,
-    name?: string,
+    name: string,
   ): Promise<{ user: UserEntity; temporaryPassword: string }> {
     const existing = await this.findByUsername(username);
-    if (existing) throw new ConflictException('Cet identifiant est déjà utilisé');
+    if (existing)
+      throw new ConflictException('Cette adresse email est déjà utilisée');
 
     const temporaryPassword = crypto.randomBytes(12).toString('base64url');
     const passwordHash = await bcrypt.hash(temporaryPassword, 12);
@@ -73,8 +87,11 @@ export class UsersService {
       });
       return { user, temporaryPassword };
     } catch (err) {
-      if (err instanceof QueryFailedError && (err as any).code === 'ER_DUP_ENTRY') {
-        throw new ConflictException('Cet identifiant est déjà utilisé');
+      if (
+        err instanceof QueryFailedError &&
+        (err as any).code === 'ER_DUP_ENTRY'
+      ) {
+        throw new ConflictException('Cette adresse email est déjà utilisée');
       }
       throw err;
     }

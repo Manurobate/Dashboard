@@ -21,18 +21,26 @@ export class AdminSeedService implements OnApplicationBootstrap {
       }
 
       const username = this.configService.get<string>('ADMIN_USERNAME')!;
-      const rawPassword = this.configService.get<string>('ADMIN_INITIAL_PASSWORD')!;
+      const rawPassword = this.configService.get<string>(
+        'ADMIN_INITIAL_PASSWORD',
+      )!;
       const passwordHash = await bcrypt.hash(rawPassword, 12);
 
       await this.usersService.createUser({
         username,
+        name: username,
         passwordHash,
         role: 'admin',
         mustChangePassword: true,
       });
-      this.logger.log(`Admin account "${username}" created (mustChangePassword=true)`);
+      this.logger.log(
+        `Admin account "${username}" created (mustChangePassword=true)`,
+      );
     } catch (err: unknown) {
-      this.logger.error('Admin seed failed — check DB connection and schema', err);
+      this.logger.error(
+        'Admin seed failed — check DB connection and schema',
+        err,
+      );
     }
   }
 }

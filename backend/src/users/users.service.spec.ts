@@ -7,8 +7,8 @@ import { UserEntity } from './user.entity';
 
 const mockUser: Partial<UserEntity> = {
   id: 1,
-  username: 'admin',
-  name: '',
+  username: 'admin@test.local',
+  name: 'admin@test.local',
   passwordHash: '$2b$10$hashedpassword',
   role: 'admin',
   mustChangePassword: false,
@@ -49,7 +49,7 @@ describe('UsersService', () => {
 
       expect((repo as any).find).toHaveBeenCalled();
       expect(result).toHaveLength(1);
-      expect(result[0].username).toBe('admin');
+      expect(result[0].username).toBe('admin@test.local');
     });
 
     it('should return empty array when no users', async () => {
@@ -63,13 +63,19 @@ describe('UsersService', () => {
 
   describe('updatePasswordHash', () => {
     it('should update passwordHash and return entity', async () => {
-      const updatedUser = { ...mockUser, passwordHash: 'new-hash' } as UserEntity;
+      const updatedUser = {
+        ...mockUser,
+        passwordHash: 'new-hash',
+      } as UserEntity;
       (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
       repo.findOne.mockResolvedValue(updatedUser);
 
       const result = await service.updatePasswordHash(1, 'new-hash');
 
-      expect((repo as any).update).toHaveBeenCalledWith({ id: 1 }, { passwordHash: 'new-hash' });
+      expect((repo as any).update).toHaveBeenCalledWith(
+        { id: 1 },
+        { passwordHash: 'new-hash' },
+      );
       expect(result.passwordHash).toBe('new-hash');
     });
 
@@ -77,7 +83,9 @@ describe('UsersService', () => {
       (repo as any).update = jest.fn().mockResolvedValue({ affected: 0 });
       repo.findOne.mockResolvedValue(null);
 
-      await expect(service.updatePasswordHash(999, 'new-hash')).rejects.toThrow('Not Found');
+      await expect(service.updatePasswordHash(999, 'new-hash')).rejects.toThrow(
+        'Not Found',
+      );
     });
   });
 
@@ -106,7 +114,9 @@ describe('UsersService', () => {
 
       const result = await service.findAdminCount();
 
-      expect((repo as any).count).toHaveBeenCalledWith({ where: { role: 'admin' } });
+      expect((repo as any).count).toHaveBeenCalledWith({
+        where: { role: 'admin' },
+      });
       expect(result).toBe(1);
     });
   });
@@ -114,7 +124,8 @@ describe('UsersService', () => {
   describe('createUser', () => {
     it('should create and save user with isActive=true', async () => {
       const userData = {
-        username: 'newuser',
+        username: 'newuser@test.local',
+        name: 'New User',
         passwordHash: 'hashed',
         role: 'user' as const,
         mustChangePassword: false,
@@ -125,14 +136,17 @@ describe('UsersService', () => {
 
       const result = await service.createUser(userData);
 
-      expect((repo as any).create).toHaveBeenCalledWith({ ...userData, isActive: true });
+      expect((repo as any).create).toHaveBeenCalledWith({
+        ...userData,
+        isActive: true,
+      });
       expect((repo as any).save).toHaveBeenCalledWith(createdUser);
       expect(result).toEqual(createdUser);
     });
 
-    it('should create user with optional name', async () => {
+    it('should create user with name', async () => {
       const userData = {
-        username: 'newuser',
+        username: 'newuser@test.local',
         name: 'John Doe',
         passwordHash: 'hashed',
         role: 'user' as const,
@@ -144,7 +158,10 @@ describe('UsersService', () => {
 
       const result = await service.createUser(userData);
 
-      expect((repo as any).create).toHaveBeenCalledWith({ ...userData, isActive: true });
+      expect((repo as any).create).toHaveBeenCalledWith({
+        ...userData,
+        isActive: true,
+      });
       expect(result.name).toBe('John Doe');
     });
   });
@@ -164,7 +181,10 @@ describe('UsersService', () => {
       (repo as any).create.mockReturnValue(createdUser);
       (repo as any).save.mockResolvedValue(createdUser);
 
-      const result = await service.createUserWithTempPassword('newuser', 'New User');
+      const result = await service.createUserWithTempPassword(
+        'newuser',
+        'New User',
+      );
 
       expect(result.user).toEqual(createdUser);
       expect(typeof result.temporaryPassword).toBe('string');
@@ -175,17 +195,17 @@ describe('UsersService', () => {
       repo.findOne.mockResolvedValue(null);
       const createdUser = {
         id: 6,
-        username: 'testuser',
-        name: undefined,
+        username: 'testuser@test.local',
+        name: 'Test User',
         passwordHash: 'hashed',
         role: 'user' as const,
         mustChangePassword: true,
         isActive: true,
-      } as unknown as UserEntity;
+      } as UserEntity;
       (repo as any).create.mockReturnValue(createdUser);
       (repo as any).save.mockResolvedValue(createdUser);
 
-      const result = await service.createUserWithTempPassword('testuser');
+      const result = await service.createUserWithTempPassword('testuser@test.local', 'Test User');
 
       expect(result.user.mustChangePassword).toBe(true);
       expect(result.user.role).toBe('user');
@@ -196,7 +216,8 @@ describe('UsersService', () => {
       repo.findOne.mockResolvedValue(null);
       const createdUser = {
         id: 7,
-        username: 'passuser',
+        username: 'passuser@test.local',
+        name: 'Pass User',
         passwordHash: 'hashed',
         role: 'user' as const,
         mustChangePassword: true,
@@ -205,7 +226,7 @@ describe('UsersService', () => {
       (repo as any).create.mockReturnValue(createdUser);
       (repo as any).save.mockResolvedValue(createdUser);
 
-      const result = await service.createUserWithTempPassword('passuser');
+      const result = await service.createUserWithTempPassword('passuser@test.local', 'Pass User');
 
       // base64url from 12 bytes = 16 chars
       expect(result.temporaryPassword).toMatch(/^[A-Za-z0-9_-]{16}$/);
@@ -214,17 +235,17 @@ describe('UsersService', () => {
     it('should throw ConflictException when username already exists', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);
 
-      await expect(
-        service.createUserWithTempPassword('admin'),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.createUserWithTempPassword('admin@test.local', 'Admin')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw ConflictException with correct message', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);
 
-      await expect(
-        service.createUserWithTempPassword('admin'),
-      ).rejects.toThrow('Cet identifiant est déjà utilisé');
+      await expect(service.createUserWithTempPassword('admin@test.local', 'Admin')).rejects.toThrow(
+        'Cette adresse email est déjà utilisée',
+      );
     });
   });
 
@@ -232,18 +253,22 @@ describe('UsersService', () => {
     it('should return user when username exists', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);
 
-      const result = await service.findByUsername('admin');
+      const result = await service.findByUsername('admin@test.local');
 
-      expect(repo.findOne).toHaveBeenCalledWith({ where: { username: 'admin' } });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { username: 'admin@test.local' },
+      });
       expect(result).toEqual(mockUser);
     });
 
     it('should return null when username does not exist', async () => {
       repo.findOne.mockResolvedValue(null);
 
-      const result = await service.findByUsername('unknown');
+      const result = await service.findByUsername('unknown@test.local');
 
-      expect(repo.findOne).toHaveBeenCalledWith({ where: { username: 'unknown' } });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { username: 'unknown@test.local' },
+      });
       expect(result).toBeNull();
     });
   });

@@ -6,25 +6,25 @@
   @if (state() === 'form') {
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Identifiant</mat-label>
-        <input matInput formControlName="username" autocomplete="off" />
+        <mat-label>Adresse e-mail</mat-label>
+        <input matInput type="email" formControlName="username" autocomplete="email" />
         @if (form.controls.username.hasError('required') && form.controls.username.touched) {
-          <mat-error>L'identifiant est obligatoire</mat-error>
+          <mat-error>L'adresse e-mail est obligatoire</mat-error>
         }
-        @if (form.controls.username.hasError('minlength')) {
-          <mat-error>Minimum 3 caractères</mat-error>
-        }
-        @if (form.controls.username.hasError('pattern')) {
-          <mat-error>Lettres, chiffres, - et _ uniquement</mat-error>
+        @if (form.controls.username.hasError('email') && !form.controls.username.hasError('required')) {
+          <mat-error>Format d'adresse e-mail invalide</mat-error>
         }
         @if (conflictError()) {
-          <mat-error>Cet identifiant est déjà utilisé</mat-error>
+          <mat-error>Cette adresse e-mail est déjà utilisée</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Nom d'affichage</mat-label>
         <input matInput formControlName="name" autocomplete="off" />
+        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+          <mat-error>Le nom est obligatoire</mat-error>
+        }
       </mat-form-field>
     </form>
     @if (genericError()) {

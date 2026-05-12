@@ -5,6 +5,9 @@ export class CreateUserResponseDto {
   @ApiProperty({ description: 'Données du compte créé' })
   user!: UserListItemDto;
 
-  @ApiProperty({ description: 'Mot de passe temporaire — affiché une seule fois, jamais renvoyé ensuite' })
+  @ApiProperty({
+    description:
+      'Mot de passe temporaire — affiché une seule fois, jamais renvoyé ensuite',
+  })
   temporaryPassword!: string;
 }

@@ -28,7 +28,10 @@ describe('UsersController', () => {
       providers: [
         {
           provide: UsersService,
-          useValue: { findAll: jest.fn(), createUserWithTempPassword: jest.fn() },
+          useValue: {
+            findAll: jest.fn(),
+            createUserWithTempPassword: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -53,7 +56,9 @@ describe('UsersController', () => {
 
       const result = await controller.findAll();
 
-      expect((result[0] as Record<string, unknown>)['passwordHash']).toBeUndefined();
+      expect(
+        (result[0] as Record<string, unknown>)['passwordHash'],
+      ).toBeUndefined();
     });
 
     it('should never include refreshTokens in the response', async () => {
@@ -61,7 +66,9 @@ describe('UsersController', () => {
 
       const result = await controller.findAll();
 
-      expect((result[0] as Record<string, unknown>)['refreshTokens']).toBeUndefined();
+      expect(
+        (result[0] as Record<string, unknown>)['refreshTokens'],
+      ).toBeUndefined();
     });
 
     it('should return empty array when no users', async () => {
@@ -73,7 +80,10 @@ describe('UsersController', () => {
     });
 
     it('should map name to empty string when null', async () => {
-      const userWithNoName = { ...mockUser, name: null } as unknown as UserEntity;
+      const userWithNoName = {
+        ...mockUser,
+        name: null,
+      } as unknown as UserEntity;
       usersService.findAll.mockResolvedValue([userWithNoName]);
 
       const result = await controller.findAll();
@@ -105,7 +115,9 @@ describe('UsersController', () => {
       const dto: CreateUserDto = { username: 'newuser', name: 'New User' };
       const result = await controller.create(dto);
 
-      expect((usersService as any).createUserWithTempPassword).toHaveBeenCalledWith('newuser', 'New User');
+      expect(
+        (usersService as any).createUserWithTempPassword,
+      ).toHaveBeenCalledWith('newuser', 'New User');
       expect(result.user).toBeInstanceOf(UserListItemDto);
       expect(result.temporaryPassword).toBe(tempPassword);
     });
@@ -120,7 +132,9 @@ describe('UsersController', () => {
       const dto: CreateUserDto = { username: 'newuser' };
       const result = await controller.create(dto);
 
-      expect((result.user as Record<string, unknown>)['passwordHash']).toBeUndefined();
+      expect(
+        (result.user as Record<string, unknown>)['passwordHash'],
+      ).toBeUndefined();
     });
 
     it('should set mustChangePassword=true and role=user in the response', async () => {

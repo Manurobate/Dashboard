@@ -41,18 +41,25 @@ describe('RolesGuard', () => {
 
   it('throws ForbiddenException for user when admin role is required', () => {
     reflector.getAllAndOverride.mockReturnValue(['admin']);
-    expect(() => guard.canActivate(buildContext('user'))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(buildContext('user'))).toThrow(
+      ForbiddenException,
+    );
   });
 
   it('verifies reflector uses ROLES_KEY', () => {
     reflector.getAllAndOverride.mockReturnValue(['admin']);
     const ctx = buildContext('admin');
     guard.canActivate(ctx);
-    expect(reflector.getAllAndOverride).toHaveBeenCalledWith(ROLES_KEY, expect.any(Array));
+    expect(reflector.getAllAndOverride).toHaveBeenCalledWith(
+      ROLES_KEY,
+      expect.any(Array),
+    );
   });
 
   it('throws ForbiddenException when user is missing from request', () => {
     reflector.getAllAndOverride.mockReturnValue(['admin']);
-    expect(() => guard.canActivate(buildContext(undefined))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(buildContext(undefined))).toThrow(
+      ForbiddenException,
+    );
   });
 });

@@ -47,15 +47,10 @@ import { CsrfMiddleware } from './common/middleware/csrf.middleware';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(CsrfMiddleware)
-      .forRoutes('*');
+    consumer.apply(CsrfMiddleware).forRoutes('*');
   }
 }

@@ -10,7 +10,7 @@ if (!username || !password) {
 test('smoke — connexion admin redirige vers /links ou /change-password', async ({ page }) => {
 
   await page.goto('/login');
-  await page.fill('input[autocomplete="username"]', username);
+  await page.fill('input[autocomplete="email"]', username);
   await page.fill('input[autocomplete="current-password"]', password);
   await page.click('button[type="submit"]');
 

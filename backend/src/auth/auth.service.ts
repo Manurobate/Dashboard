@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -23,14 +27,19 @@ export class AuthService {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<UserEntity | null> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<UserEntity | null> {
     const user = await this.usersService.findByUsername(username);
     if (!user || !user.isActive) return null;
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     return isMatch ? user : null;
   }
 
-  async login(user: UserEntity): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(
+    user: UserEntity,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = { sub: user.id, username: user.username, role: user.role };
     const accessToken = this.jwtService.sign(payload);
 
@@ -38,7 +47,8 @@ export class AuthService {
     const tokenHash = sha256(rawRefreshToken);
     const expiresAt = new Date();
     expiresAt.setDate(
-      expiresAt.getDate() + this.configService.get<number>('REFRESH_TOKEN_EXPIRY_DAYS', 30),
+      expiresAt.getDate() +
+        this.configService.get<number>('REFRESH_TOKEN_EXPIRY_DAYS', 30),
     );
 
     await this.refreshTokenRepository.save({
@@ -65,7 +75,10 @@ export class AuthService {
       throw new BadRequestException('Les mots de passe ne correspondent pas');
     }
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    const updatedUser = await this.usersService.updatePasswordAndClearFlag(userId, passwordHash);
+    const updatedUser = await this.usersService.updatePasswordAndClearFlag(
+      userId,
+      passwordHash,
+    );
     const { passwordHash: _, refreshTokens: __, ...safeUser } = updatedUser;
     return safeUser;
   }
@@ -84,20 +97,28 @@ export class AuthService {
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
-    if (!isMatch) throw new UnauthorizedException('Mot de passe actuel incorrect');
+    if (!isMatch)
+      throw new UnauthorizedException('Mot de passe actuel incorrect');
 
     if (newPassword === currentPassword) {
-      throw new BadRequestException('Le nouveau mot de passe doit être différent du mot de passe actuel');
+      throw new BadRequestException(
+        'Le nouveau mot de passe doit être différent du mot de passe actuel',
+      );
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    const updatedUser = await this.usersService.updatePasswordHash(userId, passwordHash);
+    const updatedUser = await this.usersService.updatePasswordHash(
+      userId,
+      passwordHash,
+    );
     await this.refreshTokenRepository.delete({ userId });
     const { passwordHash: _, refreshTokens: __, ...safeUser } = updatedUser;
     return safeUser;
   }
 
-  async me(userId: number): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'> | null> {
+  async me(
+    userId: number,
+  ): Promise<Omit<UserEntity, 'passwordHash' | 'refreshTokens'> | null> {
     const user = await this.usersService.findById(userId);
     if (!user) return null;
     const { passwordHash: _, refreshTokens: __, ...safeUser } = user;
@@ -120,7 +141,11 @@ export class AuthService {
     }
 
     if (tokenRecord.expiresAt < new Date()) {
-      try { await this.refreshTokenRepository.delete(tokenRecord.id); } catch { /* best effort */ }
+      try {
+        await this.refreshTokenRepository.delete(tokenRecord.id);
+      } catch {
+        /* best effort */
+      }
       throw new UnauthorizedException();
     }
 

@@ -23,10 +23,17 @@ const mockUser: UserEntity = {
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: jest.Mocked<UsersService> & { updatePasswordAndClearFlag: jest.Mock; updatePasswordHash: jest.Mock };
+  let usersService: jest.Mocked<UsersService> & {
+    updatePasswordAndClearFlag: jest.Mock;
+    updatePasswordHash: jest.Mock;
+  };
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
-  let refreshTokenRepo: { save: jest.Mock; findOne: jest.Mock; delete: jest.Mock };
+  let refreshTokenRepo: {
+    save: jest.Mock;
+    findOne: jest.Mock;
+    delete: jest.Mock;
+  };
 
   beforeEach(async () => {
     const hashedPassword = await bcrypt.hash('password123', 10);
@@ -50,7 +57,11 @@ describe('AuthService', () => {
         },
         {
           provide: ConfigService,
-          useValue: { get: jest.fn().mockImplementation((key: string, def?: unknown) => def) },
+          useValue: {
+            get: jest
+              .fn()
+              .mockImplementation((key: string, def?: unknown) => def),
+          },
         },
         {
           provide: getRepositoryToken(RefreshTokenEntity),
@@ -77,11 +88,18 @@ describe('AuthService', () => {
         mustChangePassword: false,
         passwordHash: 'new-hash',
       };
-      usersService.updatePasswordAndClearFlag = jest.fn().mockResolvedValue(updatedUser);
+      usersService.updatePasswordAndClearFlag = jest
+        .fn()
+        .mockResolvedValue(updatedUser);
 
-      const result = await service.changePassword(1, 'newPassword1', 'newPassword1');
+      const result = await service.changePassword(
+        1,
+        'newPassword1',
+        'newPassword1',
+      );
 
-      const callArgs = (usersService.updatePasswordAndClearFlag as jest.Mock).mock.calls[0];
+      const callArgs = (usersService.updatePasswordAndClearFlag as jest.Mock)
+        .mock.calls[0];
       const storedHash = callArgs[1] as string;
       const isHashValid = await bcrypt.compare('newPassword1', storedHash);
       expect(isHashValid).toBe(true);
@@ -97,7 +115,9 @@ describe('AuthService', () => {
     it('should throw BadRequestException when passwords do not match', async () => {
       await expect(
         service.changePassword(1, 'password1', 'password2'),
-      ).rejects.toThrow(new BadRequestException('Les mots de passe ne correspondent pas'));
+      ).rejects.toThrow(
+        new BadRequestException('Les mots de passe ne correspondent pas'),
+      );
     });
 
     it('should return safeUser with correct fields after updatePasswordAndClearFlag', async () => {
@@ -106,12 +126,18 @@ describe('AuthService', () => {
         mustChangePassword: false,
         passwordHash: 'hashed',
       };
-      usersService.updatePasswordAndClearFlag = jest.fn().mockResolvedValue(updatedUser);
+      usersService.updatePasswordAndClearFlag = jest
+        .fn()
+        .mockResolvedValue(updatedUser);
 
       const result = await service.changePassword(1, 'samePass1', 'samePass1');
 
       expect(result).toEqual(
-        expect.objectContaining({ id: 1, username: 'admin', mustChangePassword: false }),
+        expect.objectContaining({
+          id: 1,
+          username: 'admin',
+          mustChangePassword: false,
+        }),
       );
       expect(result).not.toHaveProperty('passwordHash');
       expect(result).not.toHaveProperty('refreshTokens');
@@ -123,14 +149,25 @@ describe('AuthService', () => {
       const userWithPwd = { ...mockUser, mustChangePassword: false };
       const hashedPwd = await bcrypt.hash('currentPass1', 10);
       userWithPwd.passwordHash = hashedPwd;
-      usersService.findById.mockResolvedValue(userWithPwd as UserEntity);
+      usersService.findById.mockResolvedValue(userWithPwd);
 
-      const updatedUser: UserEntity = { ...userWithPwd, passwordHash: 'new-hash' };
-      usersService.updatePasswordHash = jest.fn().mockResolvedValue(updatedUser);
+      const updatedUser: UserEntity = {
+        ...userWithPwd,
+        passwordHash: 'new-hash',
+      };
+      usersService.updatePasswordHash = jest
+        .fn()
+        .mockResolvedValue(updatedUser);
 
-      const result = await service.updatePassword(1, 'currentPass1', 'newPass123', 'newPass123');
+      const result = await service.updatePassword(
+        1,
+        'currentPass1',
+        'newPass123',
+        'newPass123',
+      );
 
-      const callArgs = (usersService.updatePasswordHash as jest.Mock).mock.calls[0];
+      const callArgs = (usersService.updatePasswordHash as jest.Mock).mock
+        .calls[0];
       const storedHash = callArgs[1] as string;
       const isValid = await bcrypt.compare('newPass123', storedHash);
       expect(isValid).toBe(true);
@@ -158,16 +195,30 @@ describe('AuthService', () => {
 
       await expect(
         service.updatePassword(1, 'password123', 'newPass123', 'differentPass'),
-      ).rejects.toThrow(new BadRequestException('Les mots de passe ne correspondent pas'));
+      ).rejects.toThrow(
+        new BadRequestException('Les mots de passe ne correspondent pas'),
+      );
     });
 
     it('should throw BadRequestException when new password equals current password', async () => {
       const hashedCurrentPass = await bcrypt.hash('currentPass1', 10);
-      usersService.findById.mockResolvedValue({ ...mockUser, passwordHash: hashedCurrentPass } as UserEntity);
+      usersService.findById.mockResolvedValue({
+        ...mockUser,
+        passwordHash: hashedCurrentPass,
+      });
 
       await expect(
-        service.updatePassword(1, 'currentPass1', 'currentPass1', 'currentPass1'),
-      ).rejects.toThrow(new BadRequestException('Le nouveau mot de passe doit être différent du mot de passe actuel'));
+        service.updatePassword(
+          1,
+          'currentPass1',
+          'currentPass1',
+          'currentPass1',
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Le nouveau mot de passe doit être différent du mot de passe actuel',
+        ),
+      );
     });
 
     it('should throw UnauthorizedException when userId not found', async () => {
@@ -198,7 +249,7 @@ describe('AuthService', () => {
 
     it('should return null when user is inactive', async () => {
       const inactiveUser = { ...mockUser, isActive: false };
-      usersService.findByUsername.mockResolvedValue(inactiveUser as UserEntity);
+      usersService.findByUsername.mockResolvedValue(inactiveUser);
 
       const result = await service.validateUser('admin', 'password123');
 
@@ -273,12 +324,16 @@ describe('AuthService', () => {
 
       await service.logout(rawToken);
 
-      const deletedHash = (refreshTokenRepo.delete.mock.calls[0][0] as { token: string }).token;
+      const deletedHash = (
+        refreshTokenRepo.delete.mock.calls[0][0] as { token: string }
+      ).token;
       expect(deletedHash).toMatch(/^[a-f0-9]{64}$/);
 
       refreshTokenRepo.delete.mockClear();
       await service.logout('b'.repeat(64));
-      const secondHash = (refreshTokenRepo.delete.mock.calls[0][0] as { token: string }).token;
+      const secondHash = (
+        refreshTokenRepo.delete.mock.calls[0][0] as { token: string }
+      ).token;
       expect(secondHash).toMatch(/^[a-f0-9]{64}$/);
       expect(secondHash).not.toBe(deletedHash);
     });
@@ -296,7 +351,12 @@ describe('AuthService', () => {
     const rawToken = 'a'.repeat(64);
 
     it('should return new tokens and user on valid token with rotation', async () => {
-      refreshTokenRepo.findOne.mockResolvedValue({ id: 10, token: 'hashed', userId: 1, expiresAt: futureDate });
+      refreshTokenRepo.findOne.mockResolvedValue({
+        id: 10,
+        token: 'hashed',
+        userId: 1,
+        expiresAt: futureDate,
+      });
       usersService.findById.mockResolvedValue(mockUser);
 
       const result = await service.refresh(rawToken);
@@ -309,23 +369,42 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when token is expired and clean it up', async () => {
-      refreshTokenRepo.findOne.mockResolvedValue({ id: 11, token: 'hashed', userId: 1, expiresAt: expiredDate });
+      refreshTokenRepo.findOne.mockResolvedValue({
+        id: 11,
+        token: 'hashed',
+        userId: 1,
+        expiresAt: expiredDate,
+      });
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(refreshTokenRepo.delete).toHaveBeenCalledWith(11);
     });
 
     it('should throw UnauthorizedException when token is not found', async () => {
       refreshTokenRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when user is inactive', async () => {
-      refreshTokenRepo.findOne.mockResolvedValue({ id: 12, token: 'hashed', userId: 1, expiresAt: futureDate });
-      usersService.findById.mockResolvedValue({ ...mockUser, isActive: false } as UserEntity);
+      refreshTokenRepo.findOne.mockResolvedValue({
+        id: 12,
+        token: 'hashed',
+        userId: 1,
+        expiresAt: futureDate,
+      });
+      usersService.findById.mockResolvedValue({
+        ...mockUser,
+        isActive: false,
+      });
 
-      await expect(service.refresh(rawToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(rawToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

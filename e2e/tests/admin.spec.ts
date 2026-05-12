@@ -9,7 +9,7 @@ if (!adminUsername || !adminPassword) {
 
 async function loginAdmin(page: Page): Promise<void> {
   await page.goto('/login');
-  await page.fill('input[autocomplete="username"]', adminUsername!);
+  await page.fill('input[autocomplete="email"]', adminUsername!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(links|change-password)$/);
@@ -43,15 +43,15 @@ test('AC2 — Utilisateur standard redirigé vers /links depuis /admin', async (
   });
   expect(loginRes.ok()).toBeTruthy();
 
-  const uniqueUsername = `e2e-standard-user-${Date.now()}`;
+  const uniqueEmail = `e2e-standard-${Date.now()}@test.local`;
   const createRes = await request.post('/api/users', {
-    data: { username: uniqueUsername, name: 'E2E Standard User' },
+    data: { username: uniqueEmail, name: 'E2E Standard User' },
   });
   expect(createRes.status()).toBe(201);
   const { temporaryPassword } = await createRes.json();
 
   await page.goto('/login');
-  await page.fill('input[autocomplete="username"]', uniqueUsername);
+  await page.fill('input[autocomplete="email"]', uniqueEmail);
   await page.fill('input[autocomplete="current-password"]', temporaryPassword);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(change-password)$/);
@@ -72,8 +72,8 @@ test('AC1 — Admin peut créer un utilisateur et voir le mot de passe temporair
   await page.click('button:has-text("Nouvel utilisateur")');
   await expect(page.locator('mat-dialog-container')).toBeVisible();
 
-  const uniqueUsername = `e2e-new-user-${Date.now()}`;
-  await page.fill('input[formControlName="username"]', uniqueUsername);
+  const uniqueEmail = `e2e-new-${Date.now()}@test.local`;
+  await page.fill('input[formControlName="username"]', uniqueEmail);
   await page.fill('input[formControlName="name"]', 'Test User');
   await page.click('button:has-text("Créer")');
 
@@ -81,17 +81,18 @@ test('AC1 — Admin peut créer un utilisateur et voir le mot de passe temporair
   await expect(page.locator('button[aria-label="Copier le mot de passe"]')).toBeVisible();
 
   await page.click('button:has-text("Fermer")');
-  await expect(page.locator('[data-testid="user-list"]')).toContainText(uniqueUsername);
+  await expect(page.locator('[data-testid="user-list"]')).toContainText(uniqueEmail);
 });
 
-test('AC3 — Création avec identifiant existant affiche une erreur inline', async ({ page }) => {
+test('AC3 — Création avec email existant affiche une erreur inline', async ({ page }) => {
   await loginAdmin(page);
   await page.goto('/admin');
 
   await page.click('button:has-text("Nouvel utilisateur")');
   await page.fill('input[formControlName="username"]', adminUsername!);
+  await page.fill('input[formControlName="name"]', 'Doublon');
   await page.click('button:has-text("Créer")');
   await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
 
-  await expect(page.locator('mat-error')).toContainText('déjà utilisé');
+  await expect(page.locator('mat-error')).toContainText('déjà utilisée');
 });

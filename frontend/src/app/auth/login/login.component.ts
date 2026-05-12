@@ -29,7 +29,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
   readonly isLoading = signal(false);
@@ -56,7 +56,7 @@ export class LoginComponent {
       if (status === 429) {
         this.errorMessage.set('Trop de tentatives, réessaie dans quelques instants');
       } else {
-        this.errorMessage.set('Identifiant ou mot de passe incorrect');
+        this.errorMessage.set('Email ou mot de passe incorrect');
       }
     } finally {
       this.isLoading.set(false);

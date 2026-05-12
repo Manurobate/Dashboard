@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -52,10 +64,15 @@ export class AuthController {
     @Req() req: Request & { user: UserEntity },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.authService.login(req.user);
+    const { accessToken, refreshToken } = await this.authService.login(
+      req.user,
+    );
 
     const jwtExpiry = this.configService.get<string>('JWT_EXPIRY', '15m');
-    const refreshDays = this.configService.get<number>('REFRESH_TOKEN_EXPIRY_DAYS', 30);
+    const refreshDays = this.configService.get<number>(
+      'REFRESH_TOKEN_EXPIRY_DAYS',
+      30,
+    );
 
     res.cookie('jwt', accessToken, {
       ...COOKIE_OPTIONS,
@@ -74,7 +91,9 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   @SkipThrottle()
-  @ApiOperation({ summary: 'Rafraîchissement silencieux du JWT via cookie refresh_token' })
+  @ApiOperation({
+    summary: 'Rafraîchissement silencieux du JWT via cookie refresh_token',
+  })
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -84,10 +103,14 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    const { accessToken, refreshToken, user } = await this.authService.refresh(rawToken);
+    const { accessToken, refreshToken, user } =
+      await this.authService.refresh(rawToken);
 
     const jwtExpiry = this.configService.get<string>('JWT_EXPIRY', '15m');
-    const refreshDays = this.configService.get<number>('REFRESH_TOKEN_EXPIRY_DAYS', 30);
+    const refreshDays = this.configService.get<number>(
+      'REFRESH_TOKEN_EXPIRY_DAYS',
+      30,
+    );
 
     res.cookie('jwt', accessToken, {
       ...COOKIE_OPTIONS,
@@ -104,7 +127,9 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Déconnexion — invalide le refresh token et efface les cookies' })
+  @ApiOperation({
+    summary: 'Déconnexion — invalide le refresh token et efface les cookies',
+  })
   async logout(
     @Req() req: Request & { cookies: Record<string, string> },
     @Res({ passthrough: true }) res: Response,
@@ -131,7 +156,11 @@ export class AuthController {
     @CurrentUser() user: { id: number },
     @Body() dto: ChangePasswordDto,
   ) {
-    return this.authService.changePassword(user.id, dto.newPassword, dto.confirmPassword);
+    return this.authService.changePassword(
+      user.id,
+      dto.newPassword,
+      dto.confirmPassword,
+    );
   }
 
   @Patch('update-password')
@@ -143,6 +172,11 @@ export class AuthController {
     @CurrentUser() user: { id: number },
     @Body() dto: UpdatePasswordDto,
   ) {
-    return this.authService.updatePassword(user.id, dto.currentPassword, dto.newPassword, dto.confirmPassword);
+    return this.authService.updatePassword(
+      user.id,
+      dto.currentPassword,
+      dto.newPassword,
+      dto.confirmPassword,
+    );
   }
 }
