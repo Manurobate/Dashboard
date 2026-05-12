@@ -1,23 +1,29 @@
 import {
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { UserEntity, UserRole } from './user.entity';
+import { RefreshTokenEntity } from '../auth/entities/refresh-token.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
   async findByUsername(username: string): Promise<UserEntity | null> {
-    return this.userRepository.findOne({ where: { username: username.toLowerCase() } });
+    return this.userRepository.findOne({
+      where: { username: username.toLowerCase() },
+    });
   }
 
   async findById(id: number): Promise<UserEntity | null> {
@@ -62,8 +68,32 @@ export class UsersService {
     role: UserRole;
     mustChangePassword: boolean;
   }): Promise<UserEntity> {
-    const user = this.userRepository.create({ ...data, username: data.username.toLowerCase(), isActive: true });
+    const user = this.userRepository.create({
+      ...data,
+      username: data.username.toLowerCase(),
+      isActive: true,
+    });
     return this.userRepository.save(user);
+  }
+
+  async resetPasswordByAdmin(userId: number): Promise<string> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException(`Utilisateur ${userId} introuvable`);
+    if (user.role === 'admin')
+      throw new ForbiddenException(
+        "Impossible de réinitialiser le mot de passe d'un administrateur",
+      );
+
+    const temporaryPassword = crypto.randomBytes(12).toString('base64url');
+    const passwordHash = await bcrypt.hash(temporaryPassword, 12);
+
+    await this.userRepository.update(
+      { id: userId },
+      { passwordHash, mustChangePassword: true },
+    );
+    await this.refreshTokenRepository.delete({ userId });
+
+    return temporaryPassword;
   }
 
   async createUserWithTempPassword(

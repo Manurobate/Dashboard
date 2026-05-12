@@ -18,6 +18,10 @@ export interface CreateUserResponse {
   temporaryPassword: string;
 }
 
+export interface ResetPasswordResponse {
+  temporaryPassword: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -42,5 +46,9 @@ export class AdminService {
 
   createUser(username: string, name: string): Observable<CreateUserResponse> {
     return this.http.post<CreateUserResponse>('/api/users', { username, name });
+  }
+
+  resetPassword(userId: number): Observable<ResetPasswordResponse> {
+    return this.http.patch<ResetPasswordResponse>(`/api/users/${userId}/reset-password`, {});
   }
 }

@@ -2,7 +2,10 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
+  Param,
+  ParseIntPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -16,6 +19,7 @@ import { UsersService } from './users.service';
 import { UserListItemDto } from './dto/user-list-item.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUserResponseDto } from './dto/create-user-response.dto';
+import { ResetPasswordResponseDto } from './dto/reset-password-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -36,6 +40,26 @@ export class UsersController {
   async findAll(): Promise<UserListItemDto[]> {
     const users = await this.usersService.findAll();
     return users.map((u) => new UserListItemDto(u));
+  }
+
+  @Patch(':id/reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      "Réinitialiser le mot de passe d'un utilisateur (génère un nouveau mot de passe temporaire)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nouveau mot de passe temporaire — retourné une seule fois',
+    type: ResetPasswordResponseDto,
+  })
+  @ApiResponse({ status: 403, description: 'Impossible de réinitialiser le mot de passe d\'un administrateur' })
+  @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
+  async resetPassword(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ResetPasswordResponseDto> {
+    const temporaryPassword = await this.usersService.resetPasswordByAdmin(id);
+    return { temporaryPassword };
   }
 
   @Post()

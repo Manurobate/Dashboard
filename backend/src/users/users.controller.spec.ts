@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
@@ -31,6 +31,7 @@ describe('UsersController', () => {
           useValue: {
             findAll: jest.fn(),
             createUserWithTempPassword: jest.fn(),
+            resetPasswordByAdmin: jest.fn(),
           },
         },
       ],
@@ -89,6 +90,30 @@ describe('UsersController', () => {
       const result = await controller.findAll();
 
       expect(result[0].name).toBe('');
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('retourne 200 avec temporaryPassword', async () => {
+      const tempPwd = 'TempAbcDef1234';
+      (usersService as any).resetPasswordByAdmin.mockResolvedValue(tempPwd);
+
+      const result = await controller.resetPassword(1);
+
+      expect((usersService as any).resetPasswordByAdmin).toHaveBeenCalledWith(
+        1,
+      );
+      expect(result.temporaryPassword).toBe(tempPwd);
+    });
+
+    it('retourne 404 si userId inconnu', async () => {
+      (usersService as any).resetPasswordByAdmin.mockRejectedValue(
+        new NotFoundException('Utilisateur 999 introuvable'),
+      );
+
+      await expect(controller.resetPassword(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

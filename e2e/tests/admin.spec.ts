@@ -96,3 +96,63 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
 
   await expect(page.locator('mat-error')).toContainText('déjà utilisée');
 });
+
+test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {
+  const loginRes = await request.post('/api/auth/login', {
+    data: { username: adminUsername, password: adminPassword },
+  });
+  expect(loginRes.ok()).toBeTruthy();
+
+  const uniqueEmail = `e2e-reset-${Date.now()}@test.local`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueEmail, name: 'E2E Reset User' },
+  });
+  expect(createRes.status()).toBe(201);
+
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  const row = page.locator('tr', { hasText: uniqueEmail });
+  await row.locator('button[aria-label="Réinitialiser le mot de passe"]').click();
+
+  await expect(page.locator('mat-dialog-container')).toBeVisible();
+  await expect(page.locator('mat-dialog-container')).toContainText(uniqueEmail);
+
+  await page.click('button:has-text("Réinitialiser")');
+  await page.waitForResponse(resp => resp.url().includes('/reset-password') && resp.status() === 200);
+
+  await expect(page.locator('.temp-password-value')).toBeVisible();
+  await expect(page.locator('button[aria-label="Copier le mot de passe"]')).toBeVisible();
+
+  await page.click('button:has-text("Fermer")');
+  await expect(page.locator('mat-dialog-container')).not.toBeVisible();
+});
+
+test('Reset password — L\'utilisateur peut se connecter avec le nouveau mot de passe temporaire', async ({ page, request }) => {
+  const loginRes = await request.post('/api/auth/login', {
+    data: { username: adminUsername, password: adminPassword },
+  });
+  expect(loginRes.ok()).toBeTruthy();
+
+  const uniqueEmail = `e2e-reset-login-${Date.now()}@test.local`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueEmail, name: 'E2E Reset Login User' },
+  });
+  expect(createRes.status()).toBe(201);
+
+  const usersRes = await request.get('/api/users');
+  const users = await usersRes.json();
+  const targetUser = users.find((u: { username: string }) => u.username === uniqueEmail);
+  expect(targetUser).toBeDefined();
+
+  const resetRes = await request.patch(`/api/users/${targetUser.id}/reset-password`);
+  expect(resetRes.status()).toBe(200);
+  const { temporaryPassword: newTempPwd } = await resetRes.json();
+
+  await page.goto('/login');
+  await page.fill('input[autocomplete="email"]', uniqueEmail);
+  await page.fill('input[autocomplete="current-password"]', newTempPwd);
+  await page.click('button[type="submit"]');
+  await page.waitForURL(/\/change-password$/);
+  await expect(page).toHaveURL('/change-password');
+});

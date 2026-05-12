@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
+import { RefreshTokenEntity } from '../auth/entities/refresh-token.entity';
 
 const mockUser: Partial<UserEntity> = {
   id: 1,
@@ -18,6 +19,7 @@ const mockUser: Partial<UserEntity> = {
 describe('UsersService', () => {
   let service: UsersService;
   let repo: jest.Mocked<Repository<UserEntity>>;
+  let refreshTokenRepo: jest.Mocked<Repository<RefreshTokenEntity>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,11 +36,18 @@ describe('UsersService', () => {
             update: jest.fn(),
           },
         },
+        {
+          provide: getRepositoryToken(RefreshTokenEntity),
+          useValue: {
+            delete: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
     repo = module.get(getRepositoryToken(UserEntity));
+    refreshTokenRepo = module.get(getRepositoryToken(RefreshTokenEntity));
   });
 
   describe('findAll', () => {
@@ -205,7 +214,10 @@ describe('UsersService', () => {
       (repo as any).create.mockReturnValue(createdUser);
       (repo as any).save.mockResolvedValue(createdUser);
 
-      const result = await service.createUserWithTempPassword('testuser@test.local', 'Test User');
+      const result = await service.createUserWithTempPassword(
+        'testuser@test.local',
+        'Test User',
+      );
 
       expect(result.user.mustChangePassword).toBe(true);
       expect(result.user.role).toBe('user');
@@ -226,7 +238,10 @@ describe('UsersService', () => {
       (repo as any).create.mockReturnValue(createdUser);
       (repo as any).save.mockResolvedValue(createdUser);
 
-      const result = await service.createUserWithTempPassword('passuser@test.local', 'Pass User');
+      const result = await service.createUserWithTempPassword(
+        'passuser@test.local',
+        'Pass User',
+      );
 
       // base64url from 12 bytes = 16 chars
       expect(result.temporaryPassword).toMatch(/^[A-Za-z0-9_-]{16}$/);
@@ -235,16 +250,84 @@ describe('UsersService', () => {
     it('should throw ConflictException when username already exists', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);
 
-      await expect(service.createUserWithTempPassword('admin@test.local', 'Admin')).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(
+        service.createUserWithTempPassword('admin@test.local', 'Admin'),
+      ).rejects.toThrow(ConflictException);
     });
 
     it('should throw ConflictException with correct message', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);
 
-      await expect(service.createUserWithTempPassword('admin@test.local', 'Admin')).rejects.toThrow(
-        'Cette adresse email est déjà utilisée',
+      await expect(
+        service.createUserWithTempPassword('admin@test.local', 'Admin'),
+      ).rejects.toThrow('Cette adresse email est déjà utilisée');
+    });
+  });
+
+  describe('resetPasswordByAdmin', () => {
+    it('génère un mot de passe temporaire et met à jour le hash', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 2 });
+
+      const result = await service.resetPasswordByAdmin(1);
+
+      expect(typeof result).toBe('string');
+      expect(result.length).toBeGreaterThan(0);
+      expect((repo as any).update).toHaveBeenCalledWith(
+        { id: 1 },
+        expect.objectContaining({ mustChangePassword: true }),
+      );
+    });
+
+    it('passe mustChangePassword à true', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      const updateMock = jest.fn().mockResolvedValue({ affected: 1 });
+      (repo as any).update = updateMock;
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
+
+      await service.resetPasswordByAdmin(1);
+
+      expect(updateMock).toHaveBeenCalledWith(
+        { id: 1 },
+        expect.objectContaining({ mustChangePassword: true }),
+      );
+    });
+
+    it("invalide tous les refresh tokens de l'utilisateur", async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      const deleteMock = jest.fn().mockResolvedValue({ affected: 3 });
+      (refreshTokenRepo as any).delete = deleteMock;
+
+      await service.resetPasswordByAdmin(1);
+
+      expect(deleteMock).toHaveBeenCalledWith({ userId: 1 });
+    });
+
+    it('génère un mot de passe avec encodage base64url (16 chars)', async () => {
+      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
+
+      const result = await service.resetPasswordByAdmin(1);
+
+      expect(result).toMatch(/^[A-Za-z0-9_-]{16}$/);
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.resetPasswordByAdmin(999)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('lance ForbiddenException si la cible est un administrateur', async () => {
+      repo.findOne.mockResolvedValue({ ...mockUser, role: 'admin' } as UserEntity);
+
+      await expect(service.resetPasswordByAdmin(1)).rejects.toThrow(
+        ForbiddenException,
       );
     });
   });
