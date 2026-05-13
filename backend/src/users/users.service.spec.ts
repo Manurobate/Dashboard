@@ -34,6 +34,7 @@ describe('UsersService', () => {
             create: jest.fn(),
             save: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
           },
         },
         {
@@ -265,52 +266,62 @@ describe('UsersService', () => {
   });
 
   describe('resetPasswordByAdmin', () => {
+    const mockRegularUser: Partial<UserEntity> = {
+      id: 2,
+      username: 'user@test.local',
+      name: 'Regular User',
+      passwordHash: '$2b$10$hashedpassword',
+      role: 'user',
+      mustChangePassword: false,
+      isActive: true,
+    };
+
     it('génère un mot de passe temporaire et met à jour le hash', async () => {
-      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      repo.findOne.mockResolvedValue(mockRegularUser as UserEntity);
       (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
       (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 2 });
 
-      const result = await service.resetPasswordByAdmin(1);
+      const result = await service.resetPasswordByAdmin(2);
 
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
       expect((repo as any).update).toHaveBeenCalledWith(
-        { id: 1 },
+        { id: 2 },
         expect.objectContaining({ mustChangePassword: true }),
       );
     });
 
     it('passe mustChangePassword à true', async () => {
-      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      repo.findOne.mockResolvedValue(mockRegularUser as UserEntity);
       const updateMock = jest.fn().mockResolvedValue({ affected: 1 });
       (repo as any).update = updateMock;
       (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
 
-      await service.resetPasswordByAdmin(1);
+      await service.resetPasswordByAdmin(2);
 
       expect(updateMock).toHaveBeenCalledWith(
-        { id: 1 },
+        { id: 2 },
         expect.objectContaining({ mustChangePassword: true }),
       );
     });
 
     it("invalide tous les refresh tokens de l'utilisateur", async () => {
-      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      repo.findOne.mockResolvedValue(mockRegularUser as UserEntity);
       (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
       const deleteMock = jest.fn().mockResolvedValue({ affected: 3 });
       (refreshTokenRepo as any).delete = deleteMock;
 
-      await service.resetPasswordByAdmin(1);
+      await service.resetPasswordByAdmin(2);
 
-      expect(deleteMock).toHaveBeenCalledWith({ userId: 1 });
+      expect(deleteMock).toHaveBeenCalledWith({ userId: 2 });
     });
 
     it('génère un mot de passe avec encodage base64url (16 chars)', async () => {
-      repo.findOne.mockResolvedValue(mockUser as UserEntity);
+      repo.findOne.mockResolvedValue(mockRegularUser as UserEntity);
       (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
       (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
 
-      const result = await service.resetPasswordByAdmin(1);
+      const result = await service.resetPasswordByAdmin(2);
 
       expect(result).toMatch(/^[A-Za-z0-9_-]{16}$/);
     });
@@ -329,6 +340,140 @@ describe('UsersService', () => {
       await expect(service.resetPasswordByAdmin(1)).rejects.toThrow(
         ForbiddenException,
       );
+    });
+  });
+
+  describe('disableUser', () => {
+    const mockTargetUser: Partial<UserEntity> = {
+      id: 2,
+      username: 'user@test.local',
+      role: 'user',
+      isActive: true,
+    };
+
+    it('désactive le compte et invalide les tokens', async () => {
+      repo.findOne.mockResolvedValue(mockTargetUser as UserEntity);
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 1 });
+
+      await service.disableUser(2, 1);
+
+      expect((repo as any).update).toHaveBeenCalledWith({ id: 2 }, { isActive: false });
+      expect((refreshTokenRepo as any).delete).toHaveBeenCalledWith({ userId: 2 });
+    });
+
+    it('passe isActive à false', async () => {
+      repo.findOne.mockResolvedValue(mockTargetUser as UserEntity);
+      const updateMock = jest.fn().mockResolvedValue({ affected: 1 });
+      (repo as any).update = updateMock;
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
+
+      await service.disableUser(2, 1);
+
+      expect(updateMock).toHaveBeenCalledWith({ id: 2 }, { isActive: false });
+    });
+
+    it('lance ForbiddenException si targetId === requestingId', async () => {
+      await expect(service.disableUser(1, 1)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.disableUser(999, 1)).rejects.toThrow(NotFoundException);
+    });
+
+    it('lance ForbiddenException si désactivation du dernier administrateur actif', async () => {
+      const mockAdminTarget: Partial<UserEntity> = {
+        id: 2,
+        username: 'other-admin@test.local',
+        role: 'admin',
+        isActive: true,
+      };
+      repo.findOne.mockResolvedValue(mockAdminTarget as UserEntity);
+      repo.count.mockResolvedValue(1);
+
+      await expect(service.disableUser(2, 1)).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('deleteUser', () => {
+    const mockTargetUser: Partial<UserEntity> = {
+      id: 2,
+      username: 'user@test.local',
+      role: 'user',
+      isActive: true,
+    };
+
+    it('supprime les refresh tokens puis le compte', async () => {
+      repo.findOne.mockResolvedValue(mockTargetUser as UserEntity);
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 2 });
+      (repo as any).delete = jest.fn().mockResolvedValue({ affected: 1 });
+
+      await service.deleteUser(2, 1);
+
+      const deleteCalls = (refreshTokenRepo as any).delete.mock.calls;
+      expect(deleteCalls[0][0]).toEqual({ userId: 2 });
+      expect((repo as any).delete).toHaveBeenCalledWith({ id: 2 });
+    });
+
+    it('appelle userRepository.delete avec le bon id', async () => {
+      repo.findOne.mockResolvedValue(mockTargetUser as UserEntity);
+      (refreshTokenRepo as any).delete.mockResolvedValue({ affected: 0 });
+      const deleteMock = jest.fn().mockResolvedValue({ affected: 1 });
+      (repo as any).delete = deleteMock;
+
+      await service.deleteUser(2, 1);
+
+      expect(deleteMock).toHaveBeenCalledWith({ id: 2 });
+    });
+
+    it('lance ForbiddenException si targetId === requestingId', async () => {
+      await expect(service.deleteUser(1, 1)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.deleteUser(999, 1)).rejects.toThrow(NotFoundException);
+    });
+
+    it('lance ForbiddenException si suppression du dernier administrateur actif', async () => {
+      const mockAdminTarget: Partial<UserEntity> = {
+        id: 2,
+        username: 'other-admin@test.local',
+        role: 'admin',
+        isActive: true,
+      };
+      repo.findOne.mockResolvedValue(mockAdminTarget as UserEntity);
+      repo.count.mockResolvedValue(1);
+
+      await expect(service.deleteUser(2, 1)).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('enableUser', () => {
+    const mockInactiveUser: Partial<UserEntity> = {
+      id: 2,
+      username: 'user@test.local',
+      role: 'user',
+      isActive: false,
+    };
+
+    it('réactive le compte (isActive à true)', async () => {
+      repo.findOne.mockResolvedValue(mockInactiveUser as UserEntity);
+      const updateMock = jest.fn().mockResolvedValue({ affected: 1 });
+      (repo as any).update = updateMock;
+
+      await service.enableUser(2);
+
+      expect(updateMock).toHaveBeenCalledWith({ id: 2 }, { isActive: true });
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.enableUser(999)).rejects.toThrow(NotFoundException);
     });
   });
 

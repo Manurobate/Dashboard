@@ -3,13 +3,16 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -60,6 +63,43 @@ export class UsersController {
   ): Promise<ResetPasswordResponseDto> {
     const temporaryPassword = await this.usersService.resetPasswordByAdmin(id);
     return { temporaryPassword };
+  }
+
+  @Patch(':id/disable')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Désactiver un compte utilisateur' })
+  @ApiResponse({ status: 204, description: 'Compte désactivé' })
+  @ApiResponse({ status: 403, description: 'Impossible de désactiver son propre compte' })
+  @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
+  async disableUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: { id: number } },
+  ): Promise<void> {
+    await this.usersService.disableUser(id, req.user.id);
+  }
+
+  @Patch(':id/enable')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Réactiver un compte utilisateur' })
+  @ApiResponse({ status: 204, description: 'Compte réactivé' })
+  @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
+  async enableUser(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    await this.usersService.enableUser(id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Supprimer un compte utilisateur (hard delete)' })
+  @ApiResponse({ status: 204, description: 'Compte supprimé' })
+  @ApiResponse({ status: 403, description: 'Impossible de supprimer son propre compte' })
+  @ApiResponse({ status: 404, description: 'Utilisateur introuvable' })
+  async deleteUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: { id: number } },
+  ): Promise<void> {
+    await this.usersService.deleteUser(id, req.user.id);
   }
 
   @Post()

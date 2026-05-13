@@ -51,4 +51,16 @@ export class AdminService {
   resetPassword(userId: number): Observable<ResetPasswordResponse> {
     return this.http.patch<ResetPasswordResponse>(`/api/users/${userId}/reset-password`, {});
   }
+
+  disableUser(userId: number): Observable<void> {
+    return this.http.patch<void>(`/api/users/${userId}/disable`, {});
+  }
+
+  enableUser(userId: number): Observable<void> {
+    return this.http.patch<void>(`/api/users/${userId}/enable`, {});
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    return this.http.delete<void>(`/api/users/${userId}`);
+  }
 }

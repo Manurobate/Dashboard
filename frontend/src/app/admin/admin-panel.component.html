@@ -64,12 +64,38 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let user">
-          @if (user.role !== 'admin') {
+          @if (user.id !== authService.currentUser()?.id) {
+            @if (user.role !== 'admin') {
+              <button mat-icon-button
+                      aria-label="Réinitialiser le mot de passe"
+                      matTooltip="Réinitialiser le mot de passe"
+                      (click)="openResetPasswordDialog(user)">
+                <mat-icon>lock_reset</mat-icon>
+              </button>
+            }
+            @if (user.isActive) {
+              <button mat-icon-button
+                      aria-label="Désactiver le compte"
+                      matTooltip="Désactiver"
+                      (click)="openDisableDialog(user)"
+                      [disabled]="isActioning()">
+                <mat-icon>block</mat-icon>
+              </button>
+            } @else {
+              <button mat-icon-button
+                      aria-label="Réactiver le compte"
+                      matTooltip="Réactiver"
+                      (click)="enableUser(user)"
+                      [disabled]="isActioning()">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            }
             <button mat-icon-button
-                    aria-label="Réinitialiser le mot de passe"
-                    matTooltip="Réinitialiser le mot de passe"
-                    (click)="openResetPasswordDialog(user)">
-              <mat-icon>lock_reset</mat-icon>
+                    aria-label="Supprimer le compte"
+                    matTooltip="Supprimer"
+                    (click)="openDeleteDialog(user)"
+                    [disabled]="isActioning()">
+              <mat-icon color="warn">delete</mat-icon>
             </button>
           }
         </td>

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Request } from 'express';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
@@ -32,6 +33,9 @@ describe('UsersController', () => {
             findAll: jest.fn(),
             createUserWithTempPassword: jest.fn(),
             resetPasswordByAdmin: jest.fn(),
+            disableUser: jest.fn(),
+            enableUser: jest.fn(),
+            deleteUser: jest.fn(),
           },
         },
       ],
@@ -114,6 +118,83 @@ describe('UsersController', () => {
       await expect(controller.resetPassword(999)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('disableUser', () => {
+    const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
+
+    it('retourne 204 (void) quand le compte est désactivé', async () => {
+      (usersService as any).disableUser.mockResolvedValue(undefined);
+
+      const result = await controller.disableUser(2, mockReq);
+
+      expect((usersService as any).disableUser).toHaveBeenCalledWith(2, 1);
+      expect(result).toBeUndefined();
+    });
+
+    it('retourne 403 si targetId === requestingId', async () => {
+      (usersService as any).disableUser.mockRejectedValue(
+        new ForbiddenException('Impossible de désactiver son propre compte'),
+      );
+
+      await expect(controller.disableUser(1, mockReq)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('retourne 404 si userId inconnu', async () => {
+      (usersService as any).disableUser.mockRejectedValue(
+        new NotFoundException('Utilisateur 999 introuvable'),
+      );
+
+      await expect(controller.disableUser(999, mockReq)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('deleteUser', () => {
+    const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
+
+    it('retourne 204 (void) quand le compte est supprimé', async () => {
+      (usersService as any).deleteUser.mockResolvedValue(undefined);
+
+      const result = await controller.deleteUser(2, mockReq);
+
+      expect((usersService as any).deleteUser).toHaveBeenCalledWith(2, 1);
+      expect(result).toBeUndefined();
+    });
+
+    it('retourne 403 si targetId === requestingId', async () => {
+      (usersService as any).deleteUser.mockRejectedValue(
+        new ForbiddenException('Impossible de supprimer son propre compte'),
+      );
+
+      await expect(controller.deleteUser(1, mockReq)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('retourne 404 si userId inconnu', async () => {
+      (usersService as any).deleteUser.mockRejectedValue(
+        new NotFoundException('Utilisateur 999 introuvable'),
+      );
+
+      await expect(controller.deleteUser(999, mockReq)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('enableUser', () => {
+    it('retourne 204 (void) quand le compte est réactivé', async () => {
+      (usersService as any).enableUser.mockResolvedValue(undefined);
+
+      const result = await controller.enableUser(2);
+
+      expect((usersService as any).enableUser).toHaveBeenCalledWith(2);
+      expect(result).toBeUndefined();
+    });
+
+    it('retourne 404 si userId inconnu', async () => {
+      (usersService as any).enableUser.mockRejectedValue(
+        new NotFoundException('Utilisateur 999 introuvable'),
+      );
+
+      await expect(controller.enableUser(999)).rejects.toThrow(NotFoundException);
     });
   });
 

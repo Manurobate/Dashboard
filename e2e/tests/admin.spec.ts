@@ -1,10 +1,17 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, APIRequestContext } from '@playwright/test';
 
 const adminUsername = process.env['E2E_ADMIN_USERNAME'];
 const adminPassword = process.env['E2E_ADMIN_PASSWORD'];
 
 if (!adminUsername || !adminPassword) {
   throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+}
+
+async function loginAdminApi(request: APIRequestContext): Promise<void> {
+  const loginRes = await request.post('/api/auth/login', {
+    data: { username: adminUsername, password: adminPassword },
+  });
+  expect(loginRes.ok()).toBeTruthy();
 }
 
 async function loginAdmin(page: Page): Promise<void> {
@@ -155,4 +162,80 @@ test('Reset password — L\'utilisateur peut se connecter avec le nouveau mot de
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/change-password$/);
   await expect(page).toHaveURL('/change-password');
+});
+
+test('Disable — Admin désactive un compte et le badge passe à Inactif', async ({ page, request }) => {
+  await loginAdminApi(request);
+  const uniqueEmail = `e2e-disable-${Date.now()}@test.local`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueEmail, name: 'E2E Disable User' },
+  });
+  expect(createRes.status()).toBe(201);
+
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  const row = page.locator('tr', { hasText: uniqueEmail });
+  await row.locator('button[aria-label="Désactiver le compte"]').click();
+
+  await expect(page.locator('mat-dialog-container')).toBeVisible();
+  await page.click('button:has-text("Désactiver")');
+  await page.waitForResponse(resp => resp.url().includes('/disable') && resp.status() === 204);
+
+  await expect(row.locator('.badge-inactive')).toBeVisible();
+});
+
+test('Disable — Le compte désactivé ne peut plus se connecter', async ({ page, request }) => {
+  await loginAdminApi(request);
+  const uniqueEmail = `e2e-disable-login-${Date.now()}@test.local`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueEmail, name: 'E2E Disable Login' },
+  });
+  const { temporaryPassword } = await createRes.json();
+
+  const usersRes = await request.get('/api/users');
+  const users = await usersRes.json();
+  const targetUser = users.find((u: { username: string }) => u.username === uniqueEmail);
+  expect(targetUser).toBeDefined();
+
+  const disableRes = await request.patch(`/api/users/${targetUser.id}/disable`);
+  expect(disableRes.status()).toBe(204);
+
+  await page.goto('/login');
+  await page.fill('input[autocomplete="email"]', uniqueEmail);
+  await page.fill('input[autocomplete="current-password"]', temporaryPassword);
+  await page.click('button[type="submit"]');
+
+  await expect(page.locator('mat-error, .error-message')).toBeVisible();
+  await expect(page).toHaveURL('/login');
+});
+
+test('Delete — Admin supprime un compte et il disparaît de la liste', async ({ page, request }) => {
+  await loginAdminApi(request);
+  const uniqueEmail = `e2e-delete-${Date.now()}@test.local`;
+  const createRes = await request.post('/api/users', {
+    data: { username: uniqueEmail, name: 'E2E Delete User' },
+  });
+  expect(createRes.status()).toBe(201);
+
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  const row = page.locator('tr', { hasText: uniqueEmail });
+  await row.locator('button[aria-label="Supprimer le compte"]').click();
+
+  await expect(page.locator('mat-dialog-container')).toBeVisible();
+  await page.click('button:has-text("Supprimer")');
+  await page.waitForResponse(resp => resp.url().match(/\/users\/\d+$/) !== null && resp.status() === 204);
+
+  await expect(page.locator('[data-testid="user-list"]')).not.toContainText(uniqueEmail);
+});
+
+test('Auto-protection — Admin ne voit pas les boutons disable/delete sur son propre compte', async ({ page }) => {
+  await loginAdmin(page);
+  await page.goto('/admin');
+
+  const adminRow = page.locator('tr', { hasText: adminUsername! });
+  await expect(adminRow.locator('button[aria-label="Désactiver le compte"]')).not.toBeVisible();
+  await expect(adminRow.locator('button[aria-label="Supprimer le compte"]')).not.toBeVisible();
 });
