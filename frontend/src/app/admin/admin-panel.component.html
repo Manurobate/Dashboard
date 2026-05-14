@@ -35,15 +35,15 @@
       </ng-container>
 
       <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef>Rôle</th>
-        <td mat-cell *matCellDef="let user">
+        <th mat-header-cell class="text-center" *matHeaderCellDef>Rôle</th>
+        <td mat-cell class="text-center" *matCellDef="let user">
           <mat-chip [class]="'role-' + user.role">{{ user.role }}</mat-chip>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="isActive">
-        <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let user">
+        <th mat-header-cell class="text-center" *matHeaderCellDef>Statut</th>
+        <td mat-cell class="text-center" *matCellDef="let user">
           @if (user.isActive) {
             <mat-chip class="badge-active">Actif</mat-chip>
           } @else {
@@ -53,8 +53,8 @@
       </ng-container>
 
       <ng-container matColumnDef="mustChangePassword">
-        <th mat-header-cell *matHeaderCellDef>Mdp temp.</th>
-        <td mat-cell *matCellDef="let user">
+        <th mat-header-cell class="text-center" *matHeaderCellDef>Mdp temp.</th>
+        <td mat-cell class="text-center" *matCellDef="let user">
           @if (user.mustChangePassword) {
             <mat-chip class="badge-warning">Oui</mat-chip>
           }
@@ -62,8 +62,8 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let user">
+        <th mat-header-cell class="text-center" *matHeaderCellDef>Actions</th>
+        <td mat-cell class="text-center" *matCellDef="let user">
           @if (user.id !== authService.currentUser()?.id) {
             @if (user.role !== 'admin') {
               <button mat-icon-button
