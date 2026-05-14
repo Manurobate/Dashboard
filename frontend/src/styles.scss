@@ -56,4 +56,18 @@ html:has(body.dark-theme) {
   --color-text-secondary: #9E9E9E;
   --color-divider: #2A2A2A;
   --color-error: #FF6B6B;
+
+  --color-warning: #FFB74D;
+  --color-on-warning: #1A1A1A;
+  --color-success: #66BB6A;
+  --color-on-success: #1A1A1A;
+}
+
+// ── Tokens de statut — états visuels des badges et indicateurs ───────────────
+// Pattern AM3 : utiliser --mdc-chip-elevated-container-color sur mat-chip
+html {
+  --color-warning: #F57C00;
+  --color-on-warning: #FFFFFF;
+  --color-success: #2E7D32;
+  --color-on-success: #FFFFFF;
 }

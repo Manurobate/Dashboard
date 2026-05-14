@@ -39,17 +39,45 @@
 .text-center {
   text-align: center;
 }
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.role-admin {
+  background-color: var(--color-success);
+  color: var(--mat-sys-on-primary);
+  font-weight: 600;
+}
+
+.role-user {
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .badge-active {
-  --mdc-chip-label-text-color: var(--mat-sys-on-primary);
-  background-color: var(--mat-sys-primary);
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .badge-inactive {
-  --mdc-chip-label-text-color: var(--mat-sys-on-error);
-  background-color: var(--mat-sys-error);
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-weight: 600;
 }
 
 .badge-warning {
-  --mdc-chip-label-text-color: var(--mat-sys-on-tertiary);
-  background-color: var(--mat-sys-tertiary);
+  background-color: var(--color-warning);
+  color: var(--color-on-warning);
+  font-weight: 600;
+}
+
+.delete-button .mat-icon {
+  color: var(--mat-sys-error);
 }

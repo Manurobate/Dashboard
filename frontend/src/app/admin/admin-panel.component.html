@@ -37,7 +37,7 @@
       <ng-container matColumnDef="role">
         <th mat-header-cell class="text-center" *matHeaderCellDef>Rôle</th>
         <td mat-cell class="text-center" *matCellDef="let user">
-          <mat-chip [class]="'role-' + user.role">{{ user.role }}</mat-chip>
+          <span class="status-badge" [class]="'status-badge role-' + user.role">{{ user.role }}</span>
         </td>
       </ng-container>
 
@@ -45,9 +45,9 @@
         <th mat-header-cell class="text-center" *matHeaderCellDef>Statut</th>
         <td mat-cell class="text-center" *matCellDef="let user">
           @if (user.isActive) {
-            <mat-chip class="badge-active">Actif</mat-chip>
+            <span class="status-badge badge-active">Actif</span>
           } @else {
-            <mat-chip class="badge-inactive">Inactif</mat-chip>
+            <span class="status-badge badge-inactive">Inactif</span>
           }
         </td>
       </ng-container>
@@ -56,7 +56,9 @@
         <th mat-header-cell class="text-center" *matHeaderCellDef>Mdp temp.</th>
         <td mat-cell class="text-center" *matCellDef="let user">
           @if (user.mustChangePassword) {
-            <mat-chip class="badge-warning">Oui</mat-chip>
+            <span class="status-badge badge-warning">Oui</span>
+          } @else {
+            <span class="status-badge badge-active">Non</span>
           }
         </td>
       </ng-container>
@@ -91,11 +93,12 @@
               </button>
             }
             <button mat-icon-button
+                    class="delete-button"
                     aria-label="Supprimer le compte"
                     matTooltip="Supprimer"
                     (click)="openDeleteDialog(user)"
                     [disabled]="isActioning()">
-              <mat-icon color="warn">delete</mat-icon>
+              <mat-icon>delete</mat-icon>
             </button>
           }
         </td>

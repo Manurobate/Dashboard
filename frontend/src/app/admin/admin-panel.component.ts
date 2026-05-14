@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +19,6 @@ import { ConfirmDestructiveDialogComponent, ConfirmDestructiveDialogData } from 
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTableModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
