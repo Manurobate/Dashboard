@@ -23,89 +23,156 @@
   }
 
   @if (adminService.users().length > 0) {
-    <table mat-table [dataSource]="adminService.users()" data-testid="user-list" class="user-table mat-elevation-z2">
-      <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let user">{{ user.username }}</td>
-      </ng-container>
+    <!-- Desktop : tableau -->
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="adminService.users()" data-testid="user-list" class="user-table mat-elevation-z2">
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Nom</th>
-        <td mat-cell *matCellDef="let user">{{ user.name || '—' }}</td>
-      </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nom</th>
+          <td mat-cell *matCellDef="let user">{{ user.name || '—' }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="role">
-        <th mat-header-cell class="text-center" *matHeaderCellDef>Rôle</th>
-        <td mat-cell class="text-center" *matCellDef="let user">
-          <span class="status-badge" [class]="'status-badge role-' + user.role">{{ user.role }}</span>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="role">
+          <th mat-header-cell class="text-center" *matHeaderCellDef>Rôle</th>
+          <td mat-cell class="text-center" *matCellDef="let user">
+            <span class="status-badge" [class]="'status-badge role-' + user.role">{{ user.role }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="isActive">
-        <th mat-header-cell class="text-center" *matHeaderCellDef>Statut</th>
-        <td mat-cell class="text-center" *matCellDef="let user">
-          @if (user.isActive) {
-            <span class="status-badge badge-active">Actif</span>
-          } @else {
-            <span class="status-badge badge-inactive">Inactif</span>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="mustChangePassword">
-        <th mat-header-cell class="text-center" *matHeaderCellDef>Mdp temp.</th>
-        <td mat-cell class="text-center" *matCellDef="let user">
-          @if (user.mustChangePassword) {
-            <span class="status-badge badge-warning">Oui</span>
-          } @else {
-            <span class="status-badge badge-active">Non</span>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell class="text-center" *matHeaderCellDef>Actions</th>
-        <td mat-cell class="text-center" *matCellDef="let user">
-          @if (user.id !== authService.currentUser()?.id) {
-            @if (user.role !== 'admin') {
-              <button mat-icon-button
-                      aria-label="Réinitialiser le mot de passe"
-                      matTooltip="Réinitialiser le mot de passe"
-                      (click)="openResetPasswordDialog(user)">
-                <mat-icon>lock_reset</mat-icon>
-              </button>
-            }
+        <ng-container matColumnDef="isActive">
+          <th mat-header-cell class="text-center" *matHeaderCellDef>Statut</th>
+          <td mat-cell class="text-center" *matCellDef="let user">
             @if (user.isActive) {
-              <button mat-icon-button
-                      aria-label="Désactiver le compte"
-                      matTooltip="Désactiver"
-                      (click)="openDisableDialog(user)"
-                      [disabled]="isActioning()">
-                <mat-icon>block</mat-icon>
-              </button>
+              <span class="status-badge badge-active">Actif</span>
             } @else {
+              <span class="status-badge badge-inactive">Inactif</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="mustChangePassword">
+          <th mat-header-cell class="text-center" *matHeaderCellDef>Mdp temp.</th>
+          <td mat-cell class="text-center" *matCellDef="let user">
+            @if (user.mustChangePassword) {
+              <span class="status-badge badge-warning">Oui</span>
+            } @else {
+              <span class="status-badge badge-active">Non</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell class="text-center" *matHeaderCellDef>Actions</th>
+          <td mat-cell class="text-center" *matCellDef="let user">
+            @if (user.id !== authService.currentUser()?.id) {
+              @if (user.role !== 'admin') {
+                <button mat-icon-button
+                        aria-label="Réinitialiser le mot de passe"
+                        matTooltip="Réinitialiser le mot de passe"
+                        (click)="openResetPasswordDialog(user)">
+                  <mat-icon>lock_reset</mat-icon>
+                </button>
+              }
+              @if (user.isActive) {
+                <button mat-icon-button
+                        aria-label="Désactiver le compte"
+                        matTooltip="Désactiver"
+                        (click)="openDisableDialog(user)"
+                        [disabled]="isActioning()">
+                  <mat-icon>block</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button
+                        aria-label="Réactiver le compte"
+                        matTooltip="Réactiver"
+                        (click)="enableUser(user)"
+                        [disabled]="isActioning()">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+              }
               <button mat-icon-button
-                      aria-label="Réactiver le compte"
-                      matTooltip="Réactiver"
-                      (click)="enableUser(user)"
+                      class="delete-button"
+                      aria-label="Supprimer le compte"
+                      matTooltip="Supprimer"
+                      (click)="openDeleteDialog(user)"
                       [disabled]="isActioning()">
-                <mat-icon>check_circle</mat-icon>
+                <mat-icon>delete</mat-icon>
               </button>
             }
-            <button mat-icon-button
-                    class="delete-button"
-                    aria-label="Supprimer le compte"
-                    matTooltip="Supprimer"
-                    (click)="openDeleteDialog(user)"
-                    [disabled]="isActioning()">
-              <mat-icon>delete</mat-icon>
-            </button>
-          }
-        </td>
-      </ng-container>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <!-- Mobile : cards -->
+    <div class="user-cards">
+      @for (user of adminService.users(); track user.id) {
+        <div class="user-card mat-elevation-z1">
+          <div class="user-card-header">
+            <div class="user-card-identity">
+              <span class="user-card-email">{{ user.username }}</span>
+              @if (user.name) {
+                <span class="user-card-name">{{ user.name }}</span>
+              }
+            </div>
+            <div class="user-card-badges">
+              <span class="status-badge" [class]="'status-badge role-' + user.role">{{ user.role }}</span>
+              @if (user.isActive) {
+                <span class="status-badge badge-active">Actif</span>
+              } @else {
+                <span class="status-badge badge-inactive">Inactif</span>
+              }
+              @if (user.mustChangePassword) {
+                <span class="status-badge badge-warning">Mdp temp.</span>
+              }
+            </div>
+          </div>
+          @if (user.id !== authService.currentUser()?.id) {
+            <div class="user-card-actions">
+              @if (user.role !== 'admin') {
+                <button mat-icon-button
+                        aria-label="Réinitialiser le mot de passe"
+                        matTooltip="Réinitialiser le mot de passe"
+                        (click)="openResetPasswordDialog(user)">
+                  <mat-icon>lock_reset</mat-icon>
+                </button>
+              }
+              @if (user.isActive) {
+                <button mat-icon-button
+                        aria-label="Désactiver le compte"
+                        matTooltip="Désactiver"
+                        (click)="openDisableDialog(user)"
+                        [disabled]="isActioning()">
+                  <mat-icon>block</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button
+                        aria-label="Réactiver le compte"
+                        matTooltip="Réactiver"
+                        (click)="enableUser(user)"
+                        [disabled]="isActioning()">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+              }
+              <button mat-icon-button
+                      class="delete-button"
+                      aria-label="Supprimer le compte"
+                      matTooltip="Supprimer"
+                      (click)="openDeleteDialog(user)"
+                      [disabled]="isActioning()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
   }
 </div>

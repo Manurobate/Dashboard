@@ -42,12 +42,13 @@ export class AdminPanelComponent implements OnInit {
   }
 
   openCreateUserDialog(): void {
-    this.dialog.open(CreateUserDialogComponent, { width: '400px', disableClose: false });
+    this.dialog.open(CreateUserDialogComponent, { width: '400px', maxWidth: '95vw', disableClose: false });
   }
 
   openResetPasswordDialog(user: UserListItem): void {
     this.dialog.open(ResetPasswordDialogComponent, {
       width: '420px',
+      maxWidth: '95vw',
       disableClose: false,
       data: { userId: user.id, username: user.username } satisfies ResetPasswordDialogData,
     });
@@ -73,6 +74,7 @@ export class AdminPanelComponent implements OnInit {
       ConfirmDestructiveDialogComponent,
       {
         width: '400px',
+        maxWidth: '95vw',
         data: {
           title: `Désactiver ${user.username} ?`,
           message: "Le compte sera désactivé. L'utilisateur sera immédiatement déconnecté si sa session était active.",
@@ -102,6 +104,7 @@ export class AdminPanelComponent implements OnInit {
       ConfirmDestructiveDialogComponent,
       {
         width: '400px',
+        maxWidth: '95vw',
         data: {
           title: `Supprimer ${user.username} ?`,
           message: 'Cette action est irréversible. Le compte sera définitivement supprimé.',
