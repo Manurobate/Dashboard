@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
@@ -335,7 +339,10 @@ describe('UsersService', () => {
     });
 
     it('lance ForbiddenException si la cible est un administrateur', async () => {
-      repo.findOne.mockResolvedValue({ ...mockUser, role: 'admin' } as UserEntity);
+      repo.findOne.mockResolvedValue({
+        ...mockUser,
+        role: 'admin',
+      } as UserEntity);
 
       await expect(service.resetPasswordByAdmin(1)).rejects.toThrow(
         ForbiddenException,
@@ -358,8 +365,13 @@ describe('UsersService', () => {
 
       await service.disableUser(2, 1);
 
-      expect((repo as any).update).toHaveBeenCalledWith({ id: 2 }, { isActive: false });
-      expect((refreshTokenRepo as any).delete).toHaveBeenCalledWith({ userId: 2 });
+      expect((repo as any).update).toHaveBeenCalledWith(
+        { id: 2 },
+        { isActive: false },
+      );
+      expect((refreshTokenRepo as any).delete).toHaveBeenCalledWith({
+        userId: 2,
+      });
     });
 
     it('passe isActive à false', async () => {
@@ -374,13 +386,17 @@ describe('UsersService', () => {
     });
 
     it('lance ForbiddenException si targetId === requestingId', async () => {
-      await expect(service.disableUser(1, 1)).rejects.toThrow(ForbiddenException);
+      await expect(service.disableUser(1, 1)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('lance NotFoundException si utilisateur introuvable', async () => {
       repo.findOne.mockResolvedValue(null);
 
-      await expect(service.disableUser(999, 1)).rejects.toThrow(NotFoundException);
+      await expect(service.disableUser(999, 1)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('lance ForbiddenException si désactivation du dernier administrateur actif', async () => {
@@ -393,7 +409,9 @@ describe('UsersService', () => {
       repo.findOne.mockResolvedValue(mockAdminTarget as UserEntity);
       repo.count.mockResolvedValue(1);
 
-      await expect(service.disableUser(2, 1)).rejects.toThrow(ForbiddenException);
+      await expect(service.disableUser(2, 1)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -429,13 +447,17 @@ describe('UsersService', () => {
     });
 
     it('lance ForbiddenException si targetId === requestingId', async () => {
-      await expect(service.deleteUser(1, 1)).rejects.toThrow(ForbiddenException);
+      await expect(service.deleteUser(1, 1)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('lance NotFoundException si utilisateur introuvable', async () => {
       repo.findOne.mockResolvedValue(null);
 
-      await expect(service.deleteUser(999, 1)).rejects.toThrow(NotFoundException);
+      await expect(service.deleteUser(999, 1)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('lance ForbiddenException si suppression du dernier administrateur actif', async () => {
@@ -448,7 +470,9 @@ describe('UsersService', () => {
       repo.findOne.mockResolvedValue(mockAdminTarget as UserEntity);
       repo.count.mockResolvedValue(1);
 
-      await expect(service.deleteUser(2, 1)).rejects.toThrow(ForbiddenException);
+      await expect(service.deleteUser(2, 1)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -474,6 +498,31 @@ describe('UsersService', () => {
       repo.findOne.mockResolvedValue(null);
 
       await expect(service.enableUser(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('met à jour le name et retourne le user mis à jour', async () => {
+      const updatedUser = { ...mockUser, name: 'Nouveau Nom' } as UserEntity;
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 1 });
+      repo.findOne.mockResolvedValue(updatedUser);
+
+      const result = await service.updateProfile(1, 'Nouveau Nom');
+
+      expect((repo as any).update).toHaveBeenCalledWith(
+        { id: 1 },
+        { name: 'Nouveau Nom' },
+      );
+      expect(result.name).toBe('Nouveau Nom');
+    });
+
+    it('lance NotFoundException si utilisateur introuvable après update', async () => {
+      (repo as any).update = jest.fn().mockResolvedValue({ affected: 0 });
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.updateProfile(999, 'Nom')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

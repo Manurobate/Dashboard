@@ -1,11 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
 import { UserListItemDto } from './dto/user-list-item.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 const mockUser: Partial<UserEntity> = {
   id: 1,
@@ -36,6 +41,7 @@ describe('UsersController', () => {
             disableUser: jest.fn(),
             enableUser: jest.fn(),
             deleteUser: jest.fn(),
+            updateProfile: jest.fn(),
           },
         },
       ],
@@ -43,6 +49,36 @@ describe('UsersController', () => {
 
     controller = module.get<UsersController>(UsersController);
     usersService = module.get(UsersService);
+  });
+
+  describe('PATCH /users/me (updateProfile)', () => {
+    const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
+
+    it('200 — met à jour le profil et retourne le user sans passwordHash', async () => {
+      const updatedUser = { ...mockUser, name: 'Nouveau Nom' } as UserEntity;
+      (usersService as any).updateProfile.mockResolvedValue(updatedUser);
+
+      const dto: UpdateProfileDto = { name: 'Nouveau Nom' };
+      const result = await controller.updateProfile(mockReq, dto);
+
+      expect((usersService as any).updateProfile).toHaveBeenCalledWith(
+        1,
+        'Nouveau Nom',
+      );
+      expect(
+        (result as Record<string, unknown>)['passwordHash'],
+      ).toBeUndefined();
+      expect((result as Record<string, unknown>)['name']).toBe('Nouveau Nom');
+    });
+
+    it('400 — name vide → BadRequest depuis ValidationPipe', async () => {
+      (usersService as any).updateProfile.mockRejectedValue(
+        new Error('Validation failed'),
+      );
+
+      const dto: UpdateProfileDto = { name: '' };
+      await expect(controller.updateProfile(mockReq, dto)).rejects.toThrow();
+    });
   });
 
   describe('findAll', () => {
@@ -138,7 +174,9 @@ describe('UsersController', () => {
         new ForbiddenException('Impossible de désactiver son propre compte'),
       );
 
-      await expect(controller.disableUser(1, mockReq)).rejects.toThrow(ForbiddenException);
+      await expect(controller.disableUser(1, mockReq)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('retourne 404 si userId inconnu', async () => {
@@ -146,7 +184,9 @@ describe('UsersController', () => {
         new NotFoundException('Utilisateur 999 introuvable'),
       );
 
-      await expect(controller.disableUser(999, mockReq)).rejects.toThrow(NotFoundException);
+      await expect(controller.disableUser(999, mockReq)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -167,7 +207,9 @@ describe('UsersController', () => {
         new ForbiddenException('Impossible de supprimer son propre compte'),
       );
 
-      await expect(controller.deleteUser(1, mockReq)).rejects.toThrow(ForbiddenException);
+      await expect(controller.deleteUser(1, mockReq)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('retourne 404 si userId inconnu', async () => {
@@ -175,7 +217,9 @@ describe('UsersController', () => {
         new NotFoundException('Utilisateur 999 introuvable'),
       );
 
-      await expect(controller.deleteUser(999, mockReq)).rejects.toThrow(NotFoundException);
+      await expect(controller.deleteUser(999, mockReq)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -194,7 +238,9 @@ describe('UsersController', () => {
         new NotFoundException('Utilisateur 999 introuvable'),
       );
 
-      await expect(controller.enableUser(999)).rejects.toThrow(NotFoundException);
+      await expect(controller.enableUser(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

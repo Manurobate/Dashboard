@@ -98,17 +98,22 @@ export class UsersService {
 
   async disableUser(targetId: number, requestingId: number): Promise<void> {
     if (targetId === requestingId) {
-      throw new ForbiddenException('Impossible de désactiver son propre compte');
+      throw new ForbiddenException(
+        'Impossible de désactiver son propre compte',
+      );
     }
     const user = await this.findById(targetId);
-    if (!user) throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
+    if (!user)
+      throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
 
     if (user.role === 'admin') {
       const activeAdminCount = await this.userRepository.count({
         where: { role: 'admin', isActive: true },
       });
       if (activeAdminCount <= 1) {
-        throw new ForbiddenException('Impossible de désactiver le dernier administrateur actif');
+        throw new ForbiddenException(
+          'Impossible de désactiver le dernier administrateur actif',
+        );
       }
     }
 
@@ -118,7 +123,8 @@ export class UsersService {
 
   async enableUser(targetId: number): Promise<void> {
     const user = await this.findById(targetId);
-    if (!user) throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
+    if (!user)
+      throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
 
     await this.userRepository.update({ id: targetId }, { isActive: true });
   }
@@ -128,19 +134,29 @@ export class UsersService {
       throw new ForbiddenException('Impossible de supprimer son propre compte');
     }
     const user = await this.findById(targetId);
-    if (!user) throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
+    if (!user)
+      throw new NotFoundException(`Utilisateur ${targetId} introuvable`);
 
     if (user.role === 'admin') {
       const activeAdminCount = await this.userRepository.count({
         where: { role: 'admin', isActive: true },
       });
       if (activeAdminCount <= 1) {
-        throw new ForbiddenException('Impossible de supprimer le dernier administrateur actif');
+        throw new ForbiddenException(
+          'Impossible de supprimer le dernier administrateur actif',
+        );
       }
     }
 
     await this.refreshTokenRepository.delete({ userId: targetId });
     await this.userRepository.delete({ id: targetId });
+  }
+
+  async updateProfile(userId: number, name: string): Promise<UserEntity> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException(`Utilisateur ${userId} introuvable`);
+    await this.userRepository.update({ id: userId }, { name });
+    return { ...user, name };
   }
 
   async createUserWithTempPassword(

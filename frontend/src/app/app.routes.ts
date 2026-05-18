@@ -22,6 +22,12 @@ export const routes: Routes = [
       .then(m => m.ChangePasswordComponent),
   },
   {
+    path: 'profile',
+    canActivate: [authGuard, mustChangePasswordGuard],
+    loadComponent: () => import('./profile/profile.component')
+      .then(m => m.ProfileComponent),
+  },
+  {
     path: 'links',
     canActivate: [authGuard, mustChangePasswordGuard],
     loadComponent: () => import('./links/links.component').then(m => m.LinksComponent),

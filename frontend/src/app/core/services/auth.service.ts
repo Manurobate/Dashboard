@@ -5,6 +5,7 @@ import { firstValueFrom, Observable, map, tap, catchError, of } from 'rxjs';
 export interface AuthUser {
   id: number;
   username: string;
+  name: string;
   role: 'admin' | 'user';
   mustChangePassword: boolean;
   isActive: boolean;
@@ -47,6 +48,12 @@ export class AuthService {
         this.currentUser.set(null);
         return of(false);
       }),
+    );
+  }
+
+  updateProfile(name: string): Observable<AuthUser> {
+    return this.http.patch<AuthUser>('/api/users/me', { name }).pipe(
+      tap(user => this.currentUser.set(user)),
     );
   }
 
