@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="category-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="name" maxlength="255" placeholder="ex: Développement" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Le nom est obligatoire</mat-error>
+      }
+      @if (form.get('name')?.hasError('maxlength')) {
+        <mat-error>Le nom ne peut pas dépasser 255 caractères</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Emoji (optionnel)</mat-label>
+      <input matInput formControlName="emoji" maxlength="10" placeholder="ex: 📌" />
+      @if (form.get('emoji')?.hasError('maxlength')) {
+        <mat-error>L'emoji ne peut pas dépasser 10 caractères</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Annuler</button>
+  <button mat-button color="primary" (click)="confirm()" [disabled]="form.invalid">
+    {{ isEdit ? 'Modifier' : 'Ajouter' }}
+  </button>
+</mat-dialog-actions>

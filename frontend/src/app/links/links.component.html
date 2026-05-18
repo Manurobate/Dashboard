@@ -1,0 +1,56 @@
+<div class="links-page">
+  <div class="links-header">
+    <h1>Liens</h1>
+    @if (editMode()) {
+      <button mat-raised-button color="primary" (click)="openAddCategoryDialog()">
+        <mat-icon>add</mat-icon>
+        Ajouter une catégorie
+      </button>
+    }
+  </div>
+
+  @if (linkCategoriesService.isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40" />
+    </div>
+  }
+
+  @if (linkCategoriesService.error()) {
+    <p class="error-message">{{ linkCategoriesService.error() }}</p>
+  }
+
+  @if (!linkCategoriesService.isLoading() && linkCategoriesService.categories().length === 0 && !linkCategoriesService.error()) {
+    <div class="empty-state">
+      <mat-icon>link_off</mat-icon>
+      <p>Aucune catégorie. Commencez par en ajouter une !</p>
+    </div>
+  }
+
+  <div
+    cdkDropList
+    (cdkDropListDropped)="drop($event)"
+    class="category-list"
+  >
+    @for (cat of linkCategoriesService.categories(); track cat.id) {
+      <div cdkDrag [cdkDragDisabled]="!editMode()" class="category-item">
+        <div class="category-item-content">
+          @if (editMode()) {
+            <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
+          }
+          <span class="category-emoji">{{ cat.emoji }}</span>
+          <span class="category-name">{{ cat.name }}</span>
+        </div>
+        @if (editMode()) {
+          <div class="category-actions">
+            <button mat-icon-button (click)="openEditCategoryDialog(cat)" aria-label="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="openDeleteDialog(cat)" aria-label="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
