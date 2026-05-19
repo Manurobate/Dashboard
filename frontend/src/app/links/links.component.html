@@ -38,61 +38,22 @@
     cdkDropList
     (cdkDropListDropped)="drop($event)"
     class="category-list"
+    [class.edit-mode]="editMode()"
   >
     @for (cat of linkCategoriesService.categories(); track cat.id) {
-      <div cdkDrag [cdkDragDisabled]="!editMode()" class="category-item">
-        <div class="category-item-header">
-          <div class="category-item-content">
-            <mat-icon cdkDragHandle class="drag-handle edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">drag_handle</mat-icon>
-            <span class="category-emoji">{{ cat.emoji }}</span>
-            <span class="category-name">{{ cat.name }}</span>
-          </div>
-          <div class="category-actions edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">
-            <button mat-icon-button (click)="openEditCategoryDialog(cat)" aria-label="Modifier">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="openDeleteDialog(cat)" aria-label="Supprimer">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <!-- Liste des liens de la catégorie (nested cdkDropList) -->
-        <div
-          [id]="'link-list-' + cat.id"
-          cdkDropList
-          [cdkDropListData]="linksForCategory(cat.id)"
-          (cdkDropListDropped)="dropLink($event, cat.id)"
-          class="link-list"
-        >
-          @for (link of linksForCategory(cat.id); track link.id) {
-            <div cdkDrag [cdkDragDisabled]="!editMode()" class="link-item">
-              <mat-icon cdkDragHandle class="drag-handle edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">drag_handle</mat-icon>
-              @if (link.faviconUrl && !failedFavicons().has(link.id)) {
-                <img [src]="link.faviconUrl" width="16" height="16" alt="" class="link-favicon"
-                  (error)="onFaviconError(link.id)" />
-              } @else {
-                <span class="link-initial">{{ link.title.charAt(0).toUpperCase() }}</span>
-              }
-              <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="link-title">
-                {{ link.title }}
-              </a>
-              <div class="link-actions edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">
-                <button mat-icon-button (click)="openEditLinkDialog(link)" aria-label="Modifier le lien">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="openDeleteLinkDialog(link)" aria-label="Supprimer le lien">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-          }
-          <button mat-button class="add-link-button edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''" (click)="openAddLinkDialog(cat.id)">
-            <mat-icon>add</mat-icon>
-            Ajouter un lien
-          </button>
-        </div>
-      </div>
+      <app-link-category-card
+        cdkDrag
+        [cdkDragDisabled]="!editMode()"
+        [category]="cat"
+        [links]="linksForCategory(cat.id)"
+        [editMode]="editMode()"
+        (editCategory)="openEditCategoryDialog($event)"
+        (deleteCategory)="openDeleteDialog($event)"
+        (addLink)="openAddLinkDialog($event)"
+        (editLink)="openEditLinkDialog($event)"
+        (deleteLink)="openDeleteLinkDialog($event)"
+        (reorderLinks)="handleReorderLinks(cat.id, $event)">
+      </app-link-category-card>
     }
   </div>
 </div>

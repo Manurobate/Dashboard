@@ -198,7 +198,6 @@ describe('LinksComponent', () => {
       linkCategoriesService.categories.set([mockCat, cat2]);
       linkCategoriesService.reorderCategories.mockReturnValue(of(undefined));
 
-      // Déplace l'item d'index 0 vers index 1 → [cat2, mockCat]
       component.drop({ previousIndex: 0, currentIndex: 1 } as any);
 
       expect(linkCategoriesService.reorderCategories).toHaveBeenCalledWith([
@@ -309,13 +308,16 @@ describe('LinksComponent', () => {
     });
   });
 
-  describe('dropLink()', () => {
-    it('réorganise les liens et appelle reorderLinks', () => {
+  describe('handleReorderLinks()', () => {
+    it('met à jour le signal links et appelle reorderLinks', () => {
       const link2: Link = { ...mockLink, id: 11, position: 1 };
       linksService.links.set([mockLink, link2]);
       linksService.reorderLinks.mockReturnValue(of(undefined));
 
-      component.dropLink({ previousIndex: 0, currentIndex: 1, item: {} } as any, 1);
+      component.handleReorderLinks(1, [
+        { id: 11, position: 0 },
+        { id: 10, position: 1 },
+      ]);
 
       expect(linksService.reorderLinks).toHaveBeenCalledWith([
         { id: 11, position: 0 },
@@ -323,17 +325,11 @@ describe('LinksComponent', () => {
       ]);
     });
 
-    it('ne fait rien si previousIndex === currentIndex', () => {
-      linksService.links.set([mockLink]);
-      component.dropLink({ previousIndex: 0, currentIndex: 0 } as any, 1);
-      expect(linksService.reorderLinks).not.toHaveBeenCalled();
-    });
-
     it('rollback sur erreur du reorderLinks', () => {
       linksService.links.set([mockLink]);
       linksService.reorderLinks.mockReturnValue(throwError(() => new Error('fail')));
 
-      component.dropLink({ previousIndex: 0, currentIndex: 1 } as any, 1);
+      component.handleReorderLinks(1, [{ id: 10, position: 0 }]);
 
       expect(linksService.loadLinks).toHaveBeenCalled();
       expect(snackBar.open).toHaveBeenCalledWith(
@@ -341,6 +337,17 @@ describe('LinksComponent', () => {
         'Fermer',
         { duration: 3000 },
       );
+    });
+
+    it('ne touche pas les liens des autres catégories', () => {
+      const linkCat2: Link = { ...mockLink, id: 20, categoryId: 2, position: 0 };
+      linksService.links.set([mockLink, linkCat2]);
+      linksService.reorderLinks.mockReturnValue(of(undefined));
+
+      component.handleReorderLinks(1, [{ id: 10, position: 0 }]);
+
+      const remaining = linksService.links().find((l) => l.id === 20);
+      expect(remaining).toBeDefined();
     });
   });
 });

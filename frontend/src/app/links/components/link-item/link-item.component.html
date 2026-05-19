@@ -1,0 +1,29 @@
+<div class="link-item-wrapper" [class.edit-mode]="editMode">
+  <mat-icon cdkDragHandle class="drag-handle" [style.visibility]="editMode ? 'visible' : 'hidden'">drag_handle</mat-icon>
+
+  @if (link.faviconUrl && !hasFaviconError()) {
+    <img [src]="link.faviconUrl" width="16" height="16" alt="" class="link-favicon"
+         (error)="onFaviconError()" />
+  } @else {
+    <span class="link-initial" aria-hidden="true">{{ (link.title?.trim() || '?').charAt(0).toUpperCase() }}</span>
+  }
+
+  <a [href]="link.url"
+     target="_blank"
+     rel="noopener noreferrer"
+     class="link-title"
+     [attr.aria-label]="'Ouvrir ' + link.title + ' dans un nouvel onglet'">
+    {{ link.title }}
+  </a>
+
+  @if (editMode) {
+    <div class="link-actions">
+      <button mat-icon-button (click)="editLink.emit(link)" aria-label="Modifier le lien">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteLink.emit(link)" aria-label="Supprimer le lien">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  }
+</div>

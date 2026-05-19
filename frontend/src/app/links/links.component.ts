@@ -24,6 +24,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../shared/components/confirm-dialog/confirm-dialog.component';
+import { LinkCategoryCardComponent } from './components/link-category-card/link-category-card.component';
 
 @Component({
   selector: 'app-links',
@@ -34,6 +35,7 @@ import {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    LinkCategoryCardComponent,
   ],
   templateUrl: './links.component.html',
   styleUrl: './links.component.scss',
@@ -45,14 +47,9 @@ export class LinksComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly editMode = signal(false);
-  readonly failedFavicons = signal(new Set<number>());
 
   toggleEditMode(): void {
     this.editMode.update((v) => !v);
-  }
-
-  onFaviconError(linkId: number): void {
-    this.failedFavicons.update((s) => new Set([...s, linkId]));
   }
 
   ngOnInit(): void {
@@ -62,6 +59,26 @@ export class LinksComponent implements OnInit {
 
   linksForCategory(categoryId: number): Link[] {
     return this.linksService.links().filter((l) => l.categoryId === categoryId);
+  }
+
+  handleReorderLinks(categoryId: number, items: { id: number; position: number }[]): void {
+    this.linksService.links.update((all) => {
+      const othersLinks = all.filter((l) => l.categoryId !== categoryId);
+      const categoryLinks = items
+        .map((item) => {
+          const link = all.find((l) => l.id === item.id);
+          if (!link) return null;
+          return { ...link, position: item.position };
+        })
+        .filter((l): l is Link => l !== null);
+      return [...othersLinks, ...categoryLinks];
+    });
+    this.linksService.reorderLinks(items).subscribe({
+      error: () => {
+        this.linksService.loadLinks().subscribe();
+        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
+      },
+    });
   }
 
   openAddLinkDialog(categoryId: number): void {
@@ -94,11 +111,6 @@ export class LinksComponent implements OnInit {
           this.linksService.links.update((links) =>
             links.map((l) => (l.id === link.id ? updated : l)),
           );
-          this.failedFavicons.update((s) => {
-            const next = new Set(s);
-            next.delete(link.id);
-            return next;
-          });
           this.snackBar.open('Lien mis à jour', 'Fermer', { duration: 3000 });
         },
         error: () =>
@@ -130,23 +142,6 @@ export class LinksComponent implements OnInit {
         error: () =>
           this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
       });
-    });
-  }
-
-  dropLink(event: CdkDragDrop<Link[]>, categoryId: number): void {
-    if (event.previousIndex === event.currentIndex) return;
-    const categoryLinks = [...this.linksForCategory(categoryId)];
-    moveItemInArray(categoryLinks, event.previousIndex, event.currentIndex);
-    this.linksService.links.update((all) => [
-      ...all.filter((l) => l.categoryId !== categoryId),
-      ...categoryLinks,
-    ]);
-    const items = categoryLinks.map((l, i) => ({ id: l.id, position: i }));
-    this.linksService.reorderLinks(items).subscribe({
-      error: () => {
-        this.linksService.loadLinks().subscribe();
-        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
-      },
     });
   }
 
