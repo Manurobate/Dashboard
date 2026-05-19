@@ -99,6 +99,23 @@ describe('LinksComponent', () => {
     expect(linksService.loadLinks).toHaveBeenCalled();
   });
 
+  describe('editMode toggle', () => {
+    it('editMode est false par défaut (mode lecture)', () => {
+      expect(component.editMode()).toBe(false);
+    });
+
+    it('toggleEditMode() passe en mode édition', () => {
+      component.toggleEditMode();
+      expect(component.editMode()).toBe(true);
+    });
+
+    it('toggleEditMode() deux fois revient en mode lecture', () => {
+      component.toggleEditMode();
+      component.toggleEditMode();
+      expect(component.editMode()).toBe(false);
+    });
+  });
+
   describe('openAddCategoryDialog()', () => {
     it('ouvre CategoryDialogComponent et crée la catégorie si confirmé', () => {
       const afterClosed$ = new Subject<{ name: string; emoji?: string }>();

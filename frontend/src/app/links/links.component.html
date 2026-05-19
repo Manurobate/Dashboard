@@ -1,12 +1,20 @@
 <div class="links-page">
   <div class="links-header">
     <h1>Liens</h1>
-    @if (editMode()) {
-      <button mat-raised-button color="primary" (click)="openAddCategoryDialog()">
-        <mat-icon>add</mat-icon>
-        Ajouter une catégorie
+    <div class="header-actions">
+      @if (editMode()) {
+        <button mat-button color="primary" (click)="openAddCategoryDialog()">
+          <mat-icon>add</mat-icon>
+          Ajouter une catégorie
+        </button>
+      }
+      <button mat-stroked-button (click)="toggleEditMode()" class="toggle-edit-btn"
+              [attr.aria-pressed]="editMode()"
+              [attr.aria-label]="editMode() ? 'Terminer les modifications' : 'Passer en mode édition'">
+        <mat-icon>{{ editMode() ? 'check' : 'edit' }}</mat-icon>
+        {{ editMode() ? 'Terminer' : 'Modifier' }}
       </button>
-    }
+    </div>
   </div>
 
   @if (linkCategoriesService.isLoading()) {
@@ -35,22 +43,18 @@
       <div cdkDrag [cdkDragDisabled]="!editMode()" class="category-item">
         <div class="category-item-header">
           <div class="category-item-content">
-            @if (editMode()) {
-              <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
-            }
+            <mat-icon cdkDragHandle class="drag-handle edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">drag_handle</mat-icon>
             <span class="category-emoji">{{ cat.emoji }}</span>
             <span class="category-name">{{ cat.name }}</span>
           </div>
-          @if (editMode()) {
-            <div class="category-actions">
-              <button mat-icon-button (click)="openEditCategoryDialog(cat)" aria-label="Modifier">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="openDeleteDialog(cat)" aria-label="Supprimer">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          }
+          <div class="category-actions edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">
+            <button mat-icon-button (click)="openEditCategoryDialog(cat)" aria-label="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="openDeleteDialog(cat)" aria-label="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Liste des liens de la catégorie (nested cdkDropList) -->
@@ -63,9 +67,7 @@
         >
           @for (link of linksForCategory(cat.id); track link.id) {
             <div cdkDrag [cdkDragDisabled]="!editMode()" class="link-item">
-              @if (editMode()) {
-                <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
-              }
+              <mat-icon cdkDragHandle class="drag-handle edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">drag_handle</mat-icon>
               @if (link.faviconUrl && !failedFavicons().has(link.id)) {
                 <img [src]="link.faviconUrl" width="16" height="16" alt="" class="link-favicon"
                   (error)="onFaviconError(link.id)" />
@@ -75,24 +77,20 @@
               <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="link-title">
                 {{ link.title }}
               </a>
-              @if (editMode()) {
-                <div class="link-actions">
-                  <button mat-icon-button (click)="openEditLinkDialog(link)" aria-label="Modifier le lien">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="openDeleteLinkDialog(link)" aria-label="Supprimer le lien">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              }
+              <div class="link-actions edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''">
+                <button mat-icon-button (click)="openEditLinkDialog(link)" aria-label="Modifier le lien">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="openDeleteLinkDialog(link)" aria-label="Supprimer le lien">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
           }
-          @if (editMode()) {
-            <button mat-button class="add-link-button" (click)="openAddLinkDialog(cat.id)">
-              <mat-icon>add</mat-icon>
-              Ajouter un lien
-            </button>
-          }
+          <button mat-button class="add-link-button edit-controls" [class.edit-visible]="editMode()" [attr.inert]="editMode() ? null : ''" (click)="openAddLinkDialog(cat.id)">
+            <mat-icon>add</mat-icon>
+            Ajouter un lien
+          </button>
         </div>
       </div>
     }

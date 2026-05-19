@@ -44,8 +44,12 @@ export class LinksComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly editMode = signal(true);
+  readonly editMode = signal(false);
   readonly failedFavicons = signal(new Set<number>());
+
+  toggleEditMode(): void {
+    this.editMode.update((v) => !v);
+  }
 
   onFaviconError(linkId: number): void {
     this.failedFavicons.update((s) => new Set([...s, linkId]));

@@ -184,3 +184,23 @@
   color: var(--mat-sys-on-surface-variant);
   font-size: 13px;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-controls {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 200ms ease, visibility 200ms ease;
+
+  &.edit-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
