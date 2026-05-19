@@ -1,13 +1,32 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { TopBarComponent } from './top-bar.component';
 import { routes } from '../../../app.routes';
+import { AuthService, AuthUser } from '../../services/auth.service';
+
+const mockUser: AuthUser = {
+  id: 1,
+  username: 'test',
+  name: 'Test User',
+  role: 'user',
+  mustChangePassword: false,
+  isActive: true,
+};
+
+const mockAuthService = {
+  currentUser: signal<AuthUser | null>(mockUser),
+  logout: vi.fn(),
+};
 
 describe('TopBarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopBarComponent],
-      providers: [provideRouter(routes)],
+      providers: [
+        provideRouter(routes),
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
   });
 

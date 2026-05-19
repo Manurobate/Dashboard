@@ -6,12 +6,26 @@ import { of, throwError, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { LinksComponent } from './links.component';
 import { LinkCategoriesService, LinkCategory } from './link-categories.service';
+import { LinksService, Link } from './links.service';
 
 const mockCat: LinkCategory = {
   id: 1,
   name: 'Dev',
   emoji: '💻',
   position: 0,
+  userId: 42,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+const mockLink: Link = {
+  id: 10,
+  url: 'https://example.com',
+  title: 'Example',
+  description: null,
+  faviconUrl: null,
+  position: 0,
+  categoryId: 1,
   userId: 42,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
@@ -29,6 +43,15 @@ describe('LinksComponent', () => {
     isLoading: ReturnType<typeof signal<boolean>>;
     error: ReturnType<typeof signal<string | null>>;
   };
+  let linksService: {
+    loadLinks: ReturnType<typeof vi.fn>;
+    createLink: ReturnType<typeof vi.fn>;
+    updateLink: ReturnType<typeof vi.fn>;
+    deleteLink: ReturnType<typeof vi.fn>;
+    reorderLinks: ReturnType<typeof vi.fn>;
+    links: ReturnType<typeof signal<Link[]>>;
+    isLoadingLinks: ReturnType<typeof signal<boolean>>;
+  };
   let dialog: { open: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
 
@@ -43,6 +66,15 @@ describe('LinksComponent', () => {
       isLoading: signal(false),
       error: signal(null),
     };
+    linksService = {
+      loadLinks: vi.fn().mockReturnValue(of([])),
+      createLink: vi.fn(),
+      updateLink: vi.fn(),
+      deleteLink: vi.fn(),
+      reorderLinks: vi.fn(),
+      links: signal<Link[]>([]),
+      isLoadingLinks: signal(false),
+    };
     dialog = { open: vi.fn() };
     snackBar = { open: vi.fn() };
 
@@ -51,6 +83,7 @@ describe('LinksComponent', () => {
       providers: [
         provideAnimationsAsync(),
         { provide: LinkCategoriesService, useValue: linkCategoriesService },
+        { provide: LinksService, useValue: linksService },
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
       ],
@@ -60,9 +93,10 @@ describe('LinksComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('appelle loadCategories au démarrage', () => {
+  it('appelle loadCategories et loadLinks au démarrage', () => {
     component.ngOnInit();
     expect(linkCategoriesService.loadCategories).toHaveBeenCalled();
+    expect(linksService.loadLinks).toHaveBeenCalled();
   });
 
   describe('openAddCategoryDialog()', () => {
@@ -164,6 +198,127 @@ describe('LinksComponent', () => {
       component.drop({ previousIndex: 0, currentIndex: 1 } as any);
 
       expect(linkCategoriesService.loadCategories).toHaveBeenCalled();
+      expect(snackBar.open).toHaveBeenCalledWith(
+        'Erreur lors de la réorganisation',
+        'Fermer',
+        { duration: 3000 },
+      );
+    });
+  });
+
+  describe('linksForCategory()', () => {
+    it('filtre les liens par categoryId', () => {
+      const link2 = { ...mockLink, id: 11, categoryId: 2 };
+      linksService.links.set([mockLink, link2]);
+      expect(component.linksForCategory(1)).toEqual([mockLink]);
+      expect(component.linksForCategory(2)).toEqual([link2]);
+    });
+  });
+
+  describe('openAddLinkDialog()', () => {
+    it('ouvre LinkDialogComponent et crée le lien si confirmé', () => {
+      const afterClosed$ = new Subject<{ url: string; title: string; categoryId: number }>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+      linksService.createLink.mockReturnValue(of(mockLink));
+      linksService.links.set([]);
+
+      component.openAddLinkDialog(1);
+      afterClosed$.next({ url: 'https://example.com', title: 'Example', categoryId: 1 });
+
+      expect(linksService.createLink).toHaveBeenCalled();
+      expect(snackBar.open).toHaveBeenCalledWith('Lien ajouté', 'Fermer', { duration: 3000 });
+    });
+
+    it('ne crée rien si dialog fermé sans résultat', () => {
+      const afterClosed$ = new Subject<undefined>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+
+      component.openAddLinkDialog(1);
+      afterClosed$.next(undefined);
+
+      expect(linksService.createLink).not.toHaveBeenCalled();
+    });
+
+    it("affiche un snackbar d'erreur si la création échoue", () => {
+      const afterClosed$ = new Subject<{ url: string; title: string; categoryId: number }>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+      linksService.createLink.mockReturnValue(throwError(() => new Error('fail')));
+
+      component.openAddLinkDialog(1);
+      afterClosed$.next({ url: 'https://example.com', title: 'Example', categoryId: 1 });
+
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', { duration: 4000 });
+    });
+  });
+
+  describe('openEditLinkDialog()', () => {
+    it('ouvre LinkDialogComponent pré-rempli et met à jour si confirmé', () => {
+      const updatedLink = { ...mockLink, title: 'Updated' };
+      const afterClosed$ = new Subject<{ url: string; title: string; categoryId: number }>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+      linksService.updateLink.mockReturnValue(of(updatedLink));
+      linksService.links.set([mockLink]);
+
+      component.openEditLinkDialog(mockLink);
+      afterClosed$.next({ url: 'https://example.com', title: 'Updated', categoryId: 1 });
+
+      expect(linksService.updateLink).toHaveBeenCalledWith(10, { url: 'https://example.com', title: 'Updated' });
+      expect(snackBar.open).toHaveBeenCalledWith('Lien mis à jour', 'Fermer', { duration: 3000 });
+    });
+  });
+
+  describe('openDeleteLinkDialog()', () => {
+    it('ouvre ConfirmDialogComponent et supprime si confirmé', () => {
+      const afterClosed$ = new Subject<boolean>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+      linksService.deleteLink.mockReturnValue(of(undefined));
+      linksService.links.set([mockLink]);
+
+      component.openDeleteLinkDialog(mockLink);
+      afterClosed$.next(true);
+
+      expect(linksService.deleteLink).toHaveBeenCalledWith(10);
+      expect(snackBar.open).toHaveBeenCalledWith('Lien supprimé', 'Fermer', { duration: 3000 });
+    });
+
+    it("ne supprime pas si l'utilisateur annule", () => {
+      const afterClosed$ = new Subject<boolean>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+
+      component.openDeleteLinkDialog(mockLink);
+      afterClosed$.next(false);
+
+      expect(linksService.deleteLink).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('dropLink()', () => {
+    it('réorganise les liens et appelle reorderLinks', () => {
+      const link2: Link = { ...mockLink, id: 11, position: 1 };
+      linksService.links.set([mockLink, link2]);
+      linksService.reorderLinks.mockReturnValue(of(undefined));
+
+      component.dropLink({ previousIndex: 0, currentIndex: 1, item: {} } as any, 1);
+
+      expect(linksService.reorderLinks).toHaveBeenCalledWith([
+        { id: 11, position: 0 },
+        { id: 10, position: 1 },
+      ]);
+    });
+
+    it('ne fait rien si previousIndex === currentIndex', () => {
+      linksService.links.set([mockLink]);
+      component.dropLink({ previousIndex: 0, currentIndex: 0 } as any, 1);
+      expect(linksService.reorderLinks).not.toHaveBeenCalled();
+    });
+
+    it('rollback sur erreur du reorderLinks', () => {
+      linksService.links.set([mockLink]);
+      linksService.reorderLinks.mockReturnValue(throwError(() => new Error('fail')));
+
+      component.dropLink({ previousIndex: 0, currentIndex: 1 } as any, 1);
+
+      expect(linksService.loadLinks).toHaveBeenCalled();
       expect(snackBar.open).toHaveBeenCalledWith(
         'Erreur lors de la réorganisation',
         'Fermer',

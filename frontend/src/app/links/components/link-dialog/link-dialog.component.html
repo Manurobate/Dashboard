@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Modifier le lien' : 'Ajouter un lien' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="link-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>URL</mat-label>
+      <input
+        matInput
+        formControlName="url"
+        maxlength="2048"
+        placeholder="https://example.com"
+        (blur)="onUrlBlur()"
+      />
+      @if (form.get('url')?.hasError('required')) {
+        <mat-error>L'URL est obligatoire</mat-error>
+      }
+      @if (form.get('url')?.hasError('maxlength')) {
+        <mat-error>L'URL ne peut pas dépasser 2048 caractères</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Titre</mat-label>
+      <input matInput formControlName="title" maxlength="255" placeholder="Mon site" />
+      @if (isFetchingOg()) {
+        <mat-spinner matSuffix diameter="16" />
+      }
+      @if (form.get('title')?.hasError('required')) {
+        <mat-error>Le titre est obligatoire</mat-error>
+      }
+      @if (form.get('title')?.hasError('maxlength')) {
+        <mat-error>Le titre ne peut pas dépasser 255 caractères</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>URL du favicon (optionnel)</mat-label>
+      <input matInput formControlName="faviconUrl" maxlength="2048" placeholder="https://example.com/favicon.ico" />
+      @if (form.get('faviconUrl')?.hasError('maxlength')) {
+        <mat-error>L'URL ne peut pas dépasser 2048 caractères</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description (optionnel)</mat-label>
+      <textarea matInput formControlName="description" maxlength="1000" rows="3"></textarea>
+      @if (form.get('description')?.hasError('maxlength')) {
+        <mat-error>La description ne peut pas dépasser 1000 caractères</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Annuler</button>
+  <button mat-button color="primary" (click)="confirm()" [disabled]="form.invalid">
+    {{ isEdit ? 'Modifier' : 'Ajouter' }}
+  </button>
+</mat-dialog-actions>
