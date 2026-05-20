@@ -390,7 +390,7 @@ describe('LinksComponent', () => {
       expect(dialog.open).toHaveBeenCalled();
     });
 
-    it("ne affiche pas l'état vide quand categories().length > 0", () => {
+    it("n'affiche pas l'état vide quand categories().length > 0", () => {
       linkCategoriesService.isLoading.set(false);
       linkCategoriesService.categories.set([mockCat]);
       linkCategoriesService.error.set(null);
@@ -400,8 +400,18 @@ describe('LinksComponent', () => {
       expect(emptyState).toBeNull();
     });
 
-    it("ne affiche pas l'état vide pendant le chargement", () => {
+    it("n'affiche pas l'état vide pendant le chargement", () => {
       linkCategoriesService.isLoading.set(true);
+      fixture.detectChanges();
+
+      const emptyState = fixture.nativeElement.querySelector('.empty-state');
+      expect(emptyState).toBeNull();
+    });
+
+    it("n'affiche pas l'état vide quand error() est défini", () => {
+      linkCategoriesService.isLoading.set(false);
+      linkCategoriesService.categories.set([]);
+      linkCategoriesService.error.set('Erreur de chargement');
       fixture.detectChanges();
 
       const emptyState = fixture.nativeElement.querySelector('.empty-state');

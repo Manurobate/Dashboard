@@ -80,6 +80,10 @@
   );
   background-size: 800px 100%;
   animation: skeleton-shimmer 1.5s infinite linear;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .skeleton-emoji {

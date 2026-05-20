@@ -18,8 +18,8 @@
   </div>
 
   @if (linkCategoriesService.isLoading()) {
-    <div class="skeleton-list" aria-label="Chargement des liens..." aria-busy="true">
-      @for (item of [1, 2, 3]; track item) {
+    <div class="skeleton-list" role="status" aria-label="Chargement des liens..." aria-busy="true">
+      @for (item of [1, 2, 3]; track $index) {
         <div class="skeleton-card">
           <div class="skeleton-line skeleton-emoji"></div>
           <div class="skeleton-line skeleton-title"></div>
