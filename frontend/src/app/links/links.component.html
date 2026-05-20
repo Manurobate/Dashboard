@@ -18,8 +18,14 @@
   </div>
 
   @if (linkCategoriesService.isLoading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="40" />
+    <div class="skeleton-list" aria-label="Chargement des liens..." aria-busy="true">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-emoji"></div>
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-badge"></div>
+        </div>
+      }
     </div>
   }
 
@@ -29,8 +35,12 @@
 
   @if (!linkCategoriesService.isLoading() && linkCategoriesService.categories().length === 0 && !linkCategoriesService.error()) {
     <div class="empty-state">
-      <mat-icon>link_off</mat-icon>
-      <p>Aucune catégorie. Commencez par en ajouter une !</p>
+      <mat-icon class="empty-icon">link_off</mat-icon>
+      <p class="empty-message">Aucun lien pour l'instant</p>
+      <button mat-stroked-button (click)="openAddCategoryDialog()" class="empty-cta">
+        <mat-icon>add</mat-icon>
+        Ajouter une catégorie
+      </button>
     </div>
   }
 

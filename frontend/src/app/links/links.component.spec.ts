@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -33,6 +33,7 @@ const mockLink: Link = {
 
 describe('LinksComponent', () => {
   let component: LinksComponent;
+  let fixture: ComponentFixture<LinksComponent>;
   let linkCategoriesService: {
     loadCategories: ReturnType<typeof vi.fn>;
     createCategory: ReturnType<typeof vi.fn>;
@@ -89,7 +90,7 @@ describe('LinksComponent', () => {
       ],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(LinksComponent);
+    fixture = TestBed.createComponent(LinksComponent);
     component = fixture.componentInstance;
   });
 
@@ -348,6 +349,81 @@ describe('LinksComponent', () => {
 
       const remaining = linksService.links().find((l) => l.id === 20);
       expect(remaining).toBeDefined();
+    });
+  });
+
+  describe('État vide (AC2)', () => {
+    it("affiche le message 'Aucun lien pour l'instant' quand aucune catégorie et pas de chargement", () => {
+      linkCategoriesService.isLoading.set(false);
+      linkCategoriesService.categories.set([]);
+      linkCategoriesService.error.set(null);
+      fixture.detectChanges();
+
+      const msg = fixture.nativeElement.querySelector('.empty-message');
+      expect(msg?.textContent?.trim()).toBe("Aucun lien pour l'instant");
+    });
+
+    it("affiche le bouton CTA 'Ajouter une catégorie' dans l'état vide", () => {
+      linkCategoriesService.isLoading.set(false);
+      linkCategoriesService.categories.set([]);
+      linkCategoriesService.error.set(null);
+      fixture.detectChanges();
+
+      const cta = fixture.nativeElement.querySelector('.empty-cta');
+      expect(cta).toBeTruthy();
+      expect(cta.textContent).toContain('Ajouter une catégorie');
+    });
+
+    it("appelle openAddCategoryDialog() quand le bouton CTA est cliqué", () => {
+      linkCategoriesService.isLoading.set(false);
+      linkCategoriesService.categories.set([]);
+      linkCategoriesService.error.set(null);
+      fixture.detectChanges();
+
+      const afterClosed$ = new Subject<undefined>();
+      dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
+
+      const cta = fixture.nativeElement.querySelector('.empty-cta');
+      cta.click();
+      afterClosed$.next(undefined);
+
+      expect(dialog.open).toHaveBeenCalled();
+    });
+
+    it("ne affiche pas l'état vide quand categories().length > 0", () => {
+      linkCategoriesService.isLoading.set(false);
+      linkCategoriesService.categories.set([mockCat]);
+      linkCategoriesService.error.set(null);
+      fixture.detectChanges();
+
+      const emptyState = fixture.nativeElement.querySelector('.empty-state');
+      expect(emptyState).toBeNull();
+    });
+
+    it("ne affiche pas l'état vide pendant le chargement", () => {
+      linkCategoriesService.isLoading.set(true);
+      fixture.detectChanges();
+
+      const emptyState = fixture.nativeElement.querySelector('.empty-state');
+      expect(emptyState).toBeNull();
+    });
+  });
+
+  describe('Skeleton screens (AC5)', () => {
+    it("affiche 3 skeleton cards pendant le chargement", () => {
+      linkCategoriesService.isLoading.set(true);
+      fixture.detectChanges();
+
+      const skeletonCards = fixture.nativeElement.querySelectorAll('.skeleton-card');
+      expect(skeletonCards.length).toBe(3);
+    });
+
+    it("masque les skeleton cards après le chargement", () => {
+      linkCategoriesService.isLoading.set(false);
+      fixture.detectChanges();
+
+      const skeletonCards = fixture.nativeElement.querySelectorAll('.skeleton-card');
+      expect(skeletonCards.length).toBe(0);
     });
   });
 });

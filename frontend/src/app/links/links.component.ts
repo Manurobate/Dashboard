@@ -3,7 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
   LinkCategoriesService,
@@ -34,7 +33,6 @@ import { LinkCategoryCardComponent } from './components/link-category-card/link-
     DragDropModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     LinkCategoryCardComponent,
   ],
   templateUrl: './links.component.html',
