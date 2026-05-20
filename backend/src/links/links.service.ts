@@ -49,6 +49,12 @@ export class LinksService {
   async update(userId: number, id: number, dto: UpdateLinkDto): Promise<LinkEntity> {
     const link = await this.repo.findOne({ where: { id, userId } });
     if (!link) throw new NotFoundException(`Lien ${id} introuvable`);
+
+    if (dto.categoryId !== undefined) {
+      const category = await this.categoryRepo.findOne({ where: { id: dto.categoryId, userId } });
+      if (!category) throw new ForbiddenException(`Catégorie ${dto.categoryId} introuvable`);
+    }
+
     Object.assign(link, dto);
     return this.repo.save(link);
   }

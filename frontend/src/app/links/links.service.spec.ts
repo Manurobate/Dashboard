@@ -95,6 +95,16 @@ describe('LinksService', () => {
     });
   });
 
+  describe('moveLink()', () => {
+    it('PATCH /api/links/:id avec le categoryId', () => {
+      service.moveLink(1, 5).subscribe();
+      const req = http.expectOne('/api/links/1');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ categoryId: 5 });
+      req.flush(mockLink);
+    });
+  });
+
   describe('fetchOgPreview()', () => {
     it('GET /api/links/og-preview avec le param url', () => {
       service.fetchOgPreview('https://github.com').subscribe();

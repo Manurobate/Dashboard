@@ -138,5 +138,59 @@ describe('LinkCategoryCardComponent', () => {
         { id: 10, position: 1 },
       ]);
     });
+
+    it('émet reorderLinks si previousContainer === container', async () => {
+      const link2: Link = { ...mockLink, id: 11, position: 1 };
+      const { component } = await setup(true, [mockLink, link2]);
+      const emitted: unknown[] = [];
+      component.reorderLinks.subscribe((v) => emitted.push(v));
+
+      const fakeContainer = { data: [mockLink, link2] } as any;
+      component.dropLink({
+        previousContainer: fakeContainer,
+        container: fakeContainer,
+        previousIndex: 0,
+        currentIndex: 1,
+      } as any);
+
+      expect(emitted).toHaveLength(1);
+    });
+
+    it('émet moveLink si previousContainer !== container', async () => {
+      const { component } = await setup(true, [mockLink]);
+      const emitted: { linkId: number; targetCategoryId: number }[] = [];
+      component.moveLink.subscribe((v) => emitted.push(v));
+
+      const sourceContainer = { data: [mockLink] } as any;
+      const targetContainer = { data: [] } as any;
+      component.dropLink({
+        previousContainer: sourceContainer,
+        container: targetContainer,
+        previousIndex: 0,
+        currentIndex: 0,
+      } as any);
+
+      expect(emitted).toHaveLength(1);
+      expect(emitted[0]).toEqual({ linkId: 10, targetCategoryId: 1 });
+    });
+
+    it('ne émet pas moveLink si previousContainer === container (même index)', async () => {
+      const { component } = await setup(true, [mockLink]);
+      const moveLinkEmitted: unknown[] = [];
+      const reorderEmitted: unknown[] = [];
+      component.moveLink.subscribe((v) => moveLinkEmitted.push(v));
+      component.reorderLinks.subscribe((v) => reorderEmitted.push(v));
+
+      const fakeContainer = { data: [mockLink] } as any;
+      component.dropLink({
+        previousContainer: fakeContainer,
+        container: fakeContainer,
+        previousIndex: 0,
+        currentIndex: 0,
+      } as any);
+
+      expect(moveLinkEmitted).toHaveLength(0);
+      expect(reorderEmitted).toHaveLength(0);
+    });
   });
 });

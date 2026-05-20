@@ -60,6 +60,10 @@ export class LinksService {
     return this.http.patch<void>('/api/links/reorder', { items });
   }
 
+  moveLink(id: number, categoryId: number): Observable<Link> {
+    return this.http.patch<Link>(`/api/links/${id}`, { categoryId });
+  }
+
   fetchOgPreview(url: string): Observable<OgPreview> {
     return this.http.get<OgPreview>('/api/links/og-preview', { params: { url } });
   }

@@ -57,12 +57,14 @@
         [category]="cat"
         [links]="linksForCategory(cat.id)"
         [editMode]="editMode()"
+        [connectedTo]="connectedListIds()"
         (editCategory)="openEditCategoryDialog($event)"
         (deleteCategory)="openDeleteDialog($event)"
         (addLink)="openAddLinkDialog($event)"
         (editLink)="openEditLinkDialog($event)"
         (deleteLink)="openDeleteLinkDialog($event)"
-        (reorderLinks)="handleReorderLinks(cat.id, $event)">
+        (reorderLinks)="handleReorderLinks(cat.id, $event)"
+        (moveLink)="handleMoveLink($event)">
       </app-link-category-card>
     }
   </div>

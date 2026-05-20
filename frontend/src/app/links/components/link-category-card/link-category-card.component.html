@@ -20,7 +20,9 @@
   </div>
 
   <div cdkDropList
+       [id]="'links-' + category.id"
        [cdkDropListData]="links"
+       [cdkDropListConnectedTo]="connectedTo"
        (cdkDropListDropped)="dropLink($event)"
        class="link-list"
        [class.edit-mode]="editMode">

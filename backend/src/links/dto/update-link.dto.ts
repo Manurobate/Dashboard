@@ -1,5 +1,11 @@
-import { PartialType, OmitType } from '@nestjs/swagger';
+import { PartialType, OmitType, ApiProperty } from '@nestjs/swagger';
+import { IsInt, Min, IsOptional } from 'class-validator';
 import { CreateLinkDto } from './create-link.dto';
 
-// categoryId exclu : pas de déplacement de lien entre catégories dans cette story
-export class UpdateLinkDto extends PartialType(OmitType(CreateLinkDto, ['categoryId'] as const)) {}
+export class UpdateLinkDto extends PartialType(OmitType(CreateLinkDto, ['categoryId'] as const)) {
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  @ApiProperty({ required: false })
+  categoryId?: number;
+}

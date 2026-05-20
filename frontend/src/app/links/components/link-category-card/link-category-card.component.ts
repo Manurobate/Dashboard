@@ -23,6 +23,7 @@ export class LinkCategoryCardComponent {
   @Input({ required: true }) category!: LinkCategory;
   @Input({ required: true }) links!: Link[];
   @Input() editMode = false;
+  @Input() connectedTo: string[] = [];
 
   @Output() editCategory = new EventEmitter<LinkCategory>();
   @Output() deleteCategory = new EventEmitter<LinkCategory>();
@@ -30,11 +31,17 @@ export class LinkCategoryCardComponent {
   @Output() editLink = new EventEmitter<Link>();
   @Output() deleteLink = new EventEmitter<Link>();
   @Output() reorderLinks = new EventEmitter<{ id: number; position: number }[]>();
+  @Output() moveLink = new EventEmitter<{ linkId: number; targetCategoryId: number }>();
 
   dropLink(event: CdkDragDrop<Link[]>): void {
-    if (event.previousIndex === event.currentIndex) return;
-    const reordered = [...this.links];
-    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
-    this.reorderLinks.emit(reordered.map((l, i) => ({ id: l.id, position: i })));
+    if (event.previousContainer === event.container) {
+      if (event.previousIndex === event.currentIndex) return;
+      const reordered = [...this.links];
+      moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+      this.reorderLinks.emit(reordered.map((l, i) => ({ id: l.id, position: i })));
+    } else {
+      const link = event.previousContainer.data[event.previousIndex];
+      this.moveLink.emit({ linkId: link.id, targetCategoryId: this.category.id });
+    }
   }
 }

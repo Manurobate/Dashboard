@@ -140,6 +140,33 @@ describe('LinksService', () => {
       linkRepo.findOne.mockResolvedValue(null);
       await expect(service.update(42, 99, {} as any)).rejects.toThrow(NotFoundException);
     });
+
+    it('met à jour le categoryId si fourni et si la catégorie appartient au userId', async () => {
+      const linkWithCat = { ...mockLink, categoryId: 10 };
+      linkRepo.findOne.mockResolvedValue(linkWithCat);
+      categoryRepo.findOne.mockResolvedValue({ id: 20, userId: 42 });
+      const updated = { ...linkWithCat, categoryId: 20 };
+      linkRepo.save.mockResolvedValue(updated);
+
+      const result = await service.update(42, 1, { categoryId: 20 } as any);
+      expect(result.categoryId).toBe(20);
+      expect(categoryRepo.findOne).toHaveBeenCalledWith({ where: { id: 20, userId: 42 } });
+    });
+
+    it('lève ForbiddenException si categoryId fourni mais catégorie introuvable', async () => {
+      linkRepo.findOne.mockResolvedValue(mockLink);
+      categoryRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.update(42, 1, { categoryId: 99 } as any)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('ne vérifie pas categoryId si non fourni dans le dto', async () => {
+      linkRepo.findOne.mockResolvedValue(mockLink);
+      linkRepo.save.mockResolvedValue(mockLink);
+
+      await service.update(42, 1, { title: 'Sans catégorie' } as any);
+      expect(categoryRepo.findOne).not.toHaveBeenCalled();
+    });
   });
 
   describe('remove()', () => {

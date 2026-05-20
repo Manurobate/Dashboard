@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,6 +45,10 @@ export class LinksComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly editMode = signal(false);
+  readonly connectedListIds = computed(() =>
+    this.linkCategoriesService.categories().map((c) => 'links-' + c.id),
+  );
+  private isMoving = false;
 
   toggleEditMode(): void {
     this.editMode.update((v) => !v);
@@ -205,6 +209,34 @@ export class LinksComponent implements OnInit {
         error: () =>
           this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
       });
+    });
+  }
+
+  handleMoveLink(event: { linkId: number; targetCategoryId: number }): void {
+    if (this.isMoving) return;
+    const link = this.linksService.links().find((l) => l.id === event.linkId);
+    if (!link) return;
+    const originalCategoryId = link.categoryId;
+    this.isMoving = true;
+
+    this.linksService.links.update((all) =>
+      all.map((l) => (l.id === event.linkId ? { ...l, categoryId: event.targetCategoryId } : l)),
+    );
+
+    this.linksService.moveLink(event.linkId, event.targetCategoryId).subscribe({
+      next: (updated) => {
+        this.linksService.links.update((all) =>
+          all.map((l) => (l.id === updated.id ? { ...l, ...updated } : l)),
+        );
+        this.isMoving = false;
+      },
+      error: () => {
+        this.linksService.links.update((all) =>
+          all.map((l) => (l.id === event.linkId ? { ...l, categoryId: originalCategoryId } : l)),
+        );
+        this.snackBar.open('Erreur lors du déplacement', 'Fermer', { duration: 3000 });
+        this.isMoving = false;
+      },
     });
   }
 

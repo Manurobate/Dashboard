@@ -50,6 +50,7 @@ describe('LinksComponent', () => {
     updateLink: ReturnType<typeof vi.fn>;
     deleteLink: ReturnType<typeof vi.fn>;
     reorderLinks: ReturnType<typeof vi.fn>;
+    moveLink: ReturnType<typeof vi.fn>;
     links: ReturnType<typeof signal<Link[]>>;
     isLoadingLinks: ReturnType<typeof signal<boolean>>;
   };
@@ -73,6 +74,7 @@ describe('LinksComponent', () => {
       updateLink: vi.fn(),
       deleteLink: vi.fn(),
       reorderLinks: vi.fn(),
+      moveLink: vi.fn(),
       links: signal<Link[]>([]),
       isLoadingLinks: signal(false),
     };
@@ -349,6 +351,34 @@ describe('LinksComponent', () => {
 
       const remaining = linksService.links().find((l) => l.id === 20);
       expect(remaining).toBeDefined();
+    });
+  });
+
+  describe('handleMoveLink()', () => {
+    it('met à jour le categoryId du lien (optimistic update) et appelle moveLink', () => {
+      linksService.links.set([{ ...mockLink, categoryId: 1 }]);
+      linksService.moveLink.mockReturnValue(of({ ...mockLink, categoryId: 2 }));
+
+      component.handleMoveLink({ linkId: 10, targetCategoryId: 2 });
+
+      expect(linksService.links()[0].categoryId).toBe(2);
+      expect(linksService.moveLink).toHaveBeenCalledWith(10, 2);
+    });
+
+    it('rollback du categoryId et affiche snackbar si moveLink échoue', () => {
+      linksService.links.set([{ ...mockLink, categoryId: 1 }]);
+      linksService.moveLink.mockReturnValue(throwError(() => new Error('network')));
+
+      component.handleMoveLink({ linkId: 10, targetCategoryId: 2 });
+
+      expect(linksService.links()[0].categoryId).toBe(1);
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors du déplacement', 'Fermer', { duration: 3000 });
+    });
+
+    it('ne fait rien si le lien est introuvable', () => {
+      linksService.links.set([]);
+      component.handleMoveLink({ linkId: 999, targetCategoryId: 2 });
+      expect(linksService.moveLink).not.toHaveBeenCalled();
     });
   });
 
