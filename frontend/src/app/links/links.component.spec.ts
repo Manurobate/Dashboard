@@ -4,9 +4,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError, Subject } from 'rxjs';
 import { signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { LinksComponent } from './links.component';
 import { LinkCategoriesService, LinkCategory } from './link-categories.service';
 import { LinksService, Link } from './links.service';
+import { LinksGridSettingsService, GridSettings } from './links-grid-settings.service';
 
 const mockCat: LinkCategory = {
   id: 1,
@@ -56,6 +58,11 @@ describe('LinksComponent', () => {
   };
   let dialog: { open: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
+  let gridSettingsService: {
+    gridSettings: ReturnType<typeof signal<GridSettings>>;
+    updateSettings: ReturnType<typeof vi.fn>;
+  };
+  let breakpointObserver: { observe: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     linkCategoriesService = {
@@ -81,6 +88,17 @@ describe('LinksComponent', () => {
     dialog = { open: vi.fn() };
     snackBar = { open: vi.fn() };
 
+    const gs = signal<GridSettings>({ columns: 3, cardWidth: 280, gapH: 16, gapV: 16 });
+    gridSettingsService = {
+      gridSettings: gs,
+      updateSettings: vi.fn().mockImplementation((partial: Partial<GridSettings>) => {
+        gs.update((s) => ({ ...s, ...partial }));
+      }),
+    };
+    breakpointObserver = {
+      observe: vi.fn().mockReturnValue(of({ matches: false, breakpoints: {} })),
+    };
+
     await TestBed.configureTestingModule({
       imports: [LinksComponent],
       providers: [
@@ -89,6 +107,8 @@ describe('LinksComponent', () => {
         { provide: LinksService, useValue: linksService },
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
+        { provide: LinksGridSettingsService, useValue: gridSettingsService },
+        { provide: BreakpointObserver, useValue: breakpointObserver },
       ],
     }).compileComponents();
 
@@ -464,6 +484,39 @@ describe('LinksComponent', () => {
 
       const skeletonCards = fixture.nativeElement.querySelectorAll('.skeleton-card');
       expect(skeletonCards.length).toBe(0);
+    });
+  });
+
+  describe('widget ⚙️ (isSmallScreen)', () => {
+    it('isSmallScreen est false par défaut (BreakpointObserver retourne false)', () => {
+      fixture.detectChanges();
+      expect(component.isSmallScreen()).toBe(false);
+    });
+
+    it('le bouton ⚙️ est visible en mode lecture et grand écran', () => {
+      fixture.detectChanges();
+      const btn = fixture.debugElement.nativeElement.querySelector('button[aria-label="Paramètres d\'affichage"]');
+      expect(btn).not.toBeNull();
+    });
+
+    it('le bouton ⚙️ est absent en mode édition', () => {
+      component.toggleEditMode();
+      fixture.detectChanges();
+      const btn = fixture.debugElement.nativeElement.querySelector('button[aria-label="Paramètres d\'affichage"]');
+      expect(btn).toBeNull();
+    });
+  });
+
+  describe('adjustColumns()', () => {
+    it('incrémente le nombre de colonnes via updateSettings', () => {
+      component.adjustColumns(1);
+      expect(gridSettingsService.updateSettings).toHaveBeenCalledWith({ columns: 4 });
+    });
+
+    it('ne dépasse pas 6 colonnes', () => {
+      gridSettingsService.gridSettings.set({ columns: 6, cardWidth: 280, gapH: 16, gapV: 16 });
+      component.adjustColumns(1);
+      expect(gridSettingsService.updateSettings).toHaveBeenCalledWith({ columns: 6 });
     });
   });
 });

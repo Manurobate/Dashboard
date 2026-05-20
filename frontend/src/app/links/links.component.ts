@@ -1,9 +1,15 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect, ElementRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
+import { LinksGridSettingsService } from './links-grid-settings.service';
 import {
   LinkCategoriesService,
   LinkCategory,
@@ -33,6 +39,8 @@ import { LinkCategoryCardComponent } from './components/link-category-card/link-
     DragDropModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
+    MatSliderModule,
     LinkCategoryCardComponent,
   ],
   templateUrl: './links.component.html',
@@ -43,15 +51,50 @@ export class LinksComponent implements OnInit {
   protected readonly linksService = inject(LinksService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  protected readonly gridSettingsService = inject(LinksGridSettingsService);
+  private readonly elementRef = inject(ElementRef);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   readonly editMode = signal(false);
   readonly connectedListIds = computed(() =>
     this.linkCategoriesService.categories().map((c) => 'links-' + c.id),
   );
+  readonly isSmallScreen = toSignal(
+    this.breakpointObserver.observe('(max-width: 599.99px)').pipe(map((r) => r.matches)),
+    { initialValue: false },
+  );
   private isMoving = false;
+
+  constructor() {
+    effect(() => {
+      const s = this.gridSettingsService.gridSettings();
+      const el = this.elementRef.nativeElement as HTMLElement;
+      el.style.setProperty('--link-columns', String(s.columns));
+      el.style.setProperty('--link-card-width', `${s.cardWidth}px`);
+      el.style.setProperty('--link-gap-h', `${s.gapH}px`);
+      el.style.setProperty('--link-gap-v', `${s.gapV}px`);
+    });
+  }
 
   toggleEditMode(): void {
     this.editMode.update((v) => !v);
+  }
+
+  adjustColumns(delta: number): void {
+    const current = this.gridSettingsService.gridSettings().columns;
+    this.gridSettingsService.updateSettings({ columns: Math.min(6, Math.max(1, current + delta)) });
+  }
+
+  updateCardWidth(value: number): void {
+    this.gridSettingsService.updateSettings({ cardWidth: value });
+  }
+
+  updateGapH(value: number): void {
+    this.gridSettingsService.updateSettings({ gapH: value });
+  }
+
+  updateGapV(value: number): void {
+    this.gridSettingsService.updateSettings({ gapV: value });
   }
 
   ngOnInit(): void {

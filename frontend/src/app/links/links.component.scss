@@ -1,19 +1,17 @@
-.links-page {
-  padding: 16px;
-  max-width: 800px;
-  margin: 0 auto;
+.page-title {
+  padding: 16px 16px 0;
+  margin: 0;
+  text-align: center;
 }
 
-.links-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 12px;
+.links-page {
+  padding: 16px;
+}
 
-  h1 {
-    margin: 0;
+.links-inner {
+  @media (min-width: 600px) {
+    width: fit-content;
+    margin: 0 auto;
   }
 }
 
@@ -107,17 +105,17 @@
 }
 
 .category-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
 
-  @media (min-width: 768px) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(var(--link-columns, 3), minmax(0, var(--link-card-width, 280px)));
+    gap: var(--link-gap-v, 16px) var(--link-gap-h, 16px);
 
     &.edit-mode {
-      display: flex;
-      flex-direction: column;
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
   }
 }
@@ -125,6 +123,33 @@
 .header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.grid-settings-panel {
+  padding: 8px 16px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-label {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.stepper-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

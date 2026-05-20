@@ -1,0 +1,61 @@
+import { test, expect, type Page } from '@playwright/test';
+
+const username = process.env.E2E_ADMIN_USERNAME;
+const password = process.env.E2E_ADMIN_PASSWORD;
+
+if (!username || !password) {
+  throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+}
+
+async function login(page: Page) {
+  await page.goto('/login');
+  await page.fill('input[autocomplete="email"]', username!);
+  await page.fill('input[autocomplete="current-password"]', password!);
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/links', { timeout: 10000 });
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('links-grid-settings'));
+});
+
+test('widget ⚙️ visible en mode lecture sur grand écran', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await login(page);
+  await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).toBeVisible();
+});
+
+test('widget ⚙️ masqué en mode édition', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await login(page);
+  await page.click('button:has-text("Modifier")');
+  await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).not.toBeVisible();
+});
+
+test('widget ⚙️ masqué sur mobile (< 600px)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page);
+  await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).not.toBeVisible();
+});
+
+test('changement colonnes persisté dans localStorage et restauré au rechargement', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await login(page);
+
+  await page.click('button[aria-label="Paramètres d\'affichage"]');
+
+  await page.click('button[aria-label="Plus de colonnes"]');
+  await page.click('button[aria-label="Plus de colonnes"]');
+
+  const stored = await page.evaluate(() => localStorage.getItem('links-grid-settings'));
+  const parsed = JSON.parse(stored!);
+  expect(parsed.columns).toBe(5);
+
+  await page.reload();
+  await page.waitForURL('/links');
+  await page.waitForSelector('button[aria-label="Paramètres d\'affichage"]');
+
+  await page.click('button[aria-label="Paramètres d\'affichage"]');
+  await expect(page.locator('.setting-row').first()).toContainText('5');
+});
