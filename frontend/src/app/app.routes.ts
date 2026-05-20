@@ -4,7 +4,8 @@ import { mustChangePasswordGuard } from './core/guards/must-change-password.guar
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'links', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'links', redirectTo: 'dashboard', pathMatch: 'full' },
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
@@ -28,7 +29,7 @@ export const routes: Routes = [
       .then(m => m.ProfileComponent),
   },
   {
-    path: 'links',
+    path: 'dashboard',
     canActivate: [authGuard, mustChangePasswordGuard],
     loadComponent: () => import('./links/links.component').then(m => m.LinksComponent),
   },
@@ -51,4 +52,5 @@ export const routes: Routes = [
     path: 'share',
     loadChildren: () => import('./share/share.routes').then(r => r.shareRoutes),
   },
+  { path: '**', redirectTo: '/dashboard' },
 ];

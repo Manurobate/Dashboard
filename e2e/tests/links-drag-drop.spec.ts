@@ -12,7 +12,7 @@ async function login(page: any) {
   await page.fill('input[autocomplete="email"]', username!);
   await page.fill('input[autocomplete="current-password"]', password!);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/links');
+  await page.waitForURL('/dashboard');
 }
 
 test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible', async ({ page }) => {

@@ -1,14 +1,16 @@
 <mat-toolbar class="top-bar" role="banner">
   <span class="app-title">Dashboard</span>
 
-  <nav mat-tab-nav-bar class="desktop-nav" [tabPanel]="tabPanel" aria-label="Navigation principale">
-    <a mat-tab-link routerLink="/links" routerLinkActive #linksLink="routerLinkActive"
-       [active]="linksLink.isActive">Liens</a>
-    <a mat-tab-link routerLink="/recipes" routerLinkActive #recipesLink="routerLinkActive"
-       [active]="recipesLink.isActive">Recettes</a>
-    <a mat-tab-link routerLink="/notes" routerLinkActive #notesLink="routerLinkActive"
-       [active]="notesLink.isActive">Notes</a>
-  </nav>
+  @if (authService.currentUser()) {
+    <nav mat-tab-nav-bar class="desktop-nav" [tabPanel]="tabPanel" aria-label="Navigation principale">
+      <a mat-tab-link routerLink="/dashboard" routerLinkActive #dashboardLink="routerLinkActive"
+         [active]="dashboardLink.isActive">Accueil</a>
+      <a mat-tab-link routerLink="/recipes" routerLinkActive #recipesLink="routerLinkActive"
+         [active]="recipesLink.isActive">Recettes</a>
+      <a mat-tab-link routerLink="/notes" routerLinkActive #notesLink="routerLinkActive"
+         [active]="notesLink.isActive">Notes</a>
+    </nav>
+  }
 
   <span class="spacer"></span>
 

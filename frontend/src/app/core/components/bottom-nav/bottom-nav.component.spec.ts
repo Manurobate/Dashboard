@@ -34,12 +34,12 @@ describe('BottomNavComponent', () => {
     });
   });
 
-  it('should navigate to /links, /recipes, /notes', async () => {
+  it('should navigate to /dashboard, /recipes, /notes', async () => {
     const fixture = TestBed.createComponent(BottomNavComponent);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll('a.bottom-nav-item');
-    expect(links[0].getAttribute('href')).toContain('/links');
+    expect(links[0].getAttribute('href')).toContain('/dashboard');
     expect(links[1].getAttribute('href')).toContain('/recipes');
     expect(links[2].getAttribute('href')).toContain('/notes');
   });

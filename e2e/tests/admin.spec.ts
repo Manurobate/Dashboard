@@ -19,7 +19,7 @@ async function loginAdmin(page: Page): Promise<void> {
   await page.fill('input[autocomplete="email"]', adminUsername!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/(links|change-password)$/);
+  await page.waitForURL(/\/(dashboard|change-password)$/);
   const url = page.url();
   if (url.includes('change-password')) {
     throw new Error('Admin must have changed password before running admin tests');
@@ -44,7 +44,7 @@ test('AC2 — Utilisateur non authentifié redirigé vers /login', async ({ page
   await expect(page).toHaveURL('/login');
 });
 
-test('AC2 — Utilisateur standard redirigé vers /links depuis /admin', async ({ page, request }) => {
+test('AC2 — Utilisateur standard redirigé vers /dashboard depuis /admin', async ({ page, request }) => {
   const loginRes = await request.post('/api/auth/login', {
     data: { username: adminUsername, password: adminPassword },
   });
@@ -66,10 +66,10 @@ test('AC2 — Utilisateur standard redirigé vers /links depuis /admin', async (
   await page.fill('input[name="newPassword"]', 'NewSecure@2026');
   await page.fill('input[name="confirmPassword"]', 'NewSecure@2026');
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/links$/);
+  await page.waitForURL(/\/dashboard$/);
 
   await page.goto('/admin');
-  await expect(page).toHaveURL('/links');
+  await expect(page).toHaveURL('/dashboard');
 });
 
 test('AC1 — Admin peut créer un utilisateur et voir le mot de passe temporaire', async ({ page }) => {

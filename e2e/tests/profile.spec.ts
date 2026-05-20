@@ -43,7 +43,7 @@ test("AC1/2 — Modification du nom d'affichage persiste", async ({ page, reques
   await page.fill('input[name="newPassword"], input[autocomplete="new-password"]', 'NewPassword123!');
   await page.fill('input[name="confirmPassword"], input[autocomplete="new-password"]', 'NewPassword123!');
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/links$/);
+  await page.waitForURL(/\/dashboard$/);
 
   await page.click('button[aria-label="Menu utilisateur"]');
   await page.click('text=Mon profil');
@@ -64,7 +64,7 @@ test('AC4 — Bouton "Changer le mot de passe" redirige vers /account/change-pas
   await page.fill('input[autocomplete="email"]', adminUsername!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/links$/);
+  await page.waitForURL(/\/dashboard$/);
 
   await page.goto('/profile');
   await page.click('button:has-text("Changer le mot de passe")');
@@ -76,7 +76,7 @@ test('AC3 — Erreur inline si nom vide', async ({ page }) => {
   await page.fill('input[autocomplete="email"]', adminUsername!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/links$/);
+  await page.waitForURL(/\/dashboard$/);
 
   await page.goto('/profile');
 

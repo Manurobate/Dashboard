@@ -37,7 +37,7 @@ export class LoginComponent {
 
   constructor() {
     if (this.authService.currentUser()) {
-      void this.router.navigate(['/links']);
+      void this.router.navigate(['/dashboard']);
     }
   }
 
@@ -50,7 +50,7 @@ export class LoginComponent {
     try {
       const { username, password } = this.form.getRawValue();
       await this.authService.login(username, password);
-      await this.router.navigate(['/links']);
+      await this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
       const status = (err as { status?: number })?.status;
       if (status === 429) {

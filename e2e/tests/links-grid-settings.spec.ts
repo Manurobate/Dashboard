@@ -12,7 +12,7 @@ async function login(page: Page) {
   await page.fill('input[autocomplete="email"]', username!);
   await page.fill('input[autocomplete="current-password"]', password!);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/links', { timeout: 10000 });
+  await page.waitForURL('/dashboard', { timeout: 10000 });
 }
 
 test.beforeEach(async ({ page }) => {
@@ -53,7 +53,7 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   expect(parsed.columns).toBe(5);
 
   await page.reload();
-  await page.waitForURL('/links');
+  await page.waitForURL('/dashboard');
   await page.waitForSelector('button[aria-label="Paramètres d\'affichage"]');
 
   await page.click('button[aria-label="Paramètres d\'affichage"]');

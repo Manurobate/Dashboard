@@ -9,6 +9,7 @@ import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
+import { AuthService } from '../core/services/auth.service';
 import { LinksGridSettingsService } from './links-grid-settings.service';
 import {
   LinkCategoriesService,
@@ -47,6 +48,7 @@ import { LinkCategoryCardComponent } from './components/link-category-card/link-
   styleUrl: './links.component.scss',
 })
 export class LinksComponent implements OnInit {
+  protected readonly authService = inject(AuthService);
   protected readonly linkCategoriesService = inject(LinkCategoriesService);
   protected readonly linksService = inject(LinksService);
   private readonly dialog = inject(MatDialog);

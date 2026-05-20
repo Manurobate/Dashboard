@@ -58,7 +58,7 @@ export class ChangePasswordComponent {
     this.authService.changePassword(newPassword, confirmPassword).subscribe({
       next: () => {
         this.isLoading.set(false);
-        void this.router.navigate(['/links']);
+        void this.router.navigate(['/dashboard']);
       },
       error: (err: unknown) => {
         const status = (err as { status?: number })?.status;

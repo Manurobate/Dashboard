@@ -1,4 +1,4 @@
-<h1 class="page-title">Liens</h1>
+<h1 class="page-title">Dashboard de {{ authService.currentUser()?.name || authService.currentUser()?.username }}</h1>
 <div class="links-page">
   @if (linkCategoriesService.isLoading()) {
     <div class="skeleton-list" role="status" aria-label="Chargement des liens..." aria-busy="true">
