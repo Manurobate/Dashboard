@@ -11,19 +11,19 @@
 }
 
 :host-context(.dark-theme) .top-bar {
-  background-color: #1f1f1f;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  background-color: #141414;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .app-title {
   font-size: 1.125rem;
   font-weight: 600;
   margin-right: 16px;
-  color: #c62828;
+  color: #B71C1C;
 }
 
 :host-context(.dark-theme) .app-title {
-  color: #ef5350;
+  color: #EF4444;
 }
 
 .spacer {

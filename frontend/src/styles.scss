@@ -16,13 +16,22 @@ html {
   --bottom-nav-height: 56px;
   --color-background: #F5F5F5;
   --color-surface: #FFFFFF;
-  --color-primary: #C62828;
-  --color-primary-light: #E53935;
+  --color-primary: #B71C1C;
+  --color-primary-light: #D32F2F;
   --color-on-primary: #FFFFFF;
   --color-text-primary: #212121;
   --color-text-secondary: #757575;
   --color-divider: #E0E0E0;
-  --color-error: #B71C1C;
+  --color-error: #C62828;
+
+  // ── Overrides AM3 — surfaces neutres (sans teinte rose de la palette red) ──
+  --mat-sys-primary: #B71C1C;
+  --mat-sys-primary-container: #FECACA;
+  --mat-sys-on-primary-container: #7F1D1D;
+  --mat-sys-surface-container: #FFFFFF;
+  --mat-sys-surface-container-low: #FAFAFA;
+  --mat-sys-surface-container-high: #F0F0F0;
+  --mat-sys-surface-container-highest: #E8E8E8;
 }
 
 body {
@@ -47,10 +56,10 @@ html:has(body.dark-theme) {
     ),
   ));
 
-  --color-background: #0F0F0F;
-  --color-surface: #1A1A1A;
-  --color-primary: #EF5350;
-  --color-primary-light: #FF8A80;
+  --color-background: #0A0A0A;
+  --color-surface: #1C1C1C;
+  --color-primary: #EF4444;
+  --color-primary-light: #F87171;
   --color-on-primary: #FFFFFF;
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #9E9E9E;
@@ -58,9 +67,18 @@ html:has(body.dark-theme) {
   --color-error: #FF6B6B;
 
   --color-warning: #FFB74D;
-  --color-on-warning: #1A1A1A;
+  --color-on-warning: #1C1C1C;
   --color-success: #66BB6A;
-  --color-on-success: #1A1A1A;
+  --color-on-success: #1C1C1C;
+
+  // ── Overrides AM3 — rouge pur en dark (sans teinte rose générée par AM3) ──
+  --mat-sys-primary: #EF4444;
+  --mat-sys-primary-container: #7F1D1D;
+  --mat-sys-on-primary-container: #FECACA;
+  --mat-sys-surface-container: #222222;
+  --mat-sys-surface-container-low: #1C1C1C;
+  --mat-sys-surface-container-high: #2A2A2A;
+  --mat-sys-surface-container-highest: #333333;
 }
 
 // ── Tokens de statut — états visuels des badges et indicateurs ───────────────
