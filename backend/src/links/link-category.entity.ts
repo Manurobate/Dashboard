@@ -19,8 +19,8 @@ export class LinkCategoryEntity {
   @Column({ nullable: false })
   name!: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 10 })
-  emoji!: string | null;
+  @Column({ nullable: true, type: 'varchar', length: 50 })
+  icon!: string | null;
 
   @Column({ type: 'int', default: 0 })
   position!: number;

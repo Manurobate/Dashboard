@@ -3,7 +3,7 @@
     @if (editMode) {
       <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
     }
-    <span class="category-emoji">{{ category.emoji ?? '' }}</span>
+    <mat-icon class="category-icon">{{ category.icon || 'folder_open' }}</mat-icon>
     <span class="category-name">{{ category.name }}</span>
     @if (editMode) {
       <div class="category-actions">

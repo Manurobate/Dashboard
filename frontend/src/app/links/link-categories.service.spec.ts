@@ -6,7 +6,7 @@ import { LinkCategoriesService, LinkCategory } from './link-categories.service';
 const mockCat: LinkCategory = {
   id: 1,
   name: 'Dev',
-  emoji: '💻',
+  icon: null,
   position: 0,
   userId: 42,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -52,28 +52,28 @@ describe('LinkCategoriesService', () => {
   });
 
   describe('createCategory()', () => {
-    it('envoie POST /api/link-categories avec name et emoji', () => {
-      service.createCategory('Dev', '💻').subscribe();
+    it('envoie POST /api/link-categories avec name et icon', () => {
+      service.createCategory('Dev', 'home').subscribe();
       const req = httpMock.expectOne('/api/link-categories');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ name: 'Dev', emoji: '💻' });
+      expect(req.request.body).toEqual({ name: 'Dev', icon: 'home' });
       req.flush(mockCat);
     });
 
-    it('envoie POST sans emoji si non fourni', () => {
+    it('envoie POST sans icon si non fourni', () => {
       service.createCategory('Dev').subscribe();
       const req = httpMock.expectOne('/api/link-categories');
-      expect(req.request.body).toEqual({ name: 'Dev', emoji: undefined });
+      expect(req.request.body).toEqual({ name: 'Dev', icon: undefined });
       req.flush(mockCat);
     });
   });
 
   describe('updateCategory()', () => {
     it('envoie PATCH /api/link-categories/:id', () => {
-      service.updateCategory(1, 'Nouveau', '🚀').subscribe();
+      service.updateCategory(1, 'Nouveau', 'star').subscribe();
       const req = httpMock.expectOne('/api/link-categories/1');
       expect(req.request.method).toBe('PATCH');
-      expect(req.request.body).toEqual({ name: 'Nouveau', emoji: '🚀' });
+      expect(req.request.body).toEqual({ name: 'Nouveau', icon: 'star' });
       req.flush({ ...mockCat, name: 'Nouveau' });
     });
   });

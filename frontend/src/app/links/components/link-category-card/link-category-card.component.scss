@@ -21,14 +21,17 @@
   gap: 8px;
 }
 
-.category-emoji {
+.category-icon {
   font-size: 20px;
+  height: 20px;
+  width: 20px;
   flex-shrink: 0;
 }
 
 .category-name {
   font-size: 16px;
   font-weight: 500;
+  color: var(--mat-sys-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

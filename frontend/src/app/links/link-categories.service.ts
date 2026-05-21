@@ -5,7 +5,7 @@ import { Observable, tap, finalize, catchError, of } from 'rxjs';
 export interface LinkCategory {
   id: number;
   name: string;
-  emoji: string | null;
+  icon: string | null;
   position: number;
   userId: number;
   createdAt: string;
@@ -33,12 +33,12 @@ export class LinkCategoriesService {
     );
   }
 
-  createCategory(name: string, emoji?: string | null): Observable<LinkCategory> {
-    return this.http.post<LinkCategory>('/api/link-categories', { name, emoji });
+  createCategory(name: string, icon?: string | null): Observable<LinkCategory> {
+    return this.http.post<LinkCategory>('/api/link-categories', { name, icon });
   }
 
-  updateCategory(id: number, name?: string, emoji?: string | null): Observable<LinkCategory> {
-    return this.http.patch<LinkCategory>(`/api/link-categories/${id}`, { name, emoji });
+  updateCategory(id: number, name?: string, icon?: string | null): Observable<LinkCategory> {
+    return this.http.patch<LinkCategory>(`/api/link-categories/${id}`, { name, icon });
   }
 
   deleteCategory(id: number): Observable<void> {

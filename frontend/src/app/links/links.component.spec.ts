@@ -13,7 +13,7 @@ import { LinksGridSettingsService, GridSettings } from './links-grid-settings.se
 const mockCat: LinkCategory = {
   id: 1,
   name: 'Dev',
-  emoji: '💻',
+  icon: null,
   position: 0,
   userId: 42,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -141,14 +141,14 @@ describe('LinksComponent', () => {
 
   describe('openAddCategoryDialog()', () => {
     it('ouvre CategoryDialogComponent et crée la catégorie si confirmé', () => {
-      const afterClosed$ = new Subject<{ name: string; emoji?: string }>();
+      const afterClosed$ = new Subject<{ name: string; icon?: string | null }>();
       dialog.open.mockReturnValue({ afterClosed: () => afterClosed$ });
       linkCategoriesService.createCategory.mockReturnValue(of(mockCat));
 
       component.openAddCategoryDialog();
-      afterClosed$.next({ name: 'Dev', emoji: '💻' });
+      afterClosed$.next({ name: 'Dev', icon: 'home' });
 
-      expect(linkCategoriesService.createCategory).toHaveBeenCalledWith('Dev', '💻');
+      expect(linkCategoriesService.createCategory).toHaveBeenCalledWith('Dev', 'home');
       expect(snackBar.open).toHaveBeenCalledWith('Catégorie ajoutée', 'Fermer', { duration: 3000 });
     });
 

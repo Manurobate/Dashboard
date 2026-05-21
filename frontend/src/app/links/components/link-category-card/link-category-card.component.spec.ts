@@ -8,7 +8,7 @@ import { Link } from '../../links.service';
 const mockCat: LinkCategory = {
   id: 1,
   name: 'Dev',
-  emoji: '💻',
+  icon: 'code',
   position: 0,
   userId: 42,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -49,10 +49,25 @@ describe('LinkCategoryCardComponent', () => {
     expect(nameEl.nativeElement.textContent.trim()).toBe('Dev');
   });
 
-  it('affiche l\'emoji de la catégorie', async () => {
+  it('affiche l\'icône Material de la catégorie', async () => {
     const { fixture } = await setup();
-    const emojiEl = fixture.debugElement.query(By.css('.category-emoji'));
-    expect(emojiEl.nativeElement.textContent.trim()).toBe('💻');
+    const iconEl = fixture.debugElement.query(By.css('.category-icon'));
+    expect(iconEl.nativeElement.textContent.trim()).toBe('code');
+  });
+
+  it('affiche l\'icône de fallback folder_open si aucune icône définie', async () => {
+    const catSansIcon: LinkCategory = { ...mockCat, icon: null };
+    await TestBed.configureTestingModule({
+      imports: [LinkCategoryCardComponent],
+      providers: [provideAnimationsAsync()],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(LinkCategoryCardComponent);
+    fixture.componentRef.setInput('category', catSansIcon);
+    fixture.componentRef.setInput('links', []);
+    fixture.componentRef.setInput('editMode', false);
+    fixture.detectChanges();
+    const iconEl = fixture.debugElement.query(By.css('.category-icon'));
+    expect(iconEl.nativeElement.textContent.trim()).toBe('folder_open');
   });
 
   it('émet editCategory quand le bouton modifier est cliqué', async () => {

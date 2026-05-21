@@ -10,9 +10,9 @@ export class CreateLinkCategoryDto {
   @MaxLength(255)
   name!: string;
 
-  @ApiProperty({ description: 'Emoji de la catégorie', maxLength: 10, required: false, nullable: true })
+  @ApiProperty({ description: "Icône Material de la catégorie", maxLength: 50, required: false, nullable: true })
   @IsString()
   @IsOptional()
-  @MaxLength(10, { message: "L'emoji ne peut pas dépasser 10 caractères" })
-  emoji?: string | null;
+  @MaxLength(50, { message: "L'icône ne peut pas dépasser 50 caractères" })
+  icon?: string | null;
 }

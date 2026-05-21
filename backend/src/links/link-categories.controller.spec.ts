@@ -9,7 +9,7 @@ const mockUser = { id: 42, username: 'user@test.local', role: 'user' };
 const mockCat: Partial<LinkCategoryEntity> = {
   id: 1,
   name: 'Dev',
-  emoji: '💻',
+  icon: null,
   position: 0,
   userId: 42,
 };
@@ -53,8 +53,8 @@ describe('LinkCategoriesController', () => {
     it('201 — crée une catégorie et la retourne', async () => {
       const cat = mockCat as LinkCategoryEntity;
       service.create.mockResolvedValue(cat);
-      const result = await controller.create(mockUser as any, { name: 'Dev', emoji: '💻' });
-      expect(service.create).toHaveBeenCalledWith(42, { name: 'Dev', emoji: '💻' });
+      const result = await controller.create(mockUser as any, { name: 'Dev', icon: null });
+      expect(service.create).toHaveBeenCalledWith(42, { name: 'Dev', icon: null });
       expect(result).toEqual(cat);
     });
   });

@@ -8,7 +8,7 @@ import { LinkCategoryEntity } from './link-category.entity';
 const mockCat: Partial<LinkCategoryEntity> = {
   id: 1,
   name: 'Dev',
-  emoji: '💻',
+  icon: null,
   position: 0,
   userId: 42,
 };
@@ -62,9 +62,9 @@ describe('LinkCategoriesService', () => {
       repo.create.mockReturnValue(newCat);
       repo.save.mockResolvedValue(newCat);
 
-      const result = await service.create(42, { name: 'Dev', emoji: '💻' });
+      const result = await service.create(42, { name: 'Dev', icon: null });
 
-      expect(repo.create).toHaveBeenCalledWith({ name: 'Dev', emoji: '💻', userId: 42, position: 3 });
+      expect(repo.create).toHaveBeenCalledWith({ name: 'Dev', icon: null, userId: 42, position: 3 });
       expect(result).toEqual(newCat);
     });
 

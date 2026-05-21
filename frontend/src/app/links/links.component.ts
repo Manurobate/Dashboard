@@ -199,7 +199,7 @@ export class LinksComponent implements OnInit {
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
-      this.linkCategoriesService.createCategory(result.name, result.emoji).subscribe({
+      this.linkCategoriesService.createCategory(result.name, result.icon).subscribe({
         next: () => {
           this.linkCategoriesService.loadCategories().subscribe();
           this.snackBar.open('Catégorie ajoutée', 'Fermer', { duration: 3000 });
@@ -216,7 +216,7 @@ export class LinksComponent implements OnInit {
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
-      this.linkCategoriesService.updateCategory(cat.id, result.name, result.emoji).subscribe({
+      this.linkCategoriesService.updateCategory(cat.id, result.name, result.icon).subscribe({
         next: (updated) => {
           this.linkCategoriesService.categories.update((cats) =>
             cats.map((c) => (c.id === cat.id ? updated : c)),
