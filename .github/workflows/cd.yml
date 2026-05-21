@@ -1,60 +1,114 @@
-name: CD
+name: Release
 
 on:
   push:
     branches: [main]
-
-# Secrets requis dans les paramètres du dépôt GitHub :
-# SSH_HOST        : adresse IP ou hostname du serveur
-# SSH_USERNAME    : utilisateur SSH (ex: deploy, ubuntu, manu)
-# SSH_PRIVATE_KEY : clé privée RSA/Ed25519 (contenu complet du fichier id_rsa ou id_ed25519)
-# DEPLOY_PATH     : chemin absolu du répertoire du projet sur le serveur (ex: /home/manu/dashboard)
+    # Un merge de PR dans main déclenche l'événement "push" côté GitHub Actions.
+    # La branch protection garantit que seuls les merges de PR depuis develop arrivent ici.
 
 concurrency:
-  group: cd-main
-  cancel-in-progress: false
+  group: release-main
+  cancel-in-progress: false   # jamais annuler une release en cours
 
 permissions:
-  contents: read
+  contents: write   # push commit + tag + GitHub Release
+  packages: write   # push images sur GHCR
 
 jobs:
-  deploy:
-    name: Déploiement SSH
+  release:
+    name: Bump · Build · Publish
     runs-on: ubuntu-latest
 
     steps:
-      - name: Valider les secrets requis
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0                        # historique complet pour l'analyse des commits
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # ── 1. Calculer la nouvelle version ─────────────────────────────────────
+      - name: Calculer la version
+        id: version
         run: |
-          missing=()
-          [[ -z "$SSH_HOST" ]] && missing+=("SSH_HOST")
-          [[ -z "$SSH_USERNAME" ]] && missing+=("SSH_USERNAME")
-          [[ -z "$SSH_PRIVATE_KEY" ]] && missing+=("SSH_PRIVATE_KEY")
-          [[ -z "$DEPLOY_PATH" ]] && missing+=("DEPLOY_PATH")
-          if [[ ${#missing[@]} -gt 0 ]]; then
-            echo "::error::Secrets manquants : ${missing[*]}"
-            exit 1
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          CURRENT=$(echo "$LAST_TAG" | sed 's/^v//')
+
+          # Analyser les commits depuis le dernier tag
+          COMMITS=$(git log "${LAST_TAG}..HEAD" --pretty=format:"%s")
+
+          if echo "$COMMITS" | grep -qE "^feat!:|BREAKING CHANGE"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -qE "^feat:"; then
+            BUMP="minor"
+          else
+            BUMP="patch"   # fix:, chore:, refactor:, docs: ou pas de CC → patch par défaut
           fi
 
-      - name: Configurer la clé SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          NEW=$(npx --yes semver -i "$BUMP" "$CURRENT")
+          echo "version=$NEW"    >> $GITHUB_OUTPUT
+          echo "tag=v$NEW"       >> $GITHUB_OUTPUT
+          echo "bump=$BUMP"      >> $GITHUB_OUTPUT
+          echo "📦 $CURRENT → $NEW ($BUMP)"
 
-      - name: Déployer sur le serveur
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      # ── 2. Bumper package.json et committer sur main ─────────────────────────
+      - name: Bumper package.json
         run: |
-          ssh -i ~/.ssh/id_deploy "$SSH_USERNAME@$SSH_HOST" \
-            "cd '$DEPLOY_PATH' && git pull --ff-only origin main && docker-compose up -d --build"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+          git add package.json
+          git commit -m "chore: release ${{ steps.version.outputs.tag }} [skip ci]"
+          git push
+
+      # ── 3. Créer le tag git ──────────────────────────────────────────────────
+      - name: Créer le tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin ${{ steps.version.outputs.tag }}
+
+      # ── 4. Login GHCR ────────────────────────────────────────────────────────
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      # ── 5. Build & Push backend ──────────────────────────────────────────────
+      - name: Build & Push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dashboard-backend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/dashboard-backend:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      # ── 6. Build & Push frontend ─────────────────────────────────────────────
+      - name: Build & Push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      # ── 7. GitHub Release ────────────────────────────────────────────────────
+      - name: Créer la GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.version.outputs.tag }} \
+            --generate-notes \
+            --title "Dashboard ${{ steps.version.outputs.tag }}" \
+            --latest

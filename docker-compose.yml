@@ -19,9 +19,8 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ./backend
-    env_file: backend/.env
+    image: ghcr.io/manurobate/dashboard-backend:${DASHBOARD_VERSION:-latest}
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
@@ -36,8 +35,7 @@ services:
       retries: 3
 
   frontend:
-    build:
-      context: ./frontend
+    image: ghcr.io/manurobate/dashboard-frontend:${DASHBOARD_VERSION:-latest}
     depends_on:
       backend:
         condition: service_healthy

@@ -1,15 +1,24 @@
+# docker-compose.override.yml — Dev local uniquement (jamais déployé en production)
+# Docker Compose merge ce fichier automatiquement avec docker-compose.yml en développement.
+# Pour la production uniquement : docker compose -f docker-compose.yml up
 services:
   backend:
     build:
       context: ./backend
       target: builder
+    image: ""
     volumes:
       - ./backend:/app
       - /app/node_modules
     command: npm run start:dev
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+    image: ""
 
   db:
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306:3306"
