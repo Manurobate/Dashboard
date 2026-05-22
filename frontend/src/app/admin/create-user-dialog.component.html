@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>
+  {{ state() === 'form' ? 'Nouvel utilisateur' : 'Compte créé' }}
+</h2>
+
+<mat-dialog-content>
+  @if (state() === 'form') {
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Adresse e-mail</mat-label>
+        <input matInput type="email" formControlName="username" autocomplete="email" />
+        @if (form.controls.username.hasError('required') && form.controls.username.touched) {
+          <mat-error>L'adresse e-mail est obligatoire</mat-error>
+        }
+        @if (form.controls.username.hasError('email') && !form.controls.username.hasError('required')) {
+          <mat-error>Format d'adresse e-mail invalide</mat-error>
+        }
+        @if (conflictError()) {
+          <mat-error>Cette adresse e-mail est déjà utilisée</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom d'affichage</mat-label>
+        <input matInput formControlName="name" autocomplete="off" />
+        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+          <mat-error>Le nom est obligatoire</mat-error>
+        }
+      </mat-form-field>
+    </form>
+    @if (genericError()) {
+      <p class="generic-error">Une erreur inattendue s'est produite. Veuillez réessayer.</p>
+    }
+  }
+
+  @if (state() === 'password-reveal') {
+    <p>Le compte a été créé. Transmettez ce mot de passe temporaire à l'utilisateur :</p>
+    <div class="temp-password-box">
+      <span class="temp-password-value">{{ tempPassword() }}</span>
+      <button mat-icon-button aria-label="Copier le mot de passe" (click)="copyPassword()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+    <p class="temp-password-warning">
+      Ce mot de passe ne sera plus affiché après fermeture de cette fenêtre.
+      L'utilisateur devra le changer à sa première connexion.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (state() === 'form') {
+    <button mat-button (click)="close()" [disabled]="isSubmitting()">Annuler</button>
+    <button mat-flat-button color="primary"
+            (click)="submit()"
+            [disabled]="form.invalid || isSubmitting()">
+      @if (isSubmitting()) { Création... } @else { Créer }
+    </button>
+  }
+  @if (state() === 'password-reveal') {
+    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
+  }
+</mat-dialog-actions>

@@ -10,6 +10,7 @@ build/
 
 # Environment files
 .env
+backend/.env
 .env.local
 .env.*.local
 
@@ -47,7 +48,15 @@ coverage/
 # Misc
 .nyc_output
 
+# Database backups
+backups/*.sql
+
 # IA
 .claude
 _bmad
 _bmad-output
+
+# E2E Playwright
+e2e/node_modules/
+e2e/playwright-report/
+e2e/test-results/

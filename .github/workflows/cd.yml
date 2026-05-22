@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    # Un merge de PR dans main déclenche l'événement "push" côté GitHub Actions.
+    # La branch protection garantit que seuls les merges de PR depuis develop arrivent ici.
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false   # jamais annuler une release en cours
+
+permissions:
+  contents: write   # push commit + tag + GitHub Release
+  packages: write   # push images sur GHCR
+
+jobs:
+  release:
+    name: Bump · Build · Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0                        # historique complet pour l'analyse des commits
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # ── 1. Calculer la nouvelle version ─────────────────────────────────────
+      - name: Calculer la version
+        id: version
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          CURRENT=$(echo "$LAST_TAG" | sed 's/^v//')
+
+          # Analyser les commits depuis le dernier tag
+          COMMITS=$(git log "${LAST_TAG}..HEAD" --pretty=format:"%s")
+
+          if echo "$COMMITS" | grep -qE "^feat!:|BREAKING CHANGE"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -qE "^feat:"; then
+            BUMP="minor"
+          else
+            BUMP="patch"   # fix:, chore:, refactor:, docs: ou pas de CC → patch par défaut
+          fi
+
+          NEW=$(npx --yes semver -i "$BUMP" "$CURRENT")
+          echo "version=$NEW"    >> $GITHUB_OUTPUT
+          echo "tag=v$NEW"       >> $GITHUB_OUTPUT
+          echo "bump=$BUMP"      >> $GITHUB_OUTPUT
+          echo "📦 $CURRENT → $NEW ($BUMP)"
+
+      # ── 2. Bumper package.json et committer sur main ─────────────────────────
+      - name: Bumper package.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+          git add package.json
+          git commit -m "chore: release ${{ steps.version.outputs.tag }} [skip ci]"
+          git push
+
+      # ── 3. Créer le tag git ──────────────────────────────────────────────────
+      - name: Créer le tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin ${{ steps.version.outputs.tag }}
+
+      # ── 4. Login GHCR ────────────────────────────────────────────────────────
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      # ── 5. Build & Push backend ──────────────────────────────────────────────
+      - name: Build & Push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dashboard-backend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/dashboard-backend:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      # ── 6. Build & Push frontend ─────────────────────────────────────────────
+      - name: Build & Push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      # ── 7. GitHub Release ────────────────────────────────────────────────────
+      - name: Créer la GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.version.outputs.tag }} \
+            --generate-notes \
+            --title "Dashboard ${{ steps.version.outputs.tag }}" \
+            --latest

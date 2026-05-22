@@ -1,0 +1,122 @@
+<h1 class="page-title">Dashboard de {{ authService.currentUser()?.name || authService.currentUser()?.username }}</h1>
+<div class="links-page">
+  @if (linkCategoriesService.isLoading()) {
+    <div class="skeleton-list" role="status" aria-label="Chargement des liens..." aria-busy="true">
+      @for (item of [1, 2, 3]; track $index) {
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-emoji"></div>
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-badge"></div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (linkCategoriesService.error()) {
+    <p class="error-message">{{ linkCategoriesService.error() }}</p>
+  }
+
+  @if (!linkCategoriesService.isLoading() && linkCategoriesService.categories().length === 0 && !linkCategoriesService.error()) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">link_off</mat-icon>
+      <p class="empty-message">Aucun lien pour l'instant</p>
+      <button mat-stroked-button (click)="openAddCategoryDialog()" class="empty-cta">
+        <mat-icon>add</mat-icon>
+        Ajouter une catégorie
+      </button>
+    </div>
+  }
+
+  <div class="links-inner">
+    <div class="header-actions">
+      @if (editMode()) {
+        <button mat-button color="primary" (click)="openAddCategoryDialog()">
+          <mat-icon>add</mat-icon>
+          Ajouter une catégorie
+        </button>
+      }
+      @if (!editMode() && !isSmallScreen()) {
+        <button mat-icon-button [matMenuTriggerFor]="gridSettingsMenu"
+                aria-label="Paramètres d'affichage">
+          <mat-icon>settings</mat-icon>
+        </button>
+      }
+      <button mat-stroked-button (click)="toggleEditMode()" class="toggle-edit-btn"
+              [attr.aria-pressed]="editMode()"
+              [attr.aria-label]="editMode() ? 'Terminer les modifications' : 'Passer en mode édition'">
+        <mat-icon>{{ editMode() ? 'check' : 'edit' }}</mat-icon>
+        {{ editMode() ? 'Terminer' : 'Modifier' }}
+      </button>
+    </div>
+
+    <mat-menu #gridSettingsMenu="matMenu">
+      <div class="grid-settings-panel" (click)="$event.stopPropagation()">
+        <div class="setting-row">
+          <span class="setting-label">Colonnes : {{ gridSettingsService.gridSettings().columns }}</span>
+          <div class="stepper-controls">
+            <button mat-icon-button (click)="adjustColumns(-1)"
+                    [disabled]="gridSettingsService.gridSettings().columns <= 1" aria-label="Moins de colonnes">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <button mat-icon-button (click)="adjustColumns(1)"
+                    [disabled]="gridSettingsService.gridSettings().columns >= 6" aria-label="Plus de colonnes">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Largeur : {{ gridSettingsService.gridSettings().cardWidth }}px</span>
+          <mat-slider min="200" max="600" step="10" discrete>
+            <input matSliderThumb
+                   [value]="gridSettingsService.gridSettings().cardWidth"
+                   (valueChange)="updateCardWidth($event)">
+          </mat-slider>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Espacement H : {{ gridSettingsService.gridSettings().gapH }}px</span>
+          <mat-slider min="8" max="48" step="4" discrete>
+            <input matSliderThumb
+                   [value]="gridSettingsService.gridSettings().gapH"
+                   (valueChange)="updateGapH($event)">
+          </mat-slider>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Espacement V : {{ gridSettingsService.gridSettings().gapV }}px</span>
+          <mat-slider min="8" max="48" step="4" discrete>
+            <input matSliderThumb
+                   [value]="gridSettingsService.gridSettings().gapV"
+                   (valueChange)="updateGapV($event)">
+          </mat-slider>
+        </div>
+      </div>
+    </mat-menu>
+
+    <div
+      cdkDropList
+      (cdkDropListDropped)="drop($event)"
+      class="category-list"
+      [class.edit-mode]="editMode()"
+    >
+      @for (cat of linkCategoriesService.categories(); track cat.id) {
+        <app-link-category-card
+          cdkDrag
+          [cdkDragDisabled]="!editMode()"
+          [category]="cat"
+          [links]="linksForCategory(cat.id)"
+          [editMode]="editMode()"
+          [connectedTo]="connectedListIds()"
+          (editCategory)="openEditCategoryDialog($event)"
+          (deleteCategory)="openDeleteDialog($event)"
+          (addLink)="openAddLinkDialog($event)"
+          (editLink)="openEditLinkDialog($event)"
+          (deleteLink)="openDeleteLinkDialog($event)"
+          (reorderLinks)="handleReorderLinks(cat.id, $event)"
+          (moveLink)="handleMoveLink($event)">
+        </app-link-category-card>
+      }
+    </div>
+  </div>
+</div>

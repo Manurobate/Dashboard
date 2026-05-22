@@ -1,0 +1,86 @@
+services:
+  db:
+    image: mariadb:11-lts
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ghcr.io/manurobate/dashboard-backend:${DASHBOARD_VERSION:-latest}
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    image: ghcr.io/manurobate/dashboard-frontend:${DASHBOARD_VERSION:-latest}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backup:
+    image: mariadb:11-lts
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "[$(date)] Service backup démarré — premier dump dans 30s, puis toutes les 24h"
+        sleep 30
+        while true; do
+          sh /scripts/backup.sh
+          sleep 86400
+        done
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER:?DB_USER requis dans .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis dans .env}
+      DB_NAME: ${DB_NAME:?DB_NAME requis dans .env}
+    volumes:
+      - ./scripts/backup.sh:/scripts/backup.sh:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+
+networks:
+  dashboard_net:
+
+volumes:
+  db_data:

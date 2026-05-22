@@ -1,0 +1,54 @@
+# docker-compose.external-db.yml
+#
+# Utiliser ce fichier si vous avez deja une instance MariaDB dans un container Docker sur le serveur.
+# Le service db et le service backup ne sont pas inclus.
+#
+# Architecture reseau :
+#   - dashboard_net : reseau interne cree par ce compose (frontend <-> backend)
+#   - <votre-reseau-mariadb> : reseau externe existant (backend <-> MariaDB)
+#   Le frontend n'a pas acces au reseau MariaDB.
+#
+# Prerequis :
+#   1. Dans .env, definir DB_HOST avec le nom de votre container MariaDB
+#   2. Remplacer "mariadb_network" ci-dessous par le nom de votre reseau Docker existant
+#
+# Usage :
+#   docker compose -f docker-compose.external-db.yml up -d
+#   docker compose -f docker-compose.external-db.yml pull   # pour mettre a jour les images
+
+services:
+  backend:
+    image: ghcr.io/manurobate/dashboard-backend:${DASHBOARD_VERSION:-latest}
+    env_file: .env
+    networks:
+      - dashboard_net      # communication avec le frontend
+      - mariadb_net        # communication avec MariaDB -- a renommer selon votre reseau
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    image: ghcr.io/manurobate/dashboard-frontend:${DASHBOARD_VERSION:-latest}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - dashboard_net      # communication avec le backend uniquement
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  dashboard_net:           # cree automatiquement par ce compose, interne a Dashboard
+  mariadb_net:             # a renommer -- reseau existant ou vit votre MariaDB
+    external: true

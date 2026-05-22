@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="category-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="name" maxlength="255" placeholder="ex: Développement" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Le nom est obligatoire</mat-error>
+      }
+      @if (form.get('name')?.hasError('maxlength')) {
+        <mat-error>Le nom ne peut pas dépasser 255 caractères</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="icon-selector">
+      <span class="icon-selector-label">Icône (optionnelle)</span>
+      <div class="icon-selector-row">
+        @if (selectedIcon()) {
+          <mat-icon class="icon-preview">{{ selectedIcon() }}</mat-icon>
+          <span class="icon-name">{{ selectedIcon() }}</span>
+        } @else {
+          <span class="no-icon-label">Aucune icône</span>
+        }
+        <button mat-stroked-button type="button" (click)="openIconPicker()">
+          <mat-icon>image_search</mat-icon>
+          {{ selectedIcon() ? 'Changer' : 'Choisir une icône' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Annuler</button>
+  <button mat-button color="primary" (click)="confirm()" [disabled]="form.invalid">
+    {{ isEdit ? 'Modifier' : 'Ajouter' }}
+  </button>
+</mat-dialog-actions>

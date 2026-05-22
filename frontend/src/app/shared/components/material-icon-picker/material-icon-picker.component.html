@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>Choisir une icône</h2>
+<mat-dialog-content class="icon-picker-content">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Rechercher une icône</mat-label>
+    <input matInput
+           #searchInput
+           [value]="searchTerm()"
+           (input)="onSearchChange(searchInput.value)"
+           placeholder="ex: home, link, star" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  @if (isLoading()) {
+    <p class="loading-msg">Chargement des icônes…</p>
+  } @else if (loadError()) {
+    <p class="error-msg">Impossible de charger les icônes. Veuillez réessayer.</p>
+  } @else {
+    @if (selectedIcon()) {
+      <div class="selected-preview">
+        <span>Sélectionnée : </span>
+        <mat-icon>{{ selectedIcon() }}</mat-icon>
+        <span class="selected-name">{{ selectedIcon() }}</span>
+      </div>
+    }
+
+    <div class="icons-grid">
+      @for (icon of filteredIcons(); track icon.name) {
+        <button mat-icon-button
+                class="icon-btn"
+                [class.selected]="selectedIcon() === icon.name"
+                [attr.aria-label]="icon.label"
+                [title]="icon.label + ' (' + icon.name + ')'"
+                (click)="select(icon.name)">
+          <mat-icon>{{ icon.name }}</mat-icon>
+        </button>
+      }
+      @if (filteredIcons().length === 0 && allIcons().length > 0) {
+        <p class="no-result">Aucune icône trouvée pour "{{ searchTerm() }}"</p>
+      }
+    </div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Annuler</button>
+  <button mat-button color="warn" (click)="clear()">Effacer</button>
+  <button mat-button color="primary" (click)="confirm()">Choisir</button>
+</mat-dialog-actions>
