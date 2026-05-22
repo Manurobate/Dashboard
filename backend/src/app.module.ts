@@ -29,6 +29,7 @@ import { CsrfMiddleware } from './common/middleware/csrf.middleware';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,
+        migrationsRun: true,
         logging: config.get<string>('NODE_ENV') === 'development',
       }),
     }),

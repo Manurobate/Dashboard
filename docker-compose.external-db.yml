@@ -5,12 +5,12 @@
 #
 # Architecture reseau :
 #   - dashboard_net : reseau interne cree par ce compose (frontend <-> backend)
-#   - <votre-reseau-mariadb> : reseau externe existant (backend <-> MariaDB)
+#   - mariadb_net : reseau externe existant (backend <-> MariaDB) à remplacer si besoin
 #   Le frontend n'a pas acces au reseau MariaDB.
 #
 # Prerequis :
 #   1. Dans .env, definir DB_HOST avec le nom de votre container MariaDB
-#   2. Remplacer "mariadb_network" ci-dessous par le nom de votre reseau Docker existant
+#   2. Remplacer "mariadb_net" ci-dessous par le nom de votre reseau Docker existant
 #
 # Usage :
 #   docker compose -f docker-compose.external-db.yml up -d
