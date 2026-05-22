@@ -97,6 +97,7 @@ jobs:
           tags: |
             ghcr.io/${{ steps.version.outputs.owner }}/dashboard-frontend:${{ steps.version.outputs.version }}
             ghcr.io/${{ steps.version.outputs.owner }}/dashboard-frontend:latest
+          build-args: APP_VERSION=${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 

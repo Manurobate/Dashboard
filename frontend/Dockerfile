@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+ARG APP_VERSION=dev
+RUN npm version ${APP_VERSION} --no-git-tag-version --allow-same-version
 RUN npm run build
 
 FROM nginx:1.27-alpine AS final

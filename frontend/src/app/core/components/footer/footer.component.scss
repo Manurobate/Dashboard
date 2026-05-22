@@ -1,0 +1,12 @@
+.app-footer {
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+
+  // Caché sur mobile — la bottom-nav fixe prend cette place
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
