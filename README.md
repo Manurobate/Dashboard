@@ -1,6 +1,40 @@
 # Dashboard
 
-Dashboard personnel auto-hébergé — Angular 21 + NestJS 11.
+> Application web personnelle auto-hébergée qui remplace l'onglet par défaut du navigateur.
+
+Dashboard centralise trois usages quotidiens — **liens favoris**, **recettes de cuisine** et **notes personnelles** — sous une interface unique et cohérente, déployable en une commande. Toutes les données restent sur votre serveur : pas d'abonnement, pas de cloud tiers, pas de dépendance externe.
+
+## L'application
+
+### Ce que c'est
+
+La vie numérique personnelle est souvent fragmentée entre des outils mono-fonction (Dashy pour les liens, Mealie pour les recettes, Joplin pour les notes) ou des services cloud dont on ne maîtrise ni les données ni la pérennité. Dashboard réunit ces trois usages dans une seule URL, avec un design cohérent et une complexité opérationnelle minimale.
+
+### Trois modules, un seul outil
+
+**📎 Module Liens** — Page d'accueil par défaut après connexion. Les liens sont organisés en catégories configurables (nom, icône Material), réorganisables par drag & drop. L'ajout d'un lien récupère automatiquement le titre et le favicon depuis l'URL. Un mode édition/lecture bascule les contrôles sans changer de page.
+
+**🍽️ Module Recettes** — CRUD complet avec ingrédients structurés. Un stepper recalcule les quantités en temps réel selon le nombre de convives. Les recettes sont filtrables par recherche en temps réel. Partage par lien public avec durée d'expiration configurable (24h, 7j, 30j, permanent) et révocation à tout moment.
+
+**📝 Module Notes** — Éditeur WYSIWYG (TipTap), organisation en dossiers et sous-dossiers, sauvegarde automatique pendant la saisie. Partage public avec expiration, comme les recettes.
+
+### Gestion des utilisateurs
+
+L'instance supporte plusieurs comptes (< 10) — famille, amis proches. Chaque utilisateur a un espace strictement isolé. L'admin crée les comptes, génère des mots de passe temporaires (affichés une seule fois, transmis hors-bande), et peut réinitialiser ou désactiver un compte. Aucun serveur mail requis.
+
+Les visiteurs non connectés peuvent accéder aux contenus partagés (recettes, notes) en lecture seule, sans compte et sans voir le reste de l'application.
+
+### Stack technique
+
+| Composant | Technologie |
+|-----------|-------------|
+| Frontend | Angular 21 · Material · PWA (app shell) |
+| Backend | NestJS 11 · TypeORM |
+| Base de données | MariaDB 11 LTS |
+| Auth | JWT (access + refresh) · bcrypt |
+| Infrastructure | Docker Compose · GHCR · GitHub Actions CI/CD |
+
+---
 
 ## Déploiement
 
