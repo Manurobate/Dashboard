@@ -22,7 +22,7 @@ services:
     env_file: .env
     networks:
       - dashboard_net      # communication avec le frontend
-      - mariadb_network    # communication avec MariaDB -- a renommer selon votre reseau
+      - mariadb_net        # communication avec MariaDB -- a renommer selon votre reseau
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
@@ -50,5 +50,5 @@ services:
 
 networks:
   dashboard_net:           # cree automatiquement par ce compose, interne a Dashboard
-  mariadb_network:         # a renommer -- reseau existant ou vit votre MariaDB
+  mariadb_net:             # a renommer -- reseau existant ou vit votre MariaDB
     external: true
