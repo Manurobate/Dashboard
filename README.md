@@ -34,6 +34,43 @@ Les visiteurs non connectés peuvent accéder aux contenus partagés (recettes, 
 | Auth | JWT (access + refresh) · bcrypt |
 | Infrastructure | Docker Compose · GHCR · GitHub Actions CI/CD |
 
+## Fonctionnalités à venir
+
+Les idées ci-dessous constituent une liste non exhaustive des évolutions envisagées. Elles ne sont ni planifiées ni priorisées — certaines verront le jour, d'autres non.
+
+### Nouveaux modules
+
+| Module | Description |
+|--------|-------------|
+| ✅ **Liste de courses** | Liste collaborative à cocher depuis le téléphone pendant les courses |
+| 📋 **Todo list** | Gestion de tâches personnelles |
+| 💶 **Suivi de budget** | Partage et équilibrage de dépenses entre utilisateurs de l'instance, style Tricount |
+| 📬 **Courrier (IMAP)** | Accès à plusieurs boîtes mail depuis un seul endroit via IMAP |
+
+### Page d'accueil configurable
+
+La page Liens évoluerait vers une page d'accueil modulaire avec des **widgets configurables** :
+
+- 🌤️ **Météo** — conditions actuelles et prévisions pour un lieu paramétrable
+- 📈 **Cours de bourse** — suivi de valeurs personnalisées (actions, ETF, crypto)
+- 📰 **Flux d'actualité** — titres depuis des sources RSS configurables
+- 🖥️ **Statut de serveurs** — monitoring visuel de services personnels (URLs pingées)
+- 🔍 **Barre de recherche** — lancer une recherche sur le moteur de son choix directement depuis la page d'accueil
+
+### Collaboration et temps réel
+
+- **Notes collaboratives** — édition simultanée d'une note entre plusieurs utilisateurs de l'instance
+- **Whiteboard** — espace de dessin et d'écriture libre collaboratif en temps réel
+
+### Import et interopérabilité
+
+- Import de favoris depuis un navigateur (Chrome, Firefox)
+- Import depuis des outils existants (Joplin, OneNote)
+
+### PWA et offline
+
+- Synchronisation et accès aux données en mode hors-ligne (les trois modules)
+
 ---
 
 ## Déploiement
