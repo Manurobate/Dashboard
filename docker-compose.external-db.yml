@@ -1,0 +1,50 @@
+# docker-compose.external-db.yml
+#
+# Utiliser ce fichier si vous avez déjà une instance MariaDB dans un container Docker sur le serveur.
+# Le service db et le service backup ne sont pas inclus.
+#
+# Prérequis :
+#   1. Créer le réseau partagé (une seule fois) :
+#      docker network create dashboard_net
+#   2. Rattacher votre container MariaDB à ce réseau :
+#      docker network connect dashboard_net <nom-de-votre-container-mariadb>
+#   3. Dans .env, définir DB_HOST avec le nom de votre container MariaDB (ex: DB_HOST=mariadb)
+#
+# Usage :
+#   docker compose -f docker-compose.external-db.yml up -d
+#   docker compose -f docker-compose.external-db.yml pull   # pour mettre à jour les images
+
+services:
+  backend:
+    image: ghcr.io/manurobate/dashboard-backend:${DASHBOARD_VERSION:-latest}
+    env_file: .env
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    image: ghcr.io/manurobate/dashboard-frontend:${DASHBOARD_VERSION:-latest}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - dashboard_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  dashboard_net:
+    external: true   # Réseau Docker existant, partagé avec le container MariaDB
