@@ -55,6 +55,7 @@ backups/*.sql
 .claude
 _bmad
 _bmad-output
+CLAUDE.md
 
 # E2E Playwright
 e2e/node_modules/

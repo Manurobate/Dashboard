@@ -20,21 +20,22 @@ export class AdminSeedService implements OnApplicationBootstrap {
         return;
       }
 
-      const username = this.configService.get<string>('ADMIN_USERNAME')!;
+      const email = this.configService.get<string>('ADMIN_EMAIL')!;
+      const name = email.split('@')[0];
       const rawPassword = this.configService.get<string>(
         'ADMIN_INITIAL_PASSWORD',
       )!;
       const passwordHash = await bcrypt.hash(rawPassword, 12);
 
       await this.usersService.createUser({
-        username,
-        name: username,
+        username: email,
+        name,
         passwordHash,
         role: 'admin',
         mustChangePassword: true,
       });
       this.logger.log(
-        `Admin account "${username}" created (mustChangePassword=true)`,
+        `Admin account "${email}" created (mustChangePassword=true)`,
       );
     } catch (err: unknown) {
       this.logger.error(

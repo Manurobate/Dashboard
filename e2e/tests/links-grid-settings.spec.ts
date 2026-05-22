@@ -1,10 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const username = process.env.E2E_ADMIN_USERNAME;
+const username = process.env.E2E_ADMIN_EMAIL;
 const password = process.env.E2E_ADMIN_PASSWORD;
 
 if (!username || !password) {
-  throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+  throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD must be set');
 }
 
 async function login(page: Page) {
