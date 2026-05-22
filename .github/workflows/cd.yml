@@ -51,9 +51,11 @@ jobs:
           fi
 
           NEW=$(npx --yes semver -i "$BUMP" "$CURRENT")
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "version=$NEW"    >> $GITHUB_OUTPUT
           echo "tag=v$NEW"       >> $GITHUB_OUTPUT
           echo "bump=$BUMP"      >> $GITHUB_OUTPUT
+          echo "owner=$OWNER"    >> $GITHUB_OUTPUT
           echo "📦 $CURRENT → $NEW ($BUMP)"
 
       # ── 2. Créer le tag git ──────────────────────────────────────────────────
@@ -81,8 +83,8 @@ jobs:
           context: ./backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/dashboard-backend:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/dashboard-backend:latest
+            ghcr.io/${{ steps.version.outputs.owner }}/dashboard-backend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ steps.version.outputs.owner }}/dashboard-backend:latest
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
@@ -93,8 +95,8 @@ jobs:
           context: ./frontend
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/dashboard-frontend:latest
+            ghcr.io/${{ steps.version.outputs.owner }}/dashboard-frontend:${{ steps.version.outputs.version }}
+            ghcr.io/${{ steps.version.outputs.owner }}/dashboard-frontend:latest
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
