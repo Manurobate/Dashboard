@@ -41,11 +41,14 @@ describe('LinkCategoriesService', () => {
   });
 
   describe('findAll', () => {
-    it('retourne les catégories de l\'utilisateur triées par position ASC', async () => {
+    it("retourne les catégories de l'utilisateur triées par position ASC", async () => {
       const cats = [mockCat] as LinkCategoryEntity[];
       repo.find.mockResolvedValue(cats);
       const result = await service.findAll(42);
-      expect(repo.find).toHaveBeenCalledWith({ where: { userId: 42 }, order: { position: 'ASC' } });
+      expect(repo.find).toHaveBeenCalledWith({
+        where: { userId: 42 },
+        order: { position: 'ASC' },
+      });
       expect(result).toEqual(cats);
     });
   });
@@ -64,7 +67,12 @@ describe('LinkCategoriesService', () => {
 
       const result = await service.create(42, { name: 'Dev', icon: null });
 
-      expect(repo.create).toHaveBeenCalledWith({ name: 'Dev', icon: null, userId: 42, position: 3 });
+      expect(repo.create).toHaveBeenCalledWith({
+        name: 'Dev',
+        icon: null,
+        userId: 42,
+        position: 3,
+      });
       expect(result).toEqual(newCat);
     });
 
@@ -81,7 +89,9 @@ describe('LinkCategoriesService', () => {
 
       await service.create(42, { name: 'Dev' });
 
-      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ position: 0 }));
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ position: 0 }),
+      );
     });
   });
 
@@ -89,17 +99,24 @@ describe('LinkCategoriesService', () => {
     it('met à jour et retourne la catégorie si ownership OK', async () => {
       const cat = { ...mockCat } as LinkCategoryEntity;
       repo.findOne.mockResolvedValue(cat);
-      repo.save.mockResolvedValue({ ...cat, name: 'Nouveau' } as LinkCategoryEntity);
+      repo.save.mockResolvedValue({
+        ...cat,
+        name: 'Nouveau',
+      });
 
       const result = await service.update(42, 1, { name: 'Nouveau' });
 
-      expect(repo.findOne).toHaveBeenCalledWith({ where: { id: 1, userId: 42 } });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { id: 1, userId: 42 },
+      });
       expect(result.name).toBe('Nouveau');
     });
 
-    it('lève NotFoundException si la catégorie n\'appartient pas à l\'utilisateur', async () => {
+    it("lève NotFoundException si la catégorie n'appartient pas à l'utilisateur", async () => {
       repo.findOne.mockResolvedValue(null);
-      await expect(service.update(99, 1, { name: 'X' })).rejects.toThrow(NotFoundException);
+      await expect(service.update(99, 1, { name: 'X' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -111,11 +128,13 @@ describe('LinkCategoriesService', () => {
 
       await service.remove(42, 1);
 
-      expect(repo.findOne).toHaveBeenCalledWith({ where: { id: 1, userId: 42 } });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { id: 1, userId: 42 },
+      });
       expect(repo.remove).toHaveBeenCalledWith(cat);
     });
 
-    it('lève NotFoundException si la catégorie n\'appartient pas à l\'utilisateur', async () => {
+    it("lève NotFoundException si la catégorie n'appartient pas à l'utilisateur", async () => {
       repo.findOne.mockResolvedValue(null);
       await expect(service.remove(99, 1)).rejects.toThrow(NotFoundException);
     });
@@ -131,13 +150,21 @@ describe('LinkCategoriesService', () => {
       ]);
 
       expect(repo.update).toHaveBeenCalledTimes(2);
-      expect(repo.update).toHaveBeenCalledWith({ id: 1, userId: 42 }, { position: 0 });
-      expect(repo.update).toHaveBeenCalledWith({ id: 2, userId: 42 }, { position: 1 });
+      expect(repo.update).toHaveBeenCalledWith(
+        { id: 1, userId: 42 },
+        { position: 0 },
+      );
+      expect(repo.update).toHaveBeenCalledWith(
+        { id: 2, userId: 42 },
+        { position: 1 },
+      );
     });
 
-    it('lève NotFoundException si un item n\'appartient pas à l\'utilisateur', async () => {
+    it("lève NotFoundException si un item n'appartient pas à l'utilisateur", async () => {
       repo.update.mockResolvedValue({ affected: 0 } as any);
-      await expect(service.reorder(42, [{ id: 99, position: 0 }])).rejects.toThrow(NotFoundException);
+      await expect(
+        service.reorder(42, [{ id: 99, position: 0 }]),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

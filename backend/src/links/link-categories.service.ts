@@ -21,7 +21,10 @@ export class LinkCategoriesService {
     });
   }
 
-  async create(userId: number, dto: CreateLinkCategoryDto): Promise<LinkCategoryEntity> {
+  async create(
+    userId: number,
+    dto: CreateLinkCategoryDto,
+  ): Promise<LinkCategoryEntity> {
     const maxResult = await this.repo
       .createQueryBuilder('cat')
       .select('MAX(cat.position)', 'max')
@@ -51,10 +54,17 @@ export class LinkCategoriesService {
     this.logger.log(`Catégorie ${id} supprimée pour userId=${userId}`);
   }
 
-  async reorder(userId: number, items: { id: number; position: number }[]): Promise<void> {
+  async reorder(
+    userId: number,
+    items: { id: number; position: number }[],
+  ): Promise<void> {
     for (const item of items) {
-      const result = await this.repo.update({ id: item.id, userId }, { position: item.position });
-      if (!result.affected) throw new NotFoundException(`Catégorie ${item.id} introuvable`);
+      const result = await this.repo.update(
+        { id: item.id, userId },
+        { position: item.position },
+      );
+      if (!result.affected)
+        throw new NotFoundException(`Catégorie ${item.id} introuvable`);
     }
   }
 }

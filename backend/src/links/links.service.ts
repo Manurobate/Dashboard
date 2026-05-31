@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { LinkEntity } from './link.entity';
@@ -30,7 +35,8 @@ export class LinksService {
     const category = await this.categoryRepo.findOne({
       where: { id: dto.categoryId, userId },
     });
-    if (!category) throw new ForbiddenException(`Catégorie ${dto.categoryId} introuvable`);
+    if (!category)
+      throw new ForbiddenException(`Catégorie ${dto.categoryId} introuvable`);
 
     const maxResult = await this.repo
       .createQueryBuilder('link')
@@ -46,13 +52,20 @@ export class LinksService {
     return this.repo.save(link);
   }
 
-  async update(userId: number, id: number, dto: UpdateLinkDto): Promise<LinkEntity> {
+  async update(
+    userId: number,
+    id: number,
+    dto: UpdateLinkDto,
+  ): Promise<LinkEntity> {
     const link = await this.repo.findOne({ where: { id, userId } });
     if (!link) throw new NotFoundException(`Lien ${id} introuvable`);
 
     if (dto.categoryId !== undefined) {
-      const category = await this.categoryRepo.findOne({ where: { id: dto.categoryId, userId } });
-      if (!category) throw new ForbiddenException(`Catégorie ${dto.categoryId} introuvable`);
+      const category = await this.categoryRepo.findOne({
+        where: { id: dto.categoryId, userId },
+      });
+      if (!category)
+        throw new ForbiddenException(`Catégorie ${dto.categoryId} introuvable`);
     }
 
     Object.assign(link, dto);
@@ -66,10 +79,17 @@ export class LinksService {
     this.logger.log(`Lien ${id} supprimé pour userId=${userId}`);
   }
 
-  async reorder(userId: number, items: { id: number; position: number }[]): Promise<void> {
+  async reorder(
+    userId: number,
+    items: { id: number; position: number }[],
+  ): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       for (const item of items) {
-        const result = await manager.update(LinkEntity, { id: item.id, userId }, { position: item.position });
+        const result = await manager.update(
+          LinkEntity,
+          { id: item.id, userId },
+          { position: item.position },
+        );
         if (result.affected === 0) {
           throw new NotFoundException(`Lien ${item.id} introuvable`);
         }

@@ -110,3 +110,10 @@ jobs:
             --generate-notes \
             --title "Dashboard ${{ steps.version.outputs.tag }}" \
             --latest
+
+      # ── 7. Resynchroniser develop sur main ──────────────────────────────────
+      - name: Sync develop → main
+        run: |
+          git checkout develop
+          git rebase origin/main
+          git push origin develop --force-with-lease

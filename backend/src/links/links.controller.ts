@@ -36,7 +36,7 @@ export class LinksController {
   @SkipThrottle({ default: false })
   @Throttle({ default: { limit: 15, ttl: 60000 } })
   @Get('og-preview') // PREMIER — avant :id
-  @ApiOperation({ summary: 'Récupérer les données OG d\'une URL' })
+  @ApiOperation({ summary: "Récupérer les données OG d'une URL" })
   fetchOgPreview(@Query('url') url: string) {
     if (!url) throw new BadRequestException('URL requise');
     let parsed: URL;
@@ -46,7 +46,9 @@ export class LinksController {
       throw new BadRequestException('URL invalide');
     }
     if (!['http:', 'https:'].includes(parsed.protocol)) {
-      throw new BadRequestException('Seuls les protocoles http et https sont autorisés');
+      throw new BadRequestException(
+        'Seuls les protocoles http et https sont autorisés',
+      );
     }
     return this.ogFetchService.fetchOgData(url);
   }

@@ -52,9 +52,11 @@ describe('LinksService', () => {
     };
     categoryRepo = { findOne: jest.fn() };
     dataSource = {
-      transaction: jest.fn().mockImplementation(async (cb: (manager: any) => Promise<void>) =>
-        cb({ update: linkRepo.update }),
-      ),
+      transaction: jest
+        .fn()
+        .mockImplementation(async (cb: (manager: any) => Promise<void>) =>
+          cb({ update: linkRepo.update }),
+        ),
     };
     // Reset query builder mocks
     mockQb.select.mockReturnThis();
@@ -65,7 +67,10 @@ describe('LinksService', () => {
       providers: [
         LinksService,
         { provide: getRepositoryToken(LinkEntity), useValue: linkRepo },
-        { provide: getRepositoryToken(LinkCategoryEntity), useValue: categoryRepo },
+        {
+          provide: getRepositoryToken(LinkCategoryEntity),
+          useValue: categoryRepo,
+        },
         { provide: getDataSourceToken(), useValue: dataSource },
       ],
     }).compile();
@@ -97,7 +102,7 @@ describe('LinksService', () => {
         title: 'Example',
         categoryId: 10,
       };
-      const result = await service.create(42, dto as any);
+      const result = await service.create(42, dto);
       expect(result).toEqual(mockLink);
       expect(linkRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({ position: 0, userId: 42 }),
@@ -111,7 +116,11 @@ describe('LinksService', () => {
       linkRepo.create.mockReturnValue(savedLink);
       linkRepo.save.mockResolvedValue(savedLink);
 
-      const result = await service.create(42, { url: 'https://a.com', title: 'A', categoryId: 10 } as any);
+      const result = await service.create(42, {
+        url: 'https://a.com',
+        title: 'A',
+        categoryId: 10,
+      });
       expect(linkRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({ position: 3 }),
       );
@@ -121,7 +130,11 @@ describe('LinksService', () => {
     it("lève ForbiddenException si la catégorie n'appartient pas à l'utilisateur", async () => {
       categoryRepo.findOne.mockResolvedValue(null);
       await expect(
-        service.create(42, { url: 'https://a.com', title: 'A', categoryId: 99 } as any),
+        service.create(42, {
+          url: 'https://a.com',
+          title: 'A',
+          categoryId: 99,
+        } as any),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -132,13 +145,15 @@ describe('LinksService', () => {
       const updated = { ...mockLink, title: 'Updated' };
       linkRepo.save.mockResolvedValue(updated);
 
-      const result = await service.update(42, 1, { title: 'Updated' } as any);
+      const result = await service.update(42, 1, { title: 'Updated' });
       expect(result.title).toBe('Updated');
     });
 
     it("lève NotFoundException si le lien n'appartient pas à l'utilisateur", async () => {
       linkRepo.findOne.mockResolvedValue(null);
-      await expect(service.update(42, 99, {} as any)).rejects.toThrow(NotFoundException);
+      await expect(service.update(42, 99, {} as any)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('met à jour le categoryId si fourni et si la catégorie appartient au userId', async () => {
@@ -148,23 +163,27 @@ describe('LinksService', () => {
       const updated = { ...linkWithCat, categoryId: 20 };
       linkRepo.save.mockResolvedValue(updated);
 
-      const result = await service.update(42, 1, { categoryId: 20 } as any);
+      const result = await service.update(42, 1, { categoryId: 20 });
       expect(result.categoryId).toBe(20);
-      expect(categoryRepo.findOne).toHaveBeenCalledWith({ where: { id: 20, userId: 42 } });
+      expect(categoryRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 20, userId: 42 },
+      });
     });
 
     it('lève ForbiddenException si categoryId fourni mais catégorie introuvable', async () => {
       linkRepo.findOne.mockResolvedValue(mockLink);
       categoryRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.update(42, 1, { categoryId: 99 } as any)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.update(42, 1, { categoryId: 99 } as any),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('ne vérifie pas categoryId si non fourni dans le dto', async () => {
       linkRepo.findOne.mockResolvedValue(mockLink);
       linkRepo.save.mockResolvedValue(mockLink);
 
-      await service.update(42, 1, { title: 'Sans catégorie' } as any);
+      await service.update(42, 1, { title: 'Sans catégorie' });
       expect(categoryRepo.findOne).not.toHaveBeenCalled();
     });
   });
@@ -188,14 +207,19 @@ describe('LinksService', () => {
     it('met à jour les positions des liens', async () => {
       linkRepo.update.mockResolvedValue({ affected: 1 });
       await expect(
-        service.reorder(42, [{ id: 1, position: 0 }, { id: 2, position: 1 }]),
+        service.reorder(42, [
+          { id: 1, position: 0 },
+          { id: 2, position: 1 },
+        ]),
       ).resolves.toBeUndefined();
       expect(linkRepo.update).toHaveBeenCalledTimes(2);
     });
 
     it('lève NotFoundException si affected === 0', async () => {
       linkRepo.update.mockResolvedValue({ affected: 0 });
-      await expect(service.reorder(42, [{ id: 99, position: 0 }])).rejects.toThrow(NotFoundException);
+      await expect(
+        service.reorder(42, [{ id: 99, position: 0 }]),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

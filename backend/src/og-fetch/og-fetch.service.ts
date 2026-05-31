@@ -20,8 +20,12 @@ export class OgFetchService {
       });
       if (!response.ok) return { title: null, faviconUrl: null };
       const MAX_HTML_SIZE = 512 * 1024;
-      const contentLength = parseInt(response.headers?.get('content-length') ?? '0', 10);
-      if (contentLength > MAX_HTML_SIZE) return { title: null, faviconUrl: null };
+      const contentLength = parseInt(
+        response.headers?.get('content-length') ?? '0',
+        10,
+      );
+      if (contentLength > MAX_HTML_SIZE)
+        return { title: null, faviconUrl: null };
       const html = await response.text();
       return {
         title: this.extractOgTitle(html) ?? this.extractHtmlTitle(html),
@@ -37,8 +41,12 @@ export class OgFetchService {
 
   private extractOgTitle(html: string): string | null {
     const m =
-      html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ??
-      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
+      html.match(
+        /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
+      ) ??
+      html.match(
+        /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i,
+      );
     return m?.[1]?.trim() ?? null;
   }
 
@@ -49,8 +57,12 @@ export class OgFetchService {
   private extractFaviconUrl(html: string, pageUrl: string): string | null {
     const origin = new URL(pageUrl).origin;
     const m =
-      html.match(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]+href=["']([^"']+)["']/i) ??
-      html.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["'][^"']*icon[^"']*["']/i);
+      html.match(
+        /<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]+href=["']([^"']+)["']/i,
+      ) ??
+      html.match(
+        /<link[^>]+href=["']([^"']+)["'][^>]+rel=["'][^"']*icon[^"']*["']/i,
+      );
     if (m?.[1]) {
       const href = m[1];
       if (href.startsWith('http')) return href;

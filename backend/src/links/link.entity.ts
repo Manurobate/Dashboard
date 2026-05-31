@@ -33,7 +33,9 @@ export class LinkEntity {
   @Column()
   categoryId!: number;
 
-  @ManyToOne(() => LinkCategoryEntity, (cat) => cat.links, { onDelete: 'CASCADE' })
+  @ManyToOne(() => LinkCategoryEntity, (cat) => cat.links, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'categoryId' })
   category!: LinkCategoryEntity;
 
