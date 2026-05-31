@@ -10,7 +10,12 @@ export class CreateLinkCategoryDto {
   @MaxLength(255)
   name!: string;
 
-  @ApiProperty({ description: "Icône Material de la catégorie", maxLength: 50, required: false, nullable: true })
+  @ApiProperty({
+    description: 'Icône Material de la catégorie',
+    maxLength: 50,
+    required: false,
+    nullable: true,
+  })
   @IsString()
   @IsOptional()
   @MaxLength(50, { message: "L'icône ne peut pas dépasser 50 caractères" })

@@ -8,7 +8,9 @@ describe('OgFetchService', () => {
   beforeEach(async () => {
     globalThis.fetch = mockFetch;
     mockFetch.mockReset();
-    const module = await Test.createTestingModule({ providers: [OgFetchService] }).compile();
+    const module = await Test.createTestingModule({
+      providers: [OgFetchService],
+    }).compile();
     service = module.get(OgFetchService);
   });
 
@@ -29,7 +31,8 @@ describe('OgFetchService', () => {
   it('should fallback to <title> if no og:title', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      text: () => Promise.resolve('<html><head><title>My Page</title></head></html>'),
+      text: () =>
+        Promise.resolve('<html><head><title>My Page</title></head></html>'),
     });
     const result = await service.fetchOgData('https://example.com');
     expect(result.title).toBe('My Page');

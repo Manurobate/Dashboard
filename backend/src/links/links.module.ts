@@ -9,7 +9,10 @@ import { LinksService } from './links.service';
 import { OgFetchModule } from '../og-fetch/og-fetch.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LinkCategoryEntity, LinkEntity]), OgFetchModule],
+  imports: [
+    TypeOrmModule.forFeature([LinkCategoryEntity, LinkEntity]),
+    OgFetchModule,
+  ],
   controllers: [LinkCategoriesController, LinksController],
   providers: [LinkCategoriesService, LinksService],
   exports: [LinkCategoriesService, LinksService],
