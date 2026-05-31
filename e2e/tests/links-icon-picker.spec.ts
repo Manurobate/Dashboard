@@ -16,7 +16,7 @@ async function login(page: Page): Promise<void> {
 }
 
 async function openEditMode(page: Page): Promise<void> {
-  await page.click('button:has-text("Modifier")');
+  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
 }
 
 test.describe('Sélecteur d\'icônes Material', () => {

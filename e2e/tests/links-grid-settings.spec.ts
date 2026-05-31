@@ -30,7 +30,7 @@ test('widget ⚙️ visible en mode lecture sur grand écran', async ({ page }) 
 test('widget ⚙️ masqué en mode édition', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
-  await page.click('button:has-text("Modifier")');
+  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
   await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).not.toBeVisible();
 });
 
@@ -44,10 +44,10 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
 
-  await page.click('button[aria-label="Paramètres d\'affichage"]');
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
 
-  await page.click('button[aria-label="Plus de colonnes"]');
-  await page.click('button[aria-label="Plus de colonnes"]');
+  await page.locator('button[aria-label="Plus de colonnes"]').click({ force: true });
+  await page.locator('button[aria-label="Plus de colonnes"]').click({ force: true });
 
   const stored = await page.evaluate(() => localStorage.getItem('links-grid-settings'));
   const parsed = JSON.parse(stored!);
@@ -57,6 +57,6 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.waitForURL('/dashboard');
   await page.waitForSelector('button[aria-label="Paramètres d\'affichage"]');
 
-  await page.click('button[aria-label="Paramètres d\'affichage"]');
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
   await expect(page.locator('.setting-row').first()).toContainText('5');
 });

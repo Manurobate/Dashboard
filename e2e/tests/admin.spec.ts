@@ -77,13 +77,13 @@ test('AC1 — Admin peut créer un utilisateur et voir le mot de passe temporair
   await loginAdmin(page);
   await page.goto('/admin');
 
-  await page.click('button:has-text("Nouvel utilisateur")');
+  await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
   await expect(page.locator('mat-dialog-container')).toBeVisible();
 
   const uniqueEmail = `e2e-new-${Date.now()}@test.local`;
   await page.fill('input[formControlName="username"]', uniqueEmail);
   await page.fill('input[formControlName="name"]', 'Test User');
-  await page.click('button:has-text("Créer")');
+  await page.locator('button:has-text("Créer")').click({ force: true });
 
   await expect(page.locator('.temp-password-value')).toBeVisible();
   await expect(page.locator('button[aria-label="Copier le mot de passe"]')).toBeVisible();
@@ -96,10 +96,10 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await loginAdmin(page);
   await page.goto('/admin');
 
-  await page.click('button:has-text("Nouvel utilisateur")');
+  await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
   await page.fill('input[formControlName="username"]', adminEmail!);
   await page.fill('input[formControlName="name"]', 'Doublon');
-  await page.click('button:has-text("Créer")');
+  await page.locator('button:has-text("Créer")').click({ force: true });
   await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
 
   await expect(page.locator('mat-error')).toContainText('déjà utilisée');

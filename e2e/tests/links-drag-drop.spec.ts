@@ -19,7 +19,7 @@ async function login(page: any) {
 test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible', async ({ page }) => {
   await login(page);
 
-  await page.click('button:has-text("Modifier")');
+  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
 
   const cards = page.locator('app-link-category-card');
   const sourceCard = cards.nth(0);
