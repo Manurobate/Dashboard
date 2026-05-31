@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11-lts
+    image: mariadb:11.4
     environment:
       MARIADB_DATABASE: ${DB_NAME}
       MARIADB_USER: ${DB_USER}
@@ -52,7 +52,7 @@ services:
       retries: 3
 
   backup:
-    image: mariadb:11-lts
+    image: mariadb:11.4
     entrypoint:
       - /bin/sh
       - -c
