@@ -1,15 +1,15 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
 
-const adminUsername = process.env['E2E_ADMIN_USERNAME'];
+const adminEmail = process.env['E2E_ADMIN_EMAIL'];
 const adminPassword = process.env['E2E_ADMIN_PASSWORD'];
 
-if (!adminUsername || !adminPassword) {
-  throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+if (!adminEmail || !adminPassword) {
+  throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD must be set');
 }
 
 async function loginAdminApi(request: APIRequestContext): Promise<void> {
   const loginRes = await request.post('/api/auth/login', {
-    data: { username: adminUsername, password: adminPassword },
+    data: { username: adminEmail, password: adminPassword },
   });
   expect(loginRes.ok()).toBeTruthy();
 }
@@ -61,7 +61,7 @@ test("AC1/2 — Modification du nom d'affichage persiste", async ({ page, reques
 
 test('AC4 — Bouton "Changer le mot de passe" redirige vers /account/change-password', async ({ page }) => {
   await page.goto('/login');
-  await page.fill('input[autocomplete="email"]', adminUsername!);
+  await page.fill('input[autocomplete="email"]', adminEmail!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/dashboard$/);
@@ -73,7 +73,7 @@ test('AC4 — Bouton "Changer le mot de passe" redirige vers /account/change-pas
 
 test('AC3 — Erreur inline si nom vide', async ({ page }) => {
   await page.goto('/login');
-  await page.fill('input[autocomplete="email"]', adminUsername!);
+  await page.fill('input[autocomplete="email"]', adminEmail!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/dashboard$/);

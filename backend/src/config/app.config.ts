@@ -15,7 +15,7 @@ export const validationSchema = Joi.object({
     .pattern(/^\d+[smhd]$/)
     .default('15m'),
   REFRESH_TOKEN_EXPIRY_DAYS: Joi.number().min(1).default(30),
-  ADMIN_USERNAME: Joi.string().trim().min(1).required(),
+  ADMIN_EMAIL: Joi.string().email().trim().lowercase().required(),
   ADMIN_INITIAL_PASSWORD: Joi.string().trim().min(8).required(),
   THROTTLER_TTL: Joi.number().default(60000),
   THROTTLER_LIMIT: Joi.number().default(5),

@@ -1,16 +1,16 @@
 import { test, expect, Page } from '@playwright/test';
 import { randomUUID } from 'crypto';
 
-const adminUsername = process.env['E2E_ADMIN_USERNAME'];
+const adminEmail = process.env['E2E_ADMIN_EMAIL'];
 const adminPassword = process.env['E2E_ADMIN_PASSWORD'];
 
-if (!adminUsername || !adminPassword) {
-  throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+if (!adminEmail || !adminPassword) {
+  throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD must be set');
 }
 
 async function loginAdmin(page: Page): Promise<void> {
   await page.goto('/login');
-  await page.fill('input[autocomplete="email"]', adminUsername!);
+  await page.fill('input[autocomplete="email"]', adminEmail!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(links|change-password|admin)$/);
@@ -75,7 +75,7 @@ test.describe('Admin responsive mobile (390×844)', () => {
 
     test('admin mobile — dialog désactiver dans le viewport', async ({ page, request }) => {
       const loginRes = await request.post('/api/auth/login', {
-        data: { username: adminUsername, password: adminPassword },
+        data: { username: adminEmail, password: adminPassword },
       });
       expect(loginRes.ok()).toBeTruthy();
 
@@ -104,7 +104,7 @@ test.describe('Admin responsive mobile (390×844)', () => {
 
     test('admin mobile — dialog supprimer dans le viewport', async ({ page, request }) => {
       const loginRes = await request.post('/api/auth/login', {
-        data: { username: adminUsername, password: adminPassword },
+        data: { username: adminEmail, password: adminPassword },
       });
       expect(loginRes.ok()).toBeTruthy();
 
@@ -133,7 +133,7 @@ test.describe('Admin responsive mobile (390×844)', () => {
 
     test('admin mobile — dialog réinitialiser mot de passe dans le viewport', async ({ page, request }) => {
       const loginRes = await request.post('/api/auth/login', {
-        data: { username: adminUsername, password: adminPassword },
+        data: { username: adminEmail, password: adminPassword },
       });
       expect(loginRes.ok()).toBeTruthy();
 

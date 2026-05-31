@@ -1,22 +1,22 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 
-const adminUsername = process.env['E2E_ADMIN_USERNAME'];
+const adminEmail = process.env['E2E_ADMIN_EMAIL'];
 const adminPassword = process.env['E2E_ADMIN_PASSWORD'];
 
-if (!adminUsername || !adminPassword) {
-  throw new Error('E2E_ADMIN_USERNAME and E2E_ADMIN_PASSWORD must be set');
+if (!adminEmail || !adminPassword) {
+  throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD must be set');
 }
 
 async function loginAdminApi(request: APIRequestContext): Promise<void> {
   const loginRes = await request.post('/api/auth/login', {
-    data: { username: adminUsername, password: adminPassword },
+    data: { username: adminEmail, password: adminPassword },
   });
   expect(loginRes.ok()).toBeTruthy();
 }
 
 async function loginAdmin(page: Page): Promise<void> {
   await page.goto('/login');
-  await page.fill('input[autocomplete="email"]', adminUsername!);
+  await page.fill('input[autocomplete="email"]', adminEmail!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(dashboard|change-password)$/);
@@ -36,7 +36,7 @@ test('AC1 — Admin voit le panneau /admin avec la liste des comptes', async ({ 
 test('AC1 — La liste affiche au moins le compte admin', async ({ page }) => {
   await loginAdmin(page);
   await page.goto('/admin');
-  await expect(page.getByText(adminUsername!)).toBeVisible();
+  await expect(page.getByText(adminEmail!)).toBeVisible();
 });
 
 test('AC2 — Utilisateur non authentifié redirigé vers /login', async ({ page }) => {
@@ -46,7 +46,7 @@ test('AC2 — Utilisateur non authentifié redirigé vers /login', async ({ page
 
 test('AC2 — Utilisateur standard redirigé vers /dashboard depuis /admin', async ({ page, request }) => {
   const loginRes = await request.post('/api/auth/login', {
-    data: { username: adminUsername, password: adminPassword },
+    data: { username: adminEmail, password: adminPassword },
   });
   expect(loginRes.ok()).toBeTruthy();
 
@@ -96,7 +96,7 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.goto('/admin');
 
   await page.click('button:has-text("Nouvel utilisateur")');
-  await page.fill('input[formControlName="username"]', adminUsername!);
+  await page.fill('input[formControlName="username"]', adminEmail!);
   await page.fill('input[formControlName="name"]', 'Doublon');
   await page.click('button:has-text("Créer")');
   await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
@@ -106,7 +106,7 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
 
 test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {
   const loginRes = await request.post('/api/auth/login', {
-    data: { username: adminUsername, password: adminPassword },
+    data: { username: adminEmail, password: adminPassword },
   });
   expect(loginRes.ok()).toBeTruthy();
 
@@ -137,7 +137,7 @@ test('Reset password — Admin réinitialise le mot de passe et voit le nouveau 
 
 test('Reset password — L\'utilisateur peut se connecter avec le nouveau mot de passe temporaire', async ({ page, request }) => {
   const loginRes = await request.post('/api/auth/login', {
-    data: { username: adminUsername, password: adminPassword },
+    data: { username: adminEmail, password: adminPassword },
   });
   expect(loginRes.ok()).toBeTruthy();
 
@@ -235,7 +235,7 @@ test('Auto-protection — Admin ne voit pas les boutons disable/delete sur son p
   await loginAdmin(page);
   await page.goto('/admin');
 
-  const adminRow = page.locator('tr', { hasText: adminUsername! });
+  const adminRow = page.locator('tr', { hasText: adminEmail! });
   await expect(adminRow.locator('button[aria-label="Désactiver le compte"]')).not.toBeVisible();
   await expect(adminRow.locator('button[aria-label="Supprimer le compte"]')).not.toBeVisible();
 });

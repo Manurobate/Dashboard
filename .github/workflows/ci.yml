@@ -98,7 +98,7 @@ jobs:
 
       - name: Créer .env pour CI
         env:
-          ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
+          ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           ADMIN_INITIAL_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         run: |
           # Fichier à la racine du projet — docker-compose.yml utilise env_file: .env
@@ -114,7 +114,7 @@ jobs:
           JWT_EXPIRES_IN=15m
           REFRESH_TOKEN_EXPIRES_IN=7d
           ENVFILE
-          printf 'ADMIN_USERNAME=%s\n' "$ADMIN_USERNAME" >> .env
+          printf 'ADMIN_EMAIL=%s\n' "$ADMIN_EMAIL" >> .env
           printf 'ADMIN_INITIAL_PASSWORD=%s\n' "$ADMIN_INITIAL_PASSWORD" >> .env
 
       - name: Démarrer la stack
@@ -136,7 +136,7 @@ jobs:
         working-directory: e2e
         env:
           BASE_URL: http://localhost
-          E2E_ADMIN_USERNAME: ${{ secrets.E2E_ADMIN_USERNAME }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         run: npx playwright test
 
