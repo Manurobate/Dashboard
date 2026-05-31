@@ -28,7 +28,7 @@ describe('AuthService', () => {
     updatePasswordHash: jest.Mock;
   };
   let jwtService: jest.Mocked<JwtService>;
-  let configService: jest.Mocked<ConfigService>;
+  let _configService: jest.Mocked<ConfigService>;
   let refreshTokenRepo: {
     save: jest.Mock;
     findOne: jest.Mock;
@@ -36,8 +36,7 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
-    const hashedPassword = await bcrypt.hash('password123', 10);
-    mockUser.passwordHash = hashedPassword;
+    mockUser.passwordHash = await bcrypt.hash('password123', 10);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -77,7 +76,7 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
-    configService = module.get(ConfigService);
+    _configService = module.get(ConfigService);
     refreshTokenRepo = module.get(getRepositoryToken(RefreshTokenEntity));
   });
 
@@ -147,8 +146,7 @@ describe('AuthService', () => {
   describe('updatePassword', () => {
     it('should hash with cost 12, keep mustChangePassword unchanged, and return safeUser', async () => {
       const userWithPwd = { ...mockUser, mustChangePassword: false };
-      const hashedPwd = await bcrypt.hash('currentPass1', 10);
-      userWithPwd.passwordHash = hashedPwd;
+      userWithPwd.passwordHash = await bcrypt.hash('currentPass1', 10);
       usersService.findById.mockResolvedValue(userWithPwd);
 
       const updatedUser: UserEntity = {
