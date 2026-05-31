@@ -12,7 +12,7 @@ async function login(page: Page): Promise<void> {
   await page.fill('input[autocomplete="email"]', username!);
   await page.fill('input[autocomplete="current-password"]', password!);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/links', { timeout: 10000 });
+  await page.waitForURL('/dashboard', { timeout: 10000 });
 }
 
 async function openEditMode(page: Page): Promise<void> {

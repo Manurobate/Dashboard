@@ -13,6 +13,7 @@ async function login(page: Page) {
   await page.fill('input[autocomplete="current-password"]', password!);
   await page.click('button[type="submit"]');
   await page.waitForURL('/dashboard', { timeout: 10000 });
+  await page.waitForLoadState('networkidle');
 }
 
 test.beforeEach(async ({ page }) => {

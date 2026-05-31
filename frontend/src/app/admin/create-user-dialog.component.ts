@@ -59,6 +59,7 @@ export class CreateUserDialogComponent {
         this.isSubmitting.set(false);
         if (err.status === 409) {
           this.conflictError.set(true);
+          this.form.controls.username.setErrors({ conflict: true });
         } else {
           this.genericError.set(true);
         }

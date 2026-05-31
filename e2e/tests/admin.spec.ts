@@ -24,6 +24,7 @@ async function loginAdmin(page: Page): Promise<void> {
   if (url.includes('change-password')) {
     throw new Error('Admin must have changed password before running admin tests');
   }
+  await page.waitForLoadState('networkidle');
 }
 
 test('AC1 — Admin voit le panneau /admin avec la liste des comptes', async ({ page }) => {
@@ -36,7 +37,7 @@ test('AC1 — Admin voit le panneau /admin avec la liste des comptes', async ({ 
 test('AC1 — La liste affiche au moins le compte admin', async ({ page }) => {
   await loginAdmin(page);
   await page.goto('/admin');
-  await expect(page.getByText(adminEmail!)).toBeVisible();
+  await expect(page.locator('table').getByText(adminEmail!)).toBeVisible();
 });
 
 test('AC2 — Utilisateur non authentifié redirigé vers /login', async ({ page }) => {
