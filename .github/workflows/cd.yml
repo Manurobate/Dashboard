@@ -115,5 +115,5 @@ jobs:
       - name: Sync develop → main
         run: |
           git checkout develop
-          git rebase origin/main
+          git merge origin/main
           git push origin develop --force-with-lease
