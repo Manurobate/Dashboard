@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ARG APP_VERSION=dev
-RUN npm version ${APP_VERSION} --no-git-tag-version --allow-same-version
+RUN if [ "$APP_VERSION" != "dev" ]; then npm version ${APP_VERSION} --no-git-tag-version --allow-same-version; fi
 RUN npm run build
 
 FROM nginx:1.27-alpine AS final
