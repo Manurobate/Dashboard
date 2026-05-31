@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -65,7 +71,8 @@ export class ChangePasswordComponent {
         if (status === 401) {
           void this.router.navigate(['/login']);
         } else {
-          const message = (err as { error?: { message?: string } })?.error?.message ?? 'Une erreur est survenue';
+          const message =
+            (err as { error?: { message?: string } })?.error?.message ?? 'Une erreur est survenue';
           this.serverError.set(message);
           this.isLoading.set(false);
         }

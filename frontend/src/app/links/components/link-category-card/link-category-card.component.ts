@@ -10,12 +10,7 @@ import { LinkItemComponent } from '../link-item/link-item.component';
   selector: 'app-link-category-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    DragDropModule,
-    LinkItemComponent,
-  ],
+  imports: [MatButtonModule, MatIconModule, DragDropModule, LinkItemComponent],
   templateUrl: './link-category-card.component.html',
   styleUrl: './link-category-card.component.scss',
 })

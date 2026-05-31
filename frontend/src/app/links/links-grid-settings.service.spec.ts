@@ -14,7 +14,10 @@ describe('LinksGridSettingsService', () => {
   });
 
   it('restaure les paramètres depuis localStorage', () => {
-    localStorage.setItem('links-grid-settings', JSON.stringify({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24 }));
+    localStorage.setItem(
+      'links-grid-settings',
+      JSON.stringify({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24 }),
+    );
     const svc = TestBed.inject(LinksGridSettingsService);
     expect(svc.gridSettings()).toEqual({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24 });
   });

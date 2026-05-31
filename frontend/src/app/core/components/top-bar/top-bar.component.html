@@ -2,20 +2,46 @@
   <span class="app-title">Dashboard</span>
 
   @if (authService.currentUser()) {
-    <nav mat-tab-nav-bar class="desktop-nav" [tabPanel]="tabPanel" aria-label="Navigation principale">
-      <a mat-tab-link routerLink="/dashboard" routerLinkActive #dashboardLink="routerLinkActive"
-         [active]="dashboardLink.isActive">Accueil</a>
-      <a mat-tab-link routerLink="/recipes" routerLinkActive #recipesLink="routerLinkActive"
-         [active]="recipesLink.isActive">Recettes</a>
-      <a mat-tab-link routerLink="/notes" routerLinkActive #notesLink="routerLinkActive"
-         [active]="notesLink.isActive">Notes</a>
+    <nav
+      mat-tab-nav-bar
+      class="desktop-nav"
+      [tabPanel]="tabPanel"
+      aria-label="Navigation principale"
+    >
+      <a
+        mat-tab-link
+        routerLink="/dashboard"
+        routerLinkActive
+        #dashboardLink="routerLinkActive"
+        [active]="dashboardLink.isActive"
+        >Accueil</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/recipes"
+        routerLinkActive
+        #recipesLink="routerLinkActive"
+        [active]="recipesLink.isActive"
+        >Recettes</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/notes"
+        routerLinkActive
+        #notesLink="routerLinkActive"
+        [active]="notesLink.isActive"
+        >Notes</a
+      >
     </nav>
   }
 
   <span class="spacer"></span>
 
-  <button mat-icon-button (click)="themeService.toggle()"
-          [attr.aria-label]="themeService.isDark() ? 'Activer le thème clair' : 'Activer le thème sombre'">
+  <button
+    mat-icon-button
+    (click)="themeService.toggle()"
+    [attr.aria-label]="themeService.isDark() ? 'Activer le thème clair' : 'Activer le thème sombre'"
+  >
     <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 

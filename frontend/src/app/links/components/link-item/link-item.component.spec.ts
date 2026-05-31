@@ -72,9 +72,7 @@ describe('LinkItemComponent', () => {
     const emitted: Link[] = [];
     component.editLink.subscribe((v) => emitted.push(v));
 
-    const editBtn = fixture.debugElement.query(
-      By.css('button[aria-label="Modifier le lien"]'),
-    );
+    const editBtn = fixture.debugElement.query(By.css('button[aria-label="Modifier le lien"]'));
     editBtn.nativeElement.click();
 
     expect(emitted).toHaveLength(1);
@@ -86,16 +84,14 @@ describe('LinkItemComponent', () => {
     const emitted: Link[] = [];
     component.deleteLink.subscribe((v) => emitted.push(v));
 
-    const deleteBtn = fixture.debugElement.query(
-      By.css('button[aria-label="Supprimer le lien"]'),
-    );
+    const deleteBtn = fixture.debugElement.query(By.css('button[aria-label="Supprimer le lien"]'));
     deleteBtn.nativeElement.click();
 
     expect(emitted).toHaveLength(1);
     expect(emitted[0]).toEqual(mockLink);
   });
 
-  it('les boutons d\'action ne sont pas dans le DOM en mode lecture', async () => {
+  it("les boutons d'action ne sont pas dans le DOM en mode lecture", async () => {
     const { fixture } = await setup(mockLink, false);
     expect(fixture.debugElement.query(By.css('.link-actions'))).toBeNull();
   });

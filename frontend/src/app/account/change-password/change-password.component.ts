@@ -1,6 +1,15 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormBuilder, FormControl, FormGroupDirective, NgForm, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroupDirective,
+  NgForm,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -66,14 +75,15 @@ export class ChangePasswordComponent {
 
   constructor() {
     // Efface l'erreur serveur dès que l'utilisateur retape dans le champ
-    this.form.get('currentPassword')!.valueChanges.pipe(
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(() => {
-      const ctrl = this.form.get('currentPassword')!;
-      if (ctrl.hasError('serverError')) {
-        ctrl.updateValueAndValidity({ emitEvent: false });
-      }
-    });
+    this.form
+      .get('currentPassword')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const ctrl = this.form.get('currentPassword')!;
+        if (ctrl.hasError('serverError')) {
+          ctrl.updateValueAndValidity({ emitEvent: false });
+        }
+      });
   }
 
   onSubmit(): void {

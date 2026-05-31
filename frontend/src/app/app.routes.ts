@@ -8,49 +8,52 @@ export const routes: Routes = [
   { path: 'links', redirectTo: 'dashboard', pathMatch: 'full' },
   {
     path: 'login',
-    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
+    loadComponent: () => import('./auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'change-password',
     canActivate: [authGuard],
-    loadComponent: () => import('./auth/change-password/change-password.component')
-      .then(m => m.ChangePasswordComponent),
+    loadComponent: () =>
+      import('./auth/change-password/change-password.component').then(
+        (m) => m.ChangePasswordComponent,
+      ),
   },
   {
     path: 'account/change-password',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./account/change-password/change-password.component')
-      .then(m => m.ChangePasswordComponent),
+    loadComponent: () =>
+      import('./account/change-password/change-password.component').then(
+        (m) => m.ChangePasswordComponent,
+      ),
   },
   {
     path: 'profile',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./profile/profile.component')
-      .then(m => m.ProfileComponent),
+    loadComponent: () => import('./profile/profile.component').then((m) => m.ProfileComponent),
   },
   {
     path: 'dashboard',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./links/links.component').then(m => m.LinksComponent),
+    loadComponent: () => import('./links/links.component').then((m) => m.LinksComponent),
   },
   {
     path: 'recipes',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./recipes/recipes.component').then(m => m.RecipesComponent),
+    loadComponent: () => import('./recipes/recipes.component').then((m) => m.RecipesComponent),
   },
   {
     path: 'notes',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./notes/notes.component').then(m => m.NotesComponent),
+    loadComponent: () => import('./notes/notes.component').then((m) => m.NotesComponent),
   },
   {
     path: 'admin',
     canActivate: [authGuard, mustChangePasswordGuard, adminGuard],
-    loadComponent: () => import('./admin/admin-panel.component').then(m => m.AdminPanelComponent),
+    loadComponent: () => import('./admin/admin-panel.component').then((m) => m.AdminPanelComponent),
   },
   {
     path: 'share',
-    loadChildren: () => import('./share/share.routes').then(r => r.shareRoutes),
+    loadChildren: () => import('./share/share.routes').then((r) => r.shareRoutes),
   },
   { path: '**', redirectTo: '/dashboard' },
 ];

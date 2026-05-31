@@ -23,10 +23,7 @@ describe('TopBarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopBarComponent],
-      providers: [
-        provideRouter(routes),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      providers: [provideRouter(routes), { provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
   });
 

@@ -96,7 +96,7 @@ describe('MaterialIconPickerComponent', () => {
     });
   });
 
-  describe('recherche d\'icônes avec debounce', () => {
+  describe("recherche d'icônes avec debounce", () => {
     it('filtre les icônes par nom après le debounce', async () => {
       vi.useFakeTimers();
       const { component } = await setup();
@@ -153,7 +153,7 @@ describe('MaterialIconPickerComponent', () => {
     });
   });
 
-  describe('sélection d\'icône', () => {
+  describe("sélection d'icône", () => {
     it('select() met à jour selectedIcon', async () => {
       const { component } = await setup();
       component.select('star');
@@ -168,7 +168,7 @@ describe('MaterialIconPickerComponent', () => {
   });
 
   describe('actions du dialog', () => {
-    it('confirm() ferme le dialog avec l\'icône sélectionnée', async () => {
+    it("confirm() ferme le dialog avec l'icône sélectionnée", async () => {
       const { component } = await setup('home');
       component.confirm();
       expect(dialogRefSpy.close).toHaveBeenCalledWith('home');
@@ -194,7 +194,7 @@ describe('MaterialIconPickerComponent', () => {
   });
 
   describe('template', () => {
-    it('affiche la prévisualisation de l\'icône sélectionnée', async () => {
+    it("affiche la prévisualisation de l'icône sélectionnée", async () => {
       const { fixture, component } = await setup('star');
       const preview = fixture.debugElement.query(By.css('.selected-preview'));
       expect(preview).toBeTruthy();
@@ -202,7 +202,7 @@ describe('MaterialIconPickerComponent', () => {
       expect(icon.nativeElement.textContent.trim()).toBe('star');
     });
 
-    it('n\'affiche pas la prévisualisation si aucune sélection', async () => {
+    it("n'affiche pas la prévisualisation si aucune sélection", async () => {
       const { fixture } = await setup(null);
       const preview = fixture.debugElement.query(By.css('.selected-preview'));
       expect(preview).toBeNull();

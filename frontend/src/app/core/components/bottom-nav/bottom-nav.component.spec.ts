@@ -29,7 +29,7 @@ describe('BottomNavComponent', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     const items = compiled.querySelectorAll('a.bottom-nav-item');
-    items.forEach(item => {
+    items.forEach((item) => {
       expect(item.getAttribute('aria-label')).toBeTruthy();
     });
   });

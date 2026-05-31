@@ -11,7 +11,12 @@
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Mot de passe</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+          />
         </mat-form-field>
         @if (errorMessage()) {
           <p class="form-error">{{ errorMessage() }}</p>

@@ -49,13 +49,13 @@ describe('LinkCategoryCardComponent', () => {
     expect(nameEl.nativeElement.textContent.trim()).toBe('Dev');
   });
 
-  it('affiche l\'icône Material de la catégorie', async () => {
+  it("affiche l'icône Material de la catégorie", async () => {
     const { fixture } = await setup();
     const iconEl = fixture.debugElement.query(By.css('.category-icon'));
     expect(iconEl.nativeElement.textContent.trim()).toBe('code');
   });
 
-  it('affiche l\'icône de fallback folder_open si aucune icône définie', async () => {
+  it("affiche l'icône de fallback folder_open si aucune icône définie", async () => {
     const catSansIcon: LinkCategory = { ...mockCat, icon: null };
     await TestBed.configureTestingModule({
       imports: [LinkCategoryCardComponent],

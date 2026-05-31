@@ -10,8 +10,14 @@ import { finalize } from 'rxjs/operators';
 import { AdminService, UserListItem } from './admin.service';
 import { AuthService } from '../core/services/auth.service';
 import { CreateUserDialogComponent } from './create-user-dialog.component';
-import { ResetPasswordDialogComponent, ResetPasswordDialogData } from './reset-password-dialog.component';
-import { ConfirmDestructiveDialogComponent, ConfirmDestructiveDialogData } from './confirm-destructive-dialog.component';
+import {
+  ResetPasswordDialogComponent,
+  ResetPasswordDialogData,
+} from './reset-password-dialog.component';
+import {
+  ConfirmDestructiveDialogComponent,
+  ConfirmDestructiveDialogData,
+} from './confirm-destructive-dialog.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -34,7 +40,14 @@ export class AdminPanelComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = ['username', 'name', 'role', 'isActive', 'mustChangePassword', 'actions'];
+  readonly displayedColumns = [
+    'username',
+    'name',
+    'role',
+    'isActive',
+    'mustChangePassword',
+    'actions',
+  ];
   readonly isActioning = signal(false);
 
   ngOnInit(): void {
@@ -42,7 +55,11 @@ export class AdminPanelComponent implements OnInit {
   }
 
   openCreateUserDialog(): void {
-    this.dialog.open(CreateUserDialogComponent, { width: '400px', maxWidth: '95vw', disableClose: false });
+    this.dialog.open(CreateUserDialogComponent, {
+      width: '400px',
+      maxWidth: '95vw',
+      disableClose: false,
+    });
   }
 
   openResetPasswordDialog(user: UserListItem): void {
@@ -56,76 +73,82 @@ export class AdminPanelComponent implements OnInit {
 
   enableUser(user: UserListItem): void {
     this.isActioning.set(true);
-    this.adminService.enableUser(user.id).pipe(
-      finalize(() => this.isActioning.set(false)),
-    ).subscribe({
-      next: () => {
-        this.snackBar.open('Compte réactivé', 'Fermer', { duration: 3000 });
-        this.adminService.loadUsers().subscribe({ error: () => {} });
-      },
-      error: () => {
-        this.snackBar.open('Impossible de réactiver le compte', 'Fermer', { duration: 4000 });
-      },
-    });
-  }
-
-  openDisableDialog(user: UserListItem): void {
-    const ref = this.dialog.open<ConfirmDestructiveDialogComponent, ConfirmDestructiveDialogData, boolean>(
-      ConfirmDestructiveDialogComponent,
-      {
-        width: '400px',
-        maxWidth: '95vw',
-        data: {
-          title: `Désactiver ${user.username} ?`,
-          message: "Le compte sera désactivé. L'utilisateur sera immédiatement déconnecté si sa session était active.",
-          confirmLabel: 'Désactiver',
-        } satisfies ConfirmDestructiveDialogData,
-      },
-    );
-    ref.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
-      this.isActioning.set(true);
-      this.adminService.disableUser(user.id).pipe(
-        finalize(() => this.isActioning.set(false)),
-      ).subscribe({
+    this.adminService
+      .enableUser(user.id)
+      .pipe(finalize(() => this.isActioning.set(false)))
+      .subscribe({
         next: () => {
-          this.snackBar.open('Compte désactivé', 'Fermer', { duration: 3000 });
+          this.snackBar.open('Compte réactivé', 'Fermer', { duration: 3000 });
           this.adminService.loadUsers().subscribe({ error: () => {} });
         },
         error: () => {
-          this.snackBar.open('Impossible de désactiver le compte', 'Fermer', { duration: 4000 });
+          this.snackBar.open('Impossible de réactiver le compte', 'Fermer', { duration: 4000 });
         },
       });
+  }
+
+  openDisableDialog(user: UserListItem): void {
+    const ref = this.dialog.open<
+      ConfirmDestructiveDialogComponent,
+      ConfirmDestructiveDialogData,
+      boolean
+    >(ConfirmDestructiveDialogComponent, {
+      width: '400px',
+      maxWidth: '95vw',
+      data: {
+        title: `Désactiver ${user.username} ?`,
+        message:
+          "Le compte sera désactivé. L'utilisateur sera immédiatement déconnecté si sa session était active.",
+        confirmLabel: 'Désactiver',
+      } satisfies ConfirmDestructiveDialogData,
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.isActioning.set(true);
+      this.adminService
+        .disableUser(user.id)
+        .pipe(finalize(() => this.isActioning.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Compte désactivé', 'Fermer', { duration: 3000 });
+            this.adminService.loadUsers().subscribe({ error: () => {} });
+          },
+          error: () => {
+            this.snackBar.open('Impossible de désactiver le compte', 'Fermer', { duration: 4000 });
+          },
+        });
     });
   }
 
   openDeleteDialog(user: UserListItem): void {
-    const ref = this.dialog.open<ConfirmDestructiveDialogComponent, ConfirmDestructiveDialogData, boolean>(
+    const ref = this.dialog.open<
       ConfirmDestructiveDialogComponent,
-      {
-        width: '400px',
-        maxWidth: '95vw',
-        data: {
-          title: `Supprimer ${user.username} ?`,
-          message: 'Cette action est irréversible. Le compte sera définitivement supprimé.',
-          confirmLabel: 'Supprimer',
-        } satisfies ConfirmDestructiveDialogData,
-      },
-    );
-    ref.afterClosed().subscribe(confirmed => {
+      ConfirmDestructiveDialogData,
+      boolean
+    >(ConfirmDestructiveDialogComponent, {
+      width: '400px',
+      maxWidth: '95vw',
+      data: {
+        title: `Supprimer ${user.username} ?`,
+        message: 'Cette action est irréversible. Le compte sera définitivement supprimé.',
+        confirmLabel: 'Supprimer',
+      } satisfies ConfirmDestructiveDialogData,
+    });
+    ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
       this.isActioning.set(true);
-      this.adminService.deleteUser(user.id).pipe(
-        finalize(() => this.isActioning.set(false)),
-      ).subscribe({
-        next: () => {
-          this.snackBar.open('Compte supprimé', 'Fermer', { duration: 3000 });
-          this.adminService.loadUsers().subscribe({ error: () => {} });
-        },
-        error: () => {
-          this.snackBar.open('Impossible de supprimer le compte', 'Fermer', { duration: 4000 });
-        },
-      });
+      this.adminService
+        .deleteUser(user.id)
+        .pipe(finalize(() => this.isActioning.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Compte supprimé', 'Fermer', { duration: 3000 });
+            this.adminService.loadUsers().subscribe({ error: () => {} });
+          },
+          error: () => {
+            this.snackBar.open('Impossible de supprimer le compte', 'Fermer', { duration: 4000 });
+          },
+        });
     });
   }
 }

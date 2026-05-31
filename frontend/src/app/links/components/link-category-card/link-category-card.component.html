@@ -7,25 +7,33 @@
     <span class="category-name">{{ category.name }}</span>
     @if (editMode) {
       <div class="category-actions">
-        <button mat-icon-button (click)="editCategory.emit(category)"
-                aria-label="Modifier la catégorie">
+        <button
+          mat-icon-button
+          (click)="editCategory.emit(category)"
+          aria-label="Modifier la catégorie"
+        >
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="deleteCategory.emit(category)"
-                aria-label="Supprimer la catégorie">
+        <button
+          mat-icon-button
+          (click)="deleteCategory.emit(category)"
+          aria-label="Supprimer la catégorie"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     }
   </div>
 
-  <div cdkDropList
-       [id]="'links-' + category.id"
-       [cdkDropListData]="links"
-       [cdkDropListConnectedTo]="connectedTo"
-       (cdkDropListDropped)="dropLink($event)"
-       class="link-list"
-       [class.edit-mode]="editMode">
+  <div
+    cdkDropList
+    [id]="'links-' + category.id"
+    [cdkDropListData]="links"
+    [cdkDropListConnectedTo]="connectedTo"
+    (cdkDropListDropped)="dropLink($event)"
+    class="link-list"
+    [class.edit-mode]="editMode"
+  >
     @for (link of links; track link.id) {
       <app-link-item
         cdkDrag
@@ -33,7 +41,8 @@
         [link]="link"
         [editMode]="editMode"
         (editLink)="editLink.emit($event)"
-        (deleteLink)="deleteLink.emit($event)" />
+        (deleteLink)="deleteLink.emit($event)"
+      />
     }
     @if (editMode) {
       <button mat-button class="add-link-button" (click)="addLink.emit(category.id)">

@@ -35,7 +35,7 @@ export class AdminService {
     this.users.set([]);
     this.error.set(null);
     return this.http.get<UserListItem[]>('/api/users').pipe(
-      tap(users => this.users.set(users)),
+      tap((users) => this.users.set(users)),
       catchError(() => {
         this.error.set('Impossible de charger la liste des utilisateurs.');
         return of([]);

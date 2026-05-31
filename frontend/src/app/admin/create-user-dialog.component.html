@@ -11,7 +11,9 @@
         @if (form.controls.username.hasError('required') && form.controls.username.touched) {
           <mat-error>L'adresse e-mail est obligatoire</mat-error>
         }
-        @if (form.controls.username.hasError('email') && !form.controls.username.hasError('required')) {
+        @if (
+          form.controls.username.hasError('email') && !form.controls.username.hasError('required')
+        ) {
           <mat-error>Format d'adresse e-mail invalide</mat-error>
         }
         @if (conflictError()) {
@@ -41,8 +43,8 @@
       </button>
     </div>
     <p class="temp-password-warning">
-      Ce mot de passe ne sera plus affiché après fermeture de cette fenêtre.
-      L'utilisateur devra le changer à sa première connexion.
+      Ce mot de passe ne sera plus affiché après fermeture de cette fenêtre. L'utilisateur devra le
+      changer à sa première connexion.
     </p>
   }
 </mat-dialog-content>
@@ -50,10 +52,17 @@
 <mat-dialog-actions align="end">
   @if (state() === 'form') {
     <button mat-button (click)="close()" [disabled]="isSubmitting()">Annuler</button>
-    <button mat-flat-button color="primary"
-            (click)="submit()"
-            [disabled]="form.invalid || isSubmitting()">
-      @if (isSubmitting()) { Création... } @else { Créer }
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="submit()"
+      [disabled]="form.invalid || isSubmitting()"
+    >
+      @if (isSubmitting()) {
+        Création...
+      } @else {
+        Créer
+      }
     </button>
   }
   @if (state() === 'password-reveal') {
