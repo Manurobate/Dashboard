@@ -12,6 +12,7 @@ import { UserEntity } from '../users/user.entity';
 const mockUser: UserEntity = {
   id: 1,
   username: 'admin',
+  name: 'Admin',
   passwordHash: '',
   role: 'admin',
   mustChangePassword: true,
@@ -28,7 +29,6 @@ describe('AuthService', () => {
     updatePasswordHash: jest.Mock;
   };
   let jwtService: jest.Mocked<JwtService>;
-  let _configService: jest.Mocked<ConfigService>;
   let refreshTokenRepo: {
     save: jest.Mock;
     findOne: jest.Mock;
@@ -59,7 +59,7 @@ describe('AuthService', () => {
           useValue: {
             get: jest
               .fn()
-              .mockImplementation((key: string, def?: unknown) => def),
+              .mockImplementation((_key: string, def?: unknown) => def),
           },
         },
         {
@@ -76,7 +76,6 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
-    _configService = module.get(ConfigService);
     refreshTokenRepo = module.get(getRepositoryToken(RefreshTokenEntity));
   });
 
