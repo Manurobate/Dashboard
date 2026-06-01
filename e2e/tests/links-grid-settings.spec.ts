@@ -46,8 +46,8 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
 
   await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
 
-  await page.locator('button[aria-label="Plus de colonnes"]').click({ force: true });
-  await page.locator('button[aria-label="Plus de colonnes"]').click({ force: true });
+  await page.locator('button[aria-label="Plus de colonnes"]').click();
+  await page.locator('button[aria-label="Plus de colonnes"]').click();
 
   const stored = await page.evaluate(() => localStorage.getItem('links-grid-settings'));
   const parsed = JSON.parse(stored!);

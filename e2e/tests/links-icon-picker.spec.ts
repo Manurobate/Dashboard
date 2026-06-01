@@ -67,8 +67,8 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Vérifier l'aperçu dans le dialog catégorie
     await expect(page.locator('.icon-preview')).toContainText('home');
 
-    // Valider la création
-    await page.click('button:has-text("Ajouter")');
+    // Valider la création — scoper au dialog (toolbar "Ajouter une catégorie" bloqué par backdrop)
+    await page.locator('mat-dialog-container button:has-text("Ajouter")').click();
 
     // Vérifier que la card affiche bien l'icône
     await expect(page.locator('mat-icon:has-text("home")')).toBeVisible({ timeout: 5000 });
@@ -115,8 +115,8 @@ test.describe('Sélecteur d\'icônes Material', () => {
     const btnCount = await page.locator('.icon-btn').count();
     expect(btnCount).toBeGreaterThan(0);
 
-    // Fermer le dialog sans choisir
-    await page.click('button:has-text("Annuler")');
+    // Fermer le dialog sans choisir — cibler le dernier dialog ouvert (icon picker)
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click();
   });
 
   test('annuler le sélecteur ne modifie pas l\'icône courante', async ({ page }) => {
@@ -129,13 +129,14 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Ouvrir sélecteur, choisir une icône, puis annuler
     await page.click('button:has-text("Choisir une icône")');
     await page.click('button[aria-label="Maison"]');
-    await page.click('button:has-text("Annuler")');
+    // force:true pour ignorer le tooltip popover qui peut intercepter le click
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click({ force: true });
 
     // L'état doit toujours être "Aucune icône"
     await expect(page.locator('.no-icon-label')).toBeVisible();
 
     // Fermer le dialog principal
-    await page.click('button:has-text("Annuler")');
+    await page.locator('mat-dialog-container button:has-text("Annuler")').click();
   });
 
   test('rechercher un terme inexistant affiche le message d\'erreur', async ({ page }) => {
@@ -151,6 +152,6 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Vérifier le message "Aucune icône trouvée"
     await expect(page.locator('.no-result')).toBeVisible();
 
-    await page.click('button:has-text("Annuler")');
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click();
   });
 });

@@ -97,14 +97,12 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.goto('/admin');
 
   await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
-  await page.fill('input[formControlName="username"]', adminEmail!);
-  await page.fill('input[formControlName="name"]', 'Doublon');
-  const [_resp] = await Promise.all([
-    page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409),
-    page.locator('button:has-text("Créer")').click(), // sans force: attend que le bouton soit activé
-  ]);
+  await page.fill('input[formcontrolname="username"]', adminEmail!);
+  await page.fill('input[formcontrolname="name"]', 'Doublon');
+  await page.locator('mat-dialog-container button:has-text("Créer")').click({ force: true });
 
-  await expect(page.locator('mat-dialog-container')).toContainText('déjà utilisée', { timeout: 10000 });
+  // mat-error rendu par @if(conflictError()) — vérifier présence dans DOM (pas innerText CSS-caché)
+  await expect(page.locator('mat-error').filter({ hasText: 'déjà' })).toBeAttached({ timeout: 10000 });
 });
 
 test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {

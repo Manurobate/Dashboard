@@ -31,17 +31,24 @@ test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible',
 
   const targetDropZone = targetCard.locator('.link-list');
 
-  // CDK drag-drop nécessite un drag manuel avec étapes intermédiaires
+  // CDK drag-drop nécessite des PointerEvents natifs (page.mouse n'est pas suffisant)
   const srcBB = await linkItem.boundingBox();
   const tgtBB = await targetDropZone.boundingBox();
   const srcX = srcBB!.x + srcBB!.width / 2;
   const srcY = srcBB!.y + srcBB!.height / 2;
   const tgtX = tgtBB!.x + tgtBB!.width / 2;
   const tgtY = tgtBB!.y + tgtBB!.height / 2;
-  await page.mouse.move(srcX, srcY);
-  await page.mouse.down();
-  await page.mouse.move(tgtX, tgtY, { steps: 30 });
-  await page.mouse.up();
+  await page.evaluate(({ sx, sy, tx, ty }) => {
+    const src = document.elementFromPoint(sx, sy)!;
+    src.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: sx, clientY: sy, pointerId: 1 }));
+    const steps = 30;
+    for (let i = 0; i <= steps; i++) {
+      const x = sx + (tx - sx) * i / steps;
+      const y = sy + (ty - sy) * i / steps;
+      document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1 }));
+    }
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1 }));
+  }, { sx: srcX, sy: srcY, tx: tgtX, ty: tgtY });
 
   await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible({ timeout: 10000 });
   await expect(sourceCard.locator(`app-link-item:has-text("${linkTitle}")`)).not.toBeVisible();
