@@ -70,8 +70,9 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Valider la création — scoper au dialog (toolbar "Ajouter une catégorie" bloqué par backdrop)
     await page.locator('mat-dialog-container button:has-text("Ajouter")').click();
 
-    // Vérifier que la card affiche bien l'icône
-    await expect(page.locator('mat-icon:has-text("home")')).toBeVisible({ timeout: 5000 });
+    // Vérifier que la card de la nouvelle catégorie affiche bien l'icône (scopé pour éviter la bottom nav)
+    const newCatCard = page.locator('app-link-category-card', { hasText: 'Test Icône' });
+    await expect(newCatCard.locator('mat-icon:has-text("home")')).toBeVisible({ timeout: 5000 });
   });
 
   test('effacer une icône d\'une catégorie existante', async ({ page }) => {
@@ -135,8 +136,8 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // L'état doit toujours être "Aucune icône"
     await expect(page.locator('.no-icon-label')).toBeVisible();
 
-    // Fermer le dialog principal
-    await page.locator('mat-dialog-container button:has-text("Annuler")').click();
+    // Fermer le dialog principal (scopé au dialog catégorie pour éviter l'ambiguïté si le picker est encore visible)
+    await page.locator('mat-dialog-container:has(h2:has-text("Ajouter une catégorie")) button:has-text("Annuler")').click();
   });
 
   test('rechercher un terme inexistant affiche le message d\'erreur', async ({ page }) => {

@@ -47,7 +47,11 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
 
   await page.locator('button[aria-label="Plus de colonnes"]').click();
+  // Attendre que le DOM reflète 4 colonnes (garantit que l'effet signal a tourné) avant le 2e clic
+  await expect(page.locator('.setting-row').first()).toContainText('4');
   await page.locator('button[aria-label="Plus de colonnes"]').click();
+  // Attendre que le DOM reflète 5 colonnes avant de lire localStorage
+  await expect(page.locator('.setting-row').first()).toContainText('5');
 
   const stored = await page.evaluate(() => localStorage.getItem('links-grid-settings'));
   const parsed = JSON.parse(stored!);

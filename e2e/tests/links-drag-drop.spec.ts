@@ -40,14 +40,19 @@ test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible',
   const tgtY = tgtBB!.y + tgtBB!.height / 2;
   await page.evaluate(({ sx, sy, tx, ty }) => {
     const src = document.elementFromPoint(sx, sy)!;
-    src.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: sx, clientY: sy, pointerId: 1 }));
+    src.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: sx, clientY: sy, pointerId: 1, isPrimary: true }));
     const steps = 30;
-    for (let i = 0; i <= steps; i++) {
+    for (let i = 1; i <= steps; i++) {
       const x = sx + (tx - sx) * i / steps;
       const y = sy + (ty - sy) * i / steps;
-      document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1 }));
+      document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true }));
     }
-    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1 }));
+    // Dispatcher pointerup sur l'élément cible ET sur document pour que CDK reconnaisse le drop
+    const tgt = document.elementFromPoint(tx, ty);
+    if (tgt) {
+      tgt.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1, isPrimary: true }));
+    }
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1, isPrimary: true }));
   }, { sx: srcX, sy: srcY, tx: tgtX, ty: tgtY });
 
   await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible({ timeout: 10000 });

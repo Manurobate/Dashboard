@@ -101,8 +101,13 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.fill('input[formcontrolname="name"]', 'Doublon');
   await page.locator('mat-dialog-container button:has-text("Créer")').click({ force: true });
 
+  // Attendre la réponse 409 du backend avant de vérifier l'erreur inline
+  await page.waitForResponse(
+    (resp) => resp.url().includes('/users') && resp.status() === 409,
+    { timeout: 10000 },
+  );
   // mat-error rendu par @if(conflictError()) — vérifier présence dans DOM (pas innerText CSS-caché)
-  await expect(page.locator('mat-error').filter({ hasText: 'déjà' })).toBeAttached({ timeout: 10000 });
+  await expect(page.locator('mat-error').filter({ hasText: 'déjà' })).toBeAttached({ timeout: 5000 });
 });
 
 test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {
