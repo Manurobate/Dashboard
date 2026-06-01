@@ -12,11 +12,12 @@ async function login(page: Page): Promise<void> {
   await page.fill('input[autocomplete="email"]', username!);
   await page.fill('input[autocomplete="current-password"]', password!);
   await page.click('button[type="submit"]');
-  await page.waitForURL('/links', { timeout: 10000 });
+  await page.waitForURL('/dashboard', { timeout: 10000 });
+  await page.waitForLoadState('networkidle');
 }
 
 async function openEditMode(page: Page): Promise<void> {
-  await page.click('button:has-text("Modifier")');
+  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
 }
 
 test.describe('Sélecteur d\'icônes Material', () => {
@@ -24,12 +25,25 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await login(page);
   });
 
+  test.afterEach(async ({ request }) => {
+    const loginRes = await request.post('/api/auth/login', {
+      data: { username, password },
+    });
+    if (!loginRes.ok()) return;
+    const catsRes = await request.get('/api/link-categories');
+    if (!catsRes.ok()) return;
+    const cats = (await catsRes.json()) as { id: number; name: string }[];
+    for (const cat of cats.filter((c) => c.name === 'Test Icône')) {
+      await request.delete(`/api/link-categories/${cat.id}`);
+    }
+  });
+
   test('sélectionner une icône lors de la création d\'une catégorie', async ({ page }) => {
     // Passer en mode édition
     await openEditMode(page);
 
     // Ouvrir le dialog d'ajout de catégorie
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await expect(page.locator('h2:has-text("Ajouter une catégorie")')).toBeVisible();
 
     // Saisir un nom
@@ -53,19 +67,21 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Vérifier l'aperçu dans le dialog catégorie
     await expect(page.locator('.icon-preview')).toContainText('home');
 
-    // Valider la création
-    await page.click('button:has-text("Ajouter")');
+    // Valider la création — scoper au dialog (toolbar "Ajouter une catégorie" bloqué par backdrop)
+    await page.locator('mat-dialog-container button:has-text("Ajouter")').click();
 
-    // Vérifier que la card affiche bien l'icône
-    await expect(page.locator('mat-icon:has-text("home")')).toBeVisible({ timeout: 5000 });
+    // Vérifier que la card de la nouvelle catégorie affiche bien l'icône (scopé pour éviter la bottom nav)
+    const newCatCard = page.locator('app-link-category-card', { hasText: 'Test Icône' });
+    await expect(newCatCard.locator('mat-icon:has-text("home")')).toBeVisible({ timeout: 5000 });
   });
 
   test('effacer une icône d\'une catégorie existante', async ({ page }) => {
     // Passer en mode édition
     await openEditMode(page);
 
-    // Ouvrir le dialog de modification de la première catégorie
-    await page.click('button[aria-label="Modifier la catégorie"]').first();
+    // Ouvrir le dialog de modification de E2E Category A (cible explicite, pas nth(0))
+    const catACard = page.locator('app-link-category-card', { hasText: 'E2E Category A' });
+    await catACard.locator('button[aria-label="Modifier la catégorie"]').click();
     await expect(page.locator('h2:has-text("Modifier la catégorie")')).toBeVisible();
 
     // Ouvrir le sélecteur
@@ -88,7 +104,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
 
   test('filtrer les icônes dans le sélecteur', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await page.click('button:has-text("Choisir une icône")');
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
@@ -100,13 +116,13 @@ test.describe('Sélecteur d\'icônes Material', () => {
     const btnCount = await page.locator('.icon-btn').count();
     expect(btnCount).toBeGreaterThan(0);
 
-    // Fermer le dialog sans choisir
-    await page.click('button:has-text("Annuler")');
+    // Fermer le dialog sans choisir — cibler le dernier dialog ouvert (icon picker)
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click();
   });
 
   test('annuler le sélecteur ne modifie pas l\'icône courante', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
 
     // Vérifier état initial "Aucune icône"
     await expect(page.locator('.no-icon-label')).toBeVisible();
@@ -114,18 +130,19 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Ouvrir sélecteur, choisir une icône, puis annuler
     await page.click('button:has-text("Choisir une icône")');
     await page.click('button[aria-label="Maison"]');
-    await page.click('button:has-text("Annuler")');
+    // force:true pour ignorer le tooltip popover qui peut intercepter le click
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click({ force: true });
 
     // L'état doit toujours être "Aucune icône"
     await expect(page.locator('.no-icon-label')).toBeVisible();
 
-    // Fermer le dialog principal
-    await page.click('button:has-text("Annuler")');
+    // Fermer le dialog principal (scopé au dialog catégorie pour éviter l'ambiguïté si le picker est encore visible)
+    await page.locator('mat-dialog-container:has(h2:has-text("Ajouter une catégorie")) button:has-text("Annuler")').click();
   });
 
   test('rechercher un terme inexistant affiche le message d\'erreur', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await page.click('button:has-text("Choisir une icône")');
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
@@ -136,6 +153,6 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Vérifier le message "Aucune icône trouvée"
     await expect(page.locator('.no-result')).toBeVisible();
 
-    await page.click('button:has-text("Annuler")');
+    await page.locator('mat-dialog-container').last().locator('button:has-text("Annuler")').click();
   });
 });

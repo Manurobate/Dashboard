@@ -1,4 +1,13 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect, ElementRef } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  effect,
+  ElementRef,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -11,10 +20,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { LinksGridSettingsService } from './links-grid-settings.service';
-import {
-  LinkCategoriesService,
-  LinkCategory,
-} from './link-categories.service';
+import { LinkCategoriesService, LinkCategory } from './link-categories.service';
 import { LinksService, Link } from './links.service';
 import {
   CategoryDialogComponent,
@@ -237,7 +243,8 @@ export class LinksComponent implements OnInit {
         maxWidth: '95vw',
         data: {
           title: `Supprimer "${cat.name}" ?`,
-          message: 'Cette action est irréversible. Tous les liens de cette catégorie seront supprimés.',
+          message:
+            'Cette action est irréversible. Tous les liens de cette catégorie seront supprimés.',
           confirmLabel: 'Supprimer',
         },
       },

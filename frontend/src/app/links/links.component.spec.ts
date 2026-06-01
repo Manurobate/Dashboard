@@ -170,7 +170,9 @@ describe('LinksComponent', () => {
       component.openAddCategoryDialog();
       afterClosed$.next({ name: 'Dev' });
 
-      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', { duration: 4000 });
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', {
+        duration: 4000,
+      });
     });
   });
 
@@ -186,7 +188,9 @@ describe('LinksComponent', () => {
       afterClosed$.next({ name: 'Updated' });
 
       expect(linkCategoriesService.updateCategory).toHaveBeenCalledWith(1, 'Updated', undefined);
-      expect(snackBar.open).toHaveBeenCalledWith('Catégorie mise à jour', 'Fermer', { duration: 3000 });
+      expect(snackBar.open).toHaveBeenCalledWith('Catégorie mise à jour', 'Fermer', {
+        duration: 3000,
+      });
     });
   });
 
@@ -201,7 +205,9 @@ describe('LinksComponent', () => {
       afterClosed$.next(true);
 
       expect(linkCategoriesService.deleteCategory).toHaveBeenCalledWith(1);
-      expect(snackBar.open).toHaveBeenCalledWith('Catégorie supprimée', 'Fermer', { duration: 3000 });
+      expect(snackBar.open).toHaveBeenCalledWith('Catégorie supprimée', 'Fermer', {
+        duration: 3000,
+      });
     });
 
     it("ne supprime pas si l'utilisateur annule", () => {
@@ -237,11 +243,9 @@ describe('LinksComponent', () => {
       component.drop({ previousIndex: 0, currentIndex: 1 } as any);
 
       expect(linkCategoriesService.loadCategories).toHaveBeenCalled();
-      expect(snackBar.open).toHaveBeenCalledWith(
-        'Erreur lors de la réorganisation',
-        'Fermer',
-        { duration: 3000 },
-      );
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la réorganisation', 'Fermer', {
+        duration: 3000,
+      });
     });
   });
 
@@ -286,7 +290,9 @@ describe('LinksComponent', () => {
       component.openAddLinkDialog(1);
       afterClosed$.next({ url: 'https://example.com', title: 'Example', categoryId: 1 });
 
-      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', { duration: 4000 });
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', {
+        duration: 4000,
+      });
     });
   });
 
@@ -301,7 +307,10 @@ describe('LinksComponent', () => {
       component.openEditLinkDialog(mockLink);
       afterClosed$.next({ url: 'https://example.com', title: 'Updated', categoryId: 1 });
 
-      expect(linksService.updateLink).toHaveBeenCalledWith(10, { url: 'https://example.com', title: 'Updated' });
+      expect(linksService.updateLink).toHaveBeenCalledWith(10, {
+        url: 'https://example.com',
+        title: 'Updated',
+      });
       expect(snackBar.open).toHaveBeenCalledWith('Lien mis à jour', 'Fermer', { duration: 3000 });
     });
   });
@@ -355,11 +364,9 @@ describe('LinksComponent', () => {
       component.handleReorderLinks(1, [{ id: 10, position: 0 }]);
 
       expect(linksService.loadLinks).toHaveBeenCalled();
-      expect(snackBar.open).toHaveBeenCalledWith(
-        'Erreur lors de la réorganisation',
-        'Fermer',
-        { duration: 3000 },
-      );
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la réorganisation', 'Fermer', {
+        duration: 3000,
+      });
     });
 
     it('ne touche pas les liens des autres catégories', () => {
@@ -392,7 +399,9 @@ describe('LinksComponent', () => {
       component.handleMoveLink({ linkId: 10, targetCategoryId: 2 });
 
       expect(linksService.links()[0].categoryId).toBe(1);
-      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors du déplacement', 'Fermer', { duration: 3000 });
+      expect(snackBar.open).toHaveBeenCalledWith('Erreur lors du déplacement', 'Fermer', {
+        duration: 3000,
+      });
     });
 
     it('ne fait rien si le lien est introuvable', () => {
@@ -424,7 +433,7 @@ describe('LinksComponent', () => {
       expect(cta.textContent).toContain('Ajouter une catégorie');
     });
 
-    it("appelle openAddCategoryDialog() quand le bouton CTA est cliqué", () => {
+    it('appelle openAddCategoryDialog() quand le bouton CTA est cliqué', () => {
       linkCategoriesService.isLoading.set(false);
       linkCategoriesService.categories.set([]);
       linkCategoriesService.error.set(null);
@@ -470,7 +479,7 @@ describe('LinksComponent', () => {
   });
 
   describe('Skeleton screens (AC5)', () => {
-    it("affiche 3 skeleton cards pendant le chargement", () => {
+    it('affiche 3 skeleton cards pendant le chargement', () => {
       linkCategoriesService.isLoading.set(true);
       fixture.detectChanges();
 
@@ -478,7 +487,7 @@ describe('LinksComponent', () => {
       expect(skeletonCards.length).toBe(3);
     });
 
-    it("masque les skeleton cards après le chargement", () => {
+    it('masque les skeleton cards après le chargement', () => {
       linkCategoriesService.isLoading.set(false);
       fixture.detectChanges();
 
@@ -494,15 +503,20 @@ describe('LinksComponent', () => {
     });
 
     it('le bouton ⚙️ est visible en mode lecture et grand écran', () => {
+      linkCategoriesService.categories.set([mockCat]);
       fixture.detectChanges();
-      const btn = fixture.debugElement.nativeElement.querySelector('button[aria-label="Paramètres d\'affichage"]');
+      const btn = fixture.debugElement.nativeElement.querySelector(
+        'button[aria-label="Paramètres d\'affichage"]',
+      );
       expect(btn).not.toBeNull();
     });
 
     it('le bouton ⚙️ est absent en mode édition', () => {
       component.toggleEditMode();
       fixture.detectChanges();
-      const btn = fixture.debugElement.nativeElement.querySelector('button[aria-label="Paramètres d\'affichage"]');
+      const btn = fixture.debugElement.nativeElement.querySelector(
+        'button[aria-label="Paramètres d\'affichage"]',
+      );
       expect(btn).toBeNull();
     });
   });

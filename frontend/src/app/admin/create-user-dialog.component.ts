@@ -14,8 +14,12 @@ type DialogState = 'form' | 'password-reveal';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './create-user-dialog.component.html',
   styleUrl: './create-user-dialog.component.scss',
@@ -54,6 +58,10 @@ export class CreateUserDialogComponent {
       error: (err) => {
         this.isSubmitting.set(false);
         if (err.status === 409) {
+          // markAsTouched active l'errorState Angular Material (invalid && touched)
+          // ce qui permet la projection ng-content du mat-error dans le subscript wrapper
+          this.form.controls.username.setErrors({ conflict: true });
+          this.form.controls.username.markAsTouched();
           this.conflictError.set(true);
         } else {
           this.genericError.set(true);

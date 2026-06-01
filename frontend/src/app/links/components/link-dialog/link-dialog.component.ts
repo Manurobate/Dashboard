@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+  signal,
+  DestroyRef,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, EMPTY, switchMap, catchError } from 'rxjs';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -58,22 +65,24 @@ export class LinkDialogComponent implements OnInit {
       faviconUrl: [this.data?.link?.faviconUrl ?? ''],
     });
 
-    this.urlBlur$.pipe(
-      switchMap((url) =>
-        this.linksService.fetchOgPreview(url).pipe(
-          catchError(() => {
-            this.isFetchingOg.set(false);
-            return EMPTY;
-          }),
+    this.urlBlur$
+      .pipe(
+        switchMap((url) =>
+          this.linksService.fetchOgPreview(url).pipe(
+            catchError(() => {
+              this.isFetchingOg.set(false);
+              return EMPTY;
+            }),
+          ),
         ),
-      ),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe((og) => {
-      if (og.title && !this.form.get('title')?.dirty) {
-        this.form.patchValue({ title: og.title, faviconUrl: og.faviconUrl ?? '' });
-      }
-      this.isFetchingOg.set(false);
-    });
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((og) => {
+        if (og.title && !this.form.get('title')?.dirty) {
+          this.form.patchValue({ title: og.title, faviconUrl: og.faviconUrl ?? '' });
+        }
+        this.isFetchingOg.set(false);
+      });
   }
 
   onUrlBlur(): void {

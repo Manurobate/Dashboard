@@ -13,7 +13,9 @@ export class ThemeService {
     let saved: string | null = null;
     try {
       saved = this.doc.defaultView?.localStorage.getItem(THEME_STORAGE_KEY) ?? null;
-    } catch { /* localStorage inaccessible (navigation privée, SecurityError) */ }
+    } catch {
+      /* localStorage inaccessible (navigation privée, SecurityError) */
+    }
     const dark = saved === 'dark';
     this._isDark.set(dark);
     this.applyTheme(dark);
@@ -25,7 +27,9 @@ export class ThemeService {
     this.applyTheme(next);
     try {
       this.doc.defaultView?.localStorage.setItem(THEME_STORAGE_KEY, next ? 'dark' : 'light');
-    } catch { /* localStorage inaccessible (navigation privée, quota) */ }
+    } catch {
+      /* localStorage inaccessible (navigation privée, quota) */
+    }
   }
 
   private applyTheme(dark: boolean): void {

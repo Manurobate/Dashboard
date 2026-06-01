@@ -1,18 +1,30 @@
 <div class="link-item-wrapper" [class.edit-mode]="editMode">
-  <mat-icon cdkDragHandle class="drag-handle" [style.visibility]="editMode ? 'visible' : 'hidden'">drag_handle</mat-icon>
+  <mat-icon cdkDragHandle class="drag-handle" [style.visibility]="editMode ? 'visible' : 'hidden'"
+    >drag_handle</mat-icon
+  >
 
   @if (link.faviconUrl && !hasFaviconError()) {
-    <img [src]="link.faviconUrl" width="16" height="16" alt="" class="link-favicon"
-         (error)="onFaviconError()" />
+    <img
+      [src]="link.faviconUrl"
+      width="16"
+      height="16"
+      alt=""
+      class="link-favicon"
+      (error)="onFaviconError()"
+    />
   } @else {
-    <span class="link-initial" aria-hidden="true">{{ (link.title?.trim() || '?').charAt(0).toUpperCase() }}</span>
+    <span class="link-initial" aria-hidden="true">{{
+      (link.title.trim() || '?').charAt(0).toUpperCase()
+    }}</span>
   }
 
-  <a [href]="link.url"
-     target="_blank"
-     rel="noopener noreferrer"
-     class="link-title"
-     [attr.aria-label]="'Ouvrir ' + link.title + ' dans un nouvel onglet'">
+  <a
+    [href]="link.url"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="link-title"
+    [attr.aria-label]="'Ouvrir ' + link.title + ' dans un nouvel onglet'"
+  >
     {{ link.title }}
   </a>
 

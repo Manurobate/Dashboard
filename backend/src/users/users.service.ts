@@ -182,7 +182,7 @@ export class UsersService {
     } catch (err) {
       if (
         err instanceof QueryFailedError &&
-        (err as any).code === 'ER_DUP_ENTRY'
+        (err as QueryFailedError & { code: string }).code === 'ER_DUP_ENTRY'
       ) {
         throw new ConflictException('Cette adresse email est déjà utilisée');
       }

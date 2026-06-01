@@ -134,7 +134,7 @@ export class AuthController {
     @Req() req: Request & { cookies: Record<string, string> },
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    const rawToken = req.cookies?.refresh_token;
+    const rawToken = req.cookies?.refresh_token as string | undefined;
     await this.authService.logout(rawToken);
     res.clearCookie('jwt', COOKIE_OPTIONS);
     res.clearCookie('refresh_token', { ...COOKIE_OPTIONS, path: '/api/auth' });

@@ -99,7 +99,6 @@ jobs:
       - name: Créer .env pour CI
         env:
           ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
-          ADMIN_INITIAL_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         run: |
           # Fichier à la racine du projet — docker-compose.yml utilise env_file: .env
           cat > .env <<'ENVFILE'
@@ -111,13 +110,25 @@ jobs:
           DB_NAME=ci_db
           DB_ROOT_PASSWORD=ci_root_password
           JWT_SECRET=ci_jwt_secret_minimum_32_chars_long
-          JWT_EXPIRES_IN=15m
-          REFRESH_TOKEN_EXPIRES_IN=7d
+          JWT_EXPIRY=15m
+          REFRESH_TOKEN_EXPIRY_DAYS=30
+          THROTTLER_LIMIT=100
+          ADMIN_INITIAL_PASSWORD=TempInit123!
           ENVFILE
           printf 'ADMIN_EMAIL=%s\n' "$ADMIN_EMAIL" >> .env
-          printf 'ADMIN_INITIAL_PASSWORD=%s\n' "$ADMIN_INITIAL_PASSWORD" >> .env
+
+      # Construire les images depuis la source courante de develop et les taguer :latest.
+      # Sans ça, `docker compose up` tire les images :latest publiées (dernière release sur main)
+      # et les tests E2E valideraient du code obsolète au lieu de la branche testée.
+      - name: Construire les images depuis la source
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$OWNER/dashboard-backend:latest ./backend
+          docker build -t ghcr.io/$OWNER/dashboard-frontend:latest ./frontend
 
       - name: Démarrer la stack
+        # pull_policy par défaut = "missing" : compose réutilise les images locales
+        # fraîchement construites (tag :latest présent) au lieu de tirer depuis GHCR.
         run: docker compose -f docker-compose.yml up -d
 
       - name: Attendre que le frontend soit prêt
@@ -137,6 +148,7 @@ jobs:
         env:
           BASE_URL: http://localhost
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_INITIAL_PASSWORD: TempInit123!
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         run: npx playwright test
 

@@ -45,7 +45,9 @@ describe('LinkCategoriesService', () => {
 
     it('met error si la requête échoue', () => {
       service.loadCategories().subscribe();
-      httpMock.expectOne('/api/link-categories').flush(null, { status: 500, statusText: 'Server Error' });
+      httpMock
+        .expectOne('/api/link-categories')
+        .flush(null, { status: 500, statusText: 'Server Error' });
       expect(service.error()).toBe('Impossible de charger les catégories.');
       expect(service.isLoading()).toBe(false);
     });
@@ -89,7 +91,10 @@ describe('LinkCategoriesService', () => {
 
   describe('reorderCategories()', () => {
     it('envoie PATCH /api/link-categories/reorder avec items', () => {
-      const items = [{ id: 1, position: 0 }, { id: 2, position: 1 }];
+      const items = [
+        { id: 1, position: 0 },
+        { id: 2, position: 1 },
+      ];
       service.reorderCategories(items).subscribe();
       const req = httpMock.expectOne('/api/link-categories/reorder');
       expect(req.request.method).toBe('PATCH');

@@ -42,7 +42,7 @@ export class AuthService {
 
   refreshToken(): Observable<boolean> {
     return this.http.post<AuthUser>('/api/auth/refresh', {}).pipe(
-      tap(user => this.currentUser.set(user)),
+      tap((user) => this.currentUser.set(user)),
       map(() => true),
       catchError(() => {
         this.currentUser.set(null);
@@ -52,21 +52,29 @@ export class AuthService {
   }
 
   updateProfile(name: string): Observable<AuthUser> {
-    return this.http.patch<AuthUser>('/api/users/me', { name }).pipe(
-      tap(user => this.currentUser.set(user)),
-    );
+    return this.http
+      .patch<AuthUser>('/api/users/me', { name })
+      .pipe(tap((user) => this.currentUser.set(user)));
   }
 
-  updatePassword(currentPassword: string, newPassword: string, confirmPassword: string): Observable<AuthUser> {
-    return this.http.patch<AuthUser>('/api/auth/update-password', { currentPassword, newPassword, confirmPassword }).pipe(
-      tap(user => this.currentUser.set(user)),
-    );
+  updatePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ): Observable<AuthUser> {
+    return this.http
+      .patch<AuthUser>('/api/auth/update-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      })
+      .pipe(tap((user) => this.currentUser.set(user)));
   }
 
   changePassword(newPassword: string, confirmPassword: string): Observable<AuthUser> {
-    return this.http.patch<AuthUser>('/api/auth/change-password', { newPassword, confirmPassword }).pipe(
-      tap(user => this.currentUser.set(user)),
-    );
+    return this.http
+      .patch<AuthUser>('/api/auth/change-password', { newPassword, confirmPassword })
+      .pipe(tap((user) => this.currentUser.set(user)));
   }
 
   logout(): Observable<void> {

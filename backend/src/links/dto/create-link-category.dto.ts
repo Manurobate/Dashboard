@@ -4,7 +4,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateLinkCategoryDto {
   @ApiProperty({ description: 'Nom de la catégorie', maxLength: 255 })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @IsNotEmpty({ message: 'Le nom est obligatoire' })
   @MaxLength(255)

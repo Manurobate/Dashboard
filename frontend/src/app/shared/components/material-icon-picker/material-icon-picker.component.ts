@@ -30,7 +30,14 @@ export interface MaterialIcon {
   selector: 'app-material-icon-picker',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, FormsModule],
+  imports: [
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule,
+  ],
   templateUrl: './material-icon-picker.component.html',
   styleUrl: './material-icon-picker.component.scss',
 })

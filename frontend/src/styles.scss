@@ -4,34 +4,36 @@ html {
   height: 100%;
   color-scheme: light;
 
-  @include mat.theme((
-    color: (
-      primary: mat.$red-palette,
-      theme-type: light,
-    ),
-    typography: system-ui,
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$red-palette,
+        theme-type: light,
+      ),
+      typography: system-ui,
+      density: 0,
+    )
+  );
 
   --bottom-nav-height: 56px;
-  --color-background: #F5F5F5;
-  --color-surface: #FFFFFF;
-  --color-primary: #B71C1C;
-  --color-primary-light: #D32F2F;
-  --color-on-primary: #FFFFFF;
+  --color-background: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-primary: #b71c1c;
+  --color-primary-light: #d32f2f;
+  --color-on-primary: #ffffff;
   --color-text-primary: #212121;
   --color-text-secondary: #757575;
-  --color-divider: #E0E0E0;
-  --color-error: #C62828;
+  --color-divider: #e0e0e0;
+  --color-error: #c62828;
 
   // ── Overrides AM3 — surfaces neutres (sans teinte rose de la palette red) ──
-  --mat-sys-primary: #B71C1C;
-  --mat-sys-primary-container: #FECACA;
-  --mat-sys-on-primary-container: #7F1D1D;
-  --mat-sys-surface-container: #FFFFFF;
-  --mat-sys-surface-container-low: #FAFAFA;
-  --mat-sys-surface-container-high: #F0F0F0;
-  --mat-sys-surface-container-highest: #E8E8E8;
+  --mat-sys-primary: #b71c1c;
+  --mat-sys-primary-container: #fecaca;
+  --mat-sys-on-primary-container: #7f1d1d;
+  --mat-sys-surface-container: #ffffff;
+  --mat-sys-surface-container-low: #fafafa;
+  --mat-sys-surface-container-high: #f0f0f0;
+  --mat-sys-surface-container-highest: #e8e8e8;
 }
 
 body {
@@ -49,43 +51,45 @@ html:has(body.dark-theme) {
 .dark-theme {
   color-scheme: dark;
 
-  @include mat.theme((
-    color: (
-      primary: mat.$red-palette,
-      theme-type: dark,
-    ),
-  ));
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$red-palette,
+        theme-type: dark,
+      ),
+    )
+  );
 
-  --color-background: #0A0A0A;
-  --color-surface: #1C1C1C;
-  --color-primary: #EF4444;
-  --color-primary-light: #F87171;
-  --color-on-primary: #FFFFFF;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #9E9E9E;
-  --color-divider: #2A2A2A;
-  --color-error: #FF6B6B;
+  --color-background: #0a0a0a;
+  --color-surface: #1c1c1c;
+  --color-primary: #ef4444;
+  --color-primary-light: #f87171;
+  --color-on-primary: #ffffff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9e9e9e;
+  --color-divider: #2a2a2a;
+  --color-error: #ff6b6b;
 
-  --color-warning: #FFB74D;
-  --color-on-warning: #1C1C1C;
-  --color-success: #66BB6A;
-  --color-on-success: #1C1C1C;
+  --color-warning: #ffb74d;
+  --color-on-warning: #1c1c1c;
+  --color-success: #66bb6a;
+  --color-on-success: #1c1c1c;
 
   // ── Overrides AM3 — rouge pur en dark (sans teinte rose générée par AM3) ──
-  --mat-sys-primary: #EF4444;
-  --mat-sys-primary-container: #7F1D1D;
-  --mat-sys-on-primary-container: #FECACA;
+  --mat-sys-primary: #ef4444;
+  --mat-sys-primary-container: #7f1d1d;
+  --mat-sys-on-primary-container: #fecaca;
   --mat-sys-surface-container: #222222;
-  --mat-sys-surface-container-low: #1C1C1C;
-  --mat-sys-surface-container-high: #2A2A2A;
+  --mat-sys-surface-container-low: #1c1c1c;
+  --mat-sys-surface-container-high: #2a2a2a;
   --mat-sys-surface-container-highest: #333333;
 }
 
 // ── Tokens de statut — états visuels des badges et indicateurs ───────────────
 // Pattern AM3 : utiliser --mdc-chip-elevated-container-color sur mat-chip
 html {
-  --color-warning: #F57C00;
-  --color-on-warning: #FFFFFF;
-  --color-success: #2E7D32;
-  --color-on-success: #FFFFFF;
+  --color-warning: #f57c00;
+  --color-on-warning: #ffffff;
+  --color-success: #2e7d32;
+  --color-on-success: #ffffff;
 }

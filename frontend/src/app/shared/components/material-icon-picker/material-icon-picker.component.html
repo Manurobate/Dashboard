@@ -2,11 +2,13 @@
 <mat-dialog-content class="icon-picker-content">
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Rechercher une icône</mat-label>
-    <input matInput
-           #searchInput
-           [value]="searchTerm()"
-           (input)="onSearchChange(searchInput.value)"
-           placeholder="ex: home, link, star" />
+    <input
+      matInput
+      #searchInput
+      [value]="searchTerm()"
+      (input)="onSearchChange(searchInput.value)"
+      placeholder="ex: home, link, star"
+    />
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
 
@@ -25,12 +27,14 @@
 
     <div class="icons-grid">
       @for (icon of filteredIcons(); track icon.name) {
-        <button mat-icon-button
-                class="icon-btn"
-                [class.selected]="selectedIcon() === icon.name"
-                [attr.aria-label]="icon.label"
-                [title]="icon.label + ' (' + icon.name + ')'"
-                (click)="select(icon.name)">
+        <button
+          mat-icon-button
+          class="icon-btn"
+          [class.selected]="selectedIcon() === icon.name"
+          [attr.aria-label]="icon.label"
+          [title]="icon.label + ' (' + icon.name + ')'"
+          (click)="select(icon.name)"
+        >
           <mat-icon>{{ icon.name }}</mat-icon>
         </button>
       }

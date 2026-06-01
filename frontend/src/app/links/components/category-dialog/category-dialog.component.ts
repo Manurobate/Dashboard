@@ -64,10 +64,7 @@ export class CategoryDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: [
-        this.data?.category?.name ?? '',
-        [Validators.required, Validators.maxLength(255)],
-      ],
+      name: [this.data?.category?.name ?? '', [Validators.required, Validators.maxLength(255)]],
     });
     this.selectedIcon.set(this.data?.category?.icon ?? null);
   }
@@ -90,7 +87,7 @@ export class CategoryDialogComponent implements OnInit {
       .subscribe((result) => {
         this.iconPickerOpen = false;
         if (result === undefined) return; // dismissed sans changement
-        this.selectedIcon.set(result);    // null = effacé, string = nouvelle icône
+        this.selectedIcon.set(result); // null = effacé, string = nouvelle icône
       });
   }
 

@@ -37,7 +37,9 @@ describe('ThemeService', () => {
   });
 
   it('isDark vaut true quand localStorage contient "dark"', () => {
-    (mockDocument.defaultView!.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue('dark');
+    (mockDocument.defaultView!.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      'dark',
+    );
     service = TestBed.inject(ThemeService);
     expect(service.isDark()).toBe(true);
     expect(mockDocument.body.classList.contains('dark-theme')).toBe(true);
@@ -52,7 +54,9 @@ describe('ThemeService', () => {
   });
 
   it('toggle() passe de dark à light et persiste dans localStorage', () => {
-    (mockDocument.defaultView!.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue('dark');
+    (mockDocument.defaultView!.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      'dark',
+    );
     service = TestBed.inject(ThemeService);
     service.toggle();
     expect(service.isDark()).toBe(false);

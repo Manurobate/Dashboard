@@ -23,8 +23,12 @@
           <button mat-stroked-button type="button" (click)="navigateToChangePassword()">
             Changer le mot de passe
           </button>
-          <button mat-flat-button color="primary" type="submit"
-                  [disabled]="form.invalid || isLoading()">
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || isLoading()"
+          >
             @if (isLoading()) {
               <mat-progress-spinner diameter="20" mode="indeterminate" />
             } @else {

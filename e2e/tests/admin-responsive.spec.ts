@@ -13,10 +13,11 @@ async function loginAdmin(page: Page): Promise<void> {
   await page.fill('input[autocomplete="email"]', adminEmail!);
   await page.fill('input[autocomplete="current-password"]', adminPassword!);
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/(links|change-password|admin)$/);
+  await page.waitForURL(/\/(dashboard|change-password|admin)$/);
   if (page.url().includes('change-password')) {
     throw new Error('Admin must have changed password before running admin tests');
   }
+  await page.waitForLoadState('networkidle');
 }
 
 test.describe('Admin responsive mobile (390×844)', () => {
@@ -62,6 +63,10 @@ test.describe('Admin responsive mobile (390×844)', () => {
 
     test.afterEach(async ({ request }) => {
       if (!createdEmail) return;
+      const loginRes = await request.post('/api/auth/login', {
+        data: { username: adminEmail, password: adminPassword },
+      });
+      if (!loginRes.ok()) return;
       const usersRes = await request.get('/api/users');
       if (usersRes.ok()) {
         const users = await usersRes.json() as Array<{ username: string; id: number }>;
