@@ -99,9 +99,6 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
   await page.fill('input[formcontrolname="username"]', adminEmail!);
   await page.fill('input[formcontrolname="name"]', 'Doublon');
-  // blur() marque le champ comme "touched" — requis par Angular Material pour activer l'errorState
-  // et projeter le mat-error dans le ng-content (sinon le @case 'error' ne s'affiche pas)
-  await page.locator('input[formcontrolname="username"]').blur();
   await page.locator('mat-dialog-container button:has-text("Créer")').click({ force: true });
 
   // Attendre la réponse 409 du backend avant de vérifier l'erreur inline
