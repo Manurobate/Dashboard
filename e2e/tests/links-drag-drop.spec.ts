@@ -38,22 +38,17 @@ test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible',
   const srcY = srcBB!.y + srcBB!.height / 2;
   const tgtX = tgtBB!.x + tgtBB!.width / 2;
   const tgtY = tgtBB!.y + tgtBB!.height / 2;
-  await page.evaluate(({ sx, sy, tx, ty }) => {
-    const src = document.elementFromPoint(sx, sy)!;
-    src.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: sx, clientY: sy, pointerId: 1, isPrimary: true }));
-    const steps = 30;
-    for (let i = 1; i <= steps; i++) {
-      const x = sx + (tx - sx) * i / steps;
-      const y = sy + (ty - sy) * i / steps;
-      document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true }));
-    }
-    // Dispatcher pointerup sur l'élément cible ET sur document pour que CDK reconnaisse le drop
-    const tgt = document.elementFromPoint(tx, ty);
-    if (tgt) {
-      tgt.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1, isPrimary: true }));
-    }
-    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: tx, clientY: ty, pointerId: 1, isPrimary: true }));
-  }, { sx: srcX, sy: srcY, tx: tgtX, ty: tgtY });
+  // Utiliser page.mouse (CDP natif) : génère de vrais PointerEvents avec pointer-capture
+  // ce que dispatchEvent ne peut pas reproduire fidèlement pour CDK Angular
+  await page.mouse.move(srcX, srcY);
+  await page.mouse.down();
+  // Petit déplacement initial pour dépasser le seuil de drag de CDK (~5 px)
+  await page.mouse.move(srcX + 8, srcY, { steps: 3 });
+  // Déplacement progressif vers la cible (steps : CDK détecte les entrées/sorties des drop-lists)
+  await page.mouse.move(tgtX, tgtY, { steps: 20 });
+  // Pause pour que CDK traite les événements et mette à jour le drop-container actif
+  await page.waitForTimeout(80);
+  await page.mouse.up();
 
   await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible({ timeout: 10000 });
   await expect(sourceCard.locator(`app-link-item:has-text("${linkTitle}")`)).not.toBeVisible();
