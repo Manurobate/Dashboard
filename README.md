@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/presentation.png" alt="Dashboard — votre tableau de bord personnel, auto-hébergé" width="760" />
+</p>
+
 # Dashboard
 
 > Application web personnelle auto-hébergée qui remplace l'onglet par défaut du navigateur.
