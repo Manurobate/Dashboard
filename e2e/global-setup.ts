@@ -13,7 +13,11 @@ async function globalSetup() {
   }
 
   const browser = await chromium.launch();
-  const page = await browser.newPage({ baseURL });
+  const context = await browser.newContext({
+    baseURL,
+    extraHTTPHeaders: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  const page = await context.newPage();
 
   try {
     // 1. Login (handles mustChangePassword on first run)

@@ -10,6 +10,9 @@ export default defineConfig({
     headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    extraHTTPHeaders: {
+      'X-Requested-With': 'XMLHttpRequest',
+    },
   },
   projects: [
     {

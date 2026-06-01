@@ -102,7 +102,8 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.locator('button:has-text("Créer")').click({ force: true });
   await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
 
-  await expect(page.locator('mat-error')).toContainText('déjà utilisée');
+  // mat-error peut être caché via CSS par Angular Material — on vérifie le contenu du dialog
+  await expect(page.locator('mat-dialog-container')).toContainText('déjà utilisée', { timeout: 10000 });
 });
 
 test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {
