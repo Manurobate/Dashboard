@@ -24,6 +24,19 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await login(page);
   });
 
+  test.afterEach(async ({ request }) => {
+    const loginRes = await request.post('/api/auth/login', {
+      data: { username, password },
+    });
+    if (!loginRes.ok()) return;
+    const catsRes = await request.get('/api/link-categories');
+    if (!catsRes.ok()) return;
+    const cats = (await catsRes.json()) as { id: number; name: string }[];
+    for (const cat of cats.filter((c) => c.name === 'Test Icône')) {
+      await request.delete(`/api/link-categories/${cat.id}`);
+    }
+  });
+
   test('sélectionner une icône lors de la création d\'une catégorie', async ({ page }) => {
     // Passer en mode édition
     await openEditMode(page);
@@ -64,8 +77,9 @@ test.describe('Sélecteur d\'icônes Material', () => {
     // Passer en mode édition
     await openEditMode(page);
 
-    // Ouvrir le dialog de modification de la première catégorie
-    await page.click('button[aria-label="Modifier la catégorie"]').first();
+    // Ouvrir le dialog de modification de E2E Category A (cible explicite, pas nth(0))
+    const catACard = page.locator('app-link-category-card', { hasText: 'E2E Category A' });
+    await catACard.locator('button[aria-label="Modifier la catégorie"]').click();
     await expect(page.locator('h2:has-text("Modifier la catégorie")')).toBeVisible();
 
     // Ouvrir le sélecteur

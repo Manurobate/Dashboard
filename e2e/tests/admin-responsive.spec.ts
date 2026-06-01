@@ -63,6 +63,10 @@ test.describe('Admin responsive mobile (390×844)', () => {
 
     test.afterEach(async ({ request }) => {
       if (!createdEmail) return;
+      const loginRes = await request.post('/api/auth/login', {
+        data: { username: adminEmail, password: adminPassword },
+      });
+      if (!loginRes.ok()) return;
       const usersRes = await request.get('/api/users');
       if (usersRes.ok()) {
         const users = await usersRes.json() as Array<{ username: string; id: number }>;

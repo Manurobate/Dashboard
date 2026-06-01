@@ -34,33 +34,38 @@ async function globalSetup() {
 
     await page.waitForLoadState('networkidle');
 
-    // 2. Seed test data for links-* tests (idempotent: only create if fewer than 2 categories)
+    // 2. Seed test data for links-* tests (idempotent: delete existing E2E categories then recreate)
     const catsRes = await page.request.get('/api/link-categories');
-    const cats = (await catsRes.json()) as { id: number }[];
+    const cats = (await catsRes.json()) as { id: number; name: string }[];
 
-    if (cats.length < 2) {
-      const catARes = await page.request.post('/api/link-categories', {
-        data: { name: 'E2E Category A', icon: 'link' },
-      });
-      const catBRes = await page.request.post('/api/link-categories', {
-        data: { name: 'E2E Category B', icon: 'bookmark' },
-      });
-      const catA = (await catARes.json()) as { id: number };
-      const catB = (await catBRes.json()) as { id: number };
-
-      await page.request.post('/api/links', {
-        data: { url: 'https://example.com', title: 'Example', categoryId: catA.id },
-      });
-      await page.request.post('/api/links', {
-        data: { url: 'https://github.com', title: 'GitHub', categoryId: catA.id },
-      });
-      await page.request.post('/api/links', {
-        data: { url: 'https://google.com', title: 'Google', categoryId: catB.id },
-      });
-      await page.request.post('/api/links', {
-        data: { url: 'https://mozilla.org', title: 'Mozilla', categoryId: catB.id },
-      });
+    const e2eCats = cats.filter(
+      (c) => c.name === 'E2E Category A' || c.name === 'E2E Category B',
+    );
+    for (const cat of e2eCats) {
+      await page.request.delete(`/api/link-categories/${cat.id}`);
     }
+
+    const catARes = await page.request.post('/api/link-categories', {
+      data: { name: 'E2E Category A', icon: 'link' },
+    });
+    const catBRes = await page.request.post('/api/link-categories', {
+      data: { name: 'E2E Category B', icon: 'bookmark' },
+    });
+    const catA = (await catARes.json()) as { id: number };
+    const catB = (await catBRes.json()) as { id: number };
+
+    await page.request.post('/api/links', {
+      data: { url: 'https://example.com', title: 'Example', categoryId: catA.id },
+    });
+    await page.request.post('/api/links', {
+      data: { url: 'https://github.com', title: 'GitHub', categoryId: catA.id },
+    });
+    await page.request.post('/api/links', {
+      data: { url: 'https://google.com', title: 'Google', categoryId: catB.id },
+    });
+    await page.request.post('/api/links', {
+      data: { url: 'https://mozilla.org', title: 'Mozilla', categoryId: catB.id },
+    });
   } finally {
     await browser.close();
   }
