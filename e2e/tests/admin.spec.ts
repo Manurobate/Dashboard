@@ -64,8 +64,8 @@ test('AC2 — Utilisateur standard redirigé vers /dashboard depuis /admin', asy
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/(change-password)$/);
 
-  await page.fill('input[name="newPassword"]', 'NewSecure@2026');
-  await page.fill('input[name="confirmPassword"]', 'NewSecure@2026');
+  await page.fill('input[formcontrolname="newPassword"]', 'NewSecure@2026');
+  await page.fill('input[formcontrolname="confirmPassword"]', 'NewSecure@2026');
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/dashboard$/);
 
@@ -99,10 +99,11 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
   await page.fill('input[formControlName="username"]', adminEmail!);
   await page.fill('input[formControlName="name"]', 'Doublon');
-  await page.locator('button:has-text("Créer")').click({ force: true });
-  await page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409);
+  const [_resp] = await Promise.all([
+    page.waitForResponse(res => res.url().includes('/api/users') && res.status() === 409),
+    page.locator('button:has-text("Créer")').click(), // sans force: attend que le bouton soit activé
+  ]);
 
-  // mat-error peut être caché via CSS par Angular Material — on vérifie le contenu du dialog
   await expect(page.locator('mat-dialog-container')).toContainText('déjà utilisée', { timeout: 10000 });
 });
 
@@ -208,7 +209,7 @@ test('Disable — Le compte désactivé ne peut plus se connecter', async ({ pag
   await page.fill('input[autocomplete="current-password"]', temporaryPassword);
   await page.click('button[type="submit"]');
 
-  await expect(page.locator('mat-error, .error-message')).toBeVisible();
+  await expect(page.locator('mat-error, .form-error')).toBeVisible();
   await expect(page).toHaveURL('/login');
 });
 

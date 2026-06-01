@@ -40,8 +40,8 @@ test("AC1/2 — Modification du nom d'affichage persiste", async ({ page, reques
   await page.fill('input[autocomplete="current-password"]', temporaryPassword);
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/change-password$/);
-  await page.fill('input[name="newPassword"], input[autocomplete="new-password"]', 'NewPassword123!');
-  await page.fill('input[name="confirmPassword"], input[autocomplete="new-password"]', 'NewPassword123!');
+  await page.fill('input[formcontrolname="newPassword"]', 'NewPassword123!');
+  await page.fill('input[formcontrolname="confirmPassword"]', 'NewPassword123!');
   await page.click('button[type="submit"]');
   await page.waitForURL(/\/dashboard$/);
 

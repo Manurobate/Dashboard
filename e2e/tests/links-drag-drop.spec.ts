@@ -30,9 +30,20 @@ test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible',
   expect(linkTitle).not.toBe('');
 
   const targetDropZone = targetCard.locator('.link-list');
-  await linkItem.dragTo(targetDropZone);
 
-  await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible();
+  // CDK drag-drop nécessite un drag manuel avec étapes intermédiaires
+  const srcBB = await linkItem.boundingBox();
+  const tgtBB = await targetDropZone.boundingBox();
+  const srcX = srcBB!.x + srcBB!.width / 2;
+  const srcY = srcBB!.y + srcBB!.height / 2;
+  const tgtX = tgtBB!.x + tgtBB!.width / 2;
+  const tgtY = tgtBB!.y + tgtBB!.height / 2;
+  await page.mouse.move(srcX, srcY);
+  await page.mouse.down();
+  await page.mouse.move(tgtX, tgtY, { steps: 30 });
+  await page.mouse.up();
+
+  await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible({ timeout: 10000 });
   await expect(sourceCard.locator(`app-link-item:has-text("${linkTitle}")`)).not.toBeVisible();
 });
 

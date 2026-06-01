@@ -43,7 +43,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await openEditMode(page);
 
     // Ouvrir le dialog d'ajout de catégorie
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await expect(page.locator('h2:has-text("Ajouter une catégorie")')).toBeVisible();
 
     // Saisir un nom
@@ -103,7 +103,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
 
   test('filtrer les icônes dans le sélecteur', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await page.click('button:has-text("Choisir une icône")');
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
@@ -121,7 +121,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
 
   test('annuler le sélecteur ne modifie pas l\'icône courante', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
 
     // Vérifier état initial "Aucune icône"
     await expect(page.locator('.no-icon-label')).toBeVisible();
@@ -140,7 +140,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
 
   test('rechercher un terme inexistant affiche le message d\'erreur', async ({ page }) => {
     await openEditMode(page);
-    await page.click('button[aria-label="Ajouter une catégorie"]');
+    await page.click('button:has-text("Ajouter une catégorie")');
     await page.click('button:has-text("Choisir une icône")');
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
