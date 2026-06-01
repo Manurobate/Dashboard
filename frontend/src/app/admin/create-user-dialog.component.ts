@@ -58,8 +58,11 @@ export class CreateUserDialogComponent {
       error: (err) => {
         this.isSubmitting.set(false);
         if (err.status === 409) {
-          this.conflictError.set(true);
+          // markAsTouched active l'errorState Angular Material (invalid && touched)
+          // ce qui permet la projection ng-content du mat-error dans le subscript wrapper
           this.form.controls.username.setErrors({ conflict: true });
+          this.form.controls.username.markAsTouched();
+          this.conflictError.set(true);
         } else {
           this.genericError.set(true);
         }

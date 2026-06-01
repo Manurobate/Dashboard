@@ -31,23 +31,24 @@ test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible',
 
   const targetDropZone = targetCard.locator('.link-list');
 
-  // CDK drag-drop nécessite des PointerEvents natifs (page.mouse n'est pas suffisant)
-  const srcBB = await linkItem.boundingBox();
+  // CDK n'initie le drag QUE depuis l'élément cdkDragHandle (mat-icon.drag-handle)
+  // Cliquer au centre du lien (title, favicon…) ne déclenche pas le drag
+  const dragHandle = linkItem.locator('mat-icon.drag-handle');
+  const srcBB = await dragHandle.boundingBox();
   const tgtBB = await targetDropZone.boundingBox();
   const srcX = srcBB!.x + srcBB!.width / 2;
   const srcY = srcBB!.y + srcBB!.height / 2;
   const tgtX = tgtBB!.x + tgtBB!.width / 2;
   const tgtY = tgtBB!.y + tgtBB!.height / 2;
-  // Utiliser page.mouse (CDP natif) : génère de vrais PointerEvents avec pointer-capture
-  // ce que dispatchEvent ne peut pas reproduire fidèlement pour CDK Angular
+
   await page.mouse.move(srcX, srcY);
   await page.mouse.down();
-  // Petit déplacement initial pour dépasser le seuil de drag de CDK (~5 px)
+  // Déplacement initial > 5 px pour dépasser le seuil CDK (dragStartThreshold)
   await page.mouse.move(srcX + 8, srcY, { steps: 3 });
-  // Déplacement progressif vers la cible (steps : CDK détecte les entrées/sorties des drop-lists)
+  // Déplacement vers la cible ; steps permet à CDK de détecter l'entrée dans le drop-container
   await page.mouse.move(tgtX, tgtY, { steps: 20 });
-  // Pause pour que CDK traite les événements et mette à jour le drop-container actif
-  await page.waitForTimeout(80);
+  // Attente : CDK utilise des rAF internes pour mettre à jour le container actif
+  await page.waitForTimeout(100);
   await page.mouse.up();
 
   await expect(targetCard.locator(`app-link-item:has-text("${linkTitle}")`)).toBeVisible({ timeout: 10000 });
