@@ -117,7 +117,18 @@ jobs:
           ENVFILE
           printf 'ADMIN_EMAIL=%s\n' "$ADMIN_EMAIL" >> .env
 
+      # Construire les images depuis la source courante de develop et les taguer :latest.
+      # Sans ça, `docker compose up` tire les images :latest publiées (dernière release sur main)
+      # et les tests E2E valideraient du code obsolète au lieu de la branche testée.
+      - name: Construire les images depuis la source
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$OWNER/dashboard-backend:latest ./backend
+          docker build -t ghcr.io/$OWNER/dashboard-frontend:latest ./frontend
+
       - name: Démarrer la stack
+        # pull_policy par défaut = "missing" : compose réutilise les images locales
+        # fraîchement construites (tag :latest présent) au lieu de tirer depuis GHCR.
         run: docker compose -f docker-compose.yml up -d
 
       - name: Attendre que le frontend soit prêt
