@@ -16,10 +16,10 @@
         ) {
           <mat-error>Format d'adresse e-mail invalide</mat-error>
         }
-        @if (conflictError()) {
-          <mat-error>Cette adresse e-mail est déjà utilisée</mat-error>
-        }
       </mat-form-field>
+      @if (conflictError()) {
+        <p class="conflict-error">Cette adresse e-mail est déjà utilisée</p>
+      }
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Nom d'affichage</mat-label>

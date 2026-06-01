@@ -106,8 +106,9 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
     (resp) => resp.url().includes('/users') && resp.status() === 409,
     { timeout: 10000 },
   );
-  // mat-error visible uniquement quand errorState = invalid && touched — projection ng-content conditionnelle
-  await expect(page.locator('mat-error').filter({ hasText: 'déjà' })).toBeVisible({ timeout: 5000 });
+  // L'erreur de conflit est un <p class="conflict-error"> hors mat-form-field
+  // (rendu direct via @if sans dépendance à la projection ng-content d'Angular Material)
+  await expect(page.locator('p.conflict-error')).toBeVisible({ timeout: 5000 });
 });
 
 test('Reset password — Admin réinitialise le mot de passe et voit le nouveau mot de passe temporaire', async ({ page, request }) => {
