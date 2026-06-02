@@ -9,6 +9,7 @@ import { validationSchema } from './config/app.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { LinksModule } from './links/links.module';
+import { RecipesModule } from './recipes/recipes.module';
 import { CsrfMiddleware } from './common/middleware/csrf.middleware';
 
 @Module({
@@ -48,6 +49,7 @@ import { CsrfMiddleware } from './common/middleware/csrf.middleware';
     UsersModule,
     AuthModule,
     LinksModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
