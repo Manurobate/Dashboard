@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRecipeStepDto {
@@ -9,6 +9,7 @@ export class CreateRecipeStepDto {
 
   @IsInt()
   @IsOptional()
+  @Min(0)
   @ApiProperty({ required: false })
   position?: number;
 }
