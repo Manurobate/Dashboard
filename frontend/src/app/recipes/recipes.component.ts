@@ -54,11 +54,12 @@ export class RecipesComponent implements OnInit {
   readonly filteredRecipes = computed(() => {
     const term = this.searchQuery().toLowerCase().trim();
     if (!term) return [];
-    return this.recipesService.recipes().filter(
-      (r) =>
-        r.title.toLowerCase().includes(term) ||
-        (r.category ?? '').toLowerCase().includes(term),
-    );
+    return this.recipesService
+      .recipes()
+      .filter(
+        (r) =>
+          r.title.toLowerCase().includes(term) || (r.category ?? '').toLowerCase().includes(term),
+      );
   });
 
   readonly isSearching = computed(() => this.searchQuery().trim().length > 0);

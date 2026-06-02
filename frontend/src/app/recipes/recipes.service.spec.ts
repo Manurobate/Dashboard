@@ -36,7 +36,7 @@ describe('RecipesService', () => {
       expect(service.recipes()).toEqual([mockRecipe]);
     });
 
-    it('retourne [] en cas d\'erreur HTTP', () => {
+    it("retourne [] en cas d'erreur HTTP", () => {
       service.loadRecipes().subscribe();
       const req = http.expectOne('/api/recipes');
       req.flush('Erreur', { status: 500, statusText: 'Server Error' });
@@ -57,7 +57,7 @@ describe('RecipesService', () => {
       http.expectOne('/api/recipes').flush([mockRecipe]);
     });
 
-    it('réinitialise le signal recipes à [] en cas d\'erreur HTTP', () => {
+    it("réinitialise le signal recipes à [] en cas d'erreur HTTP", () => {
       service.loadRecipes().subscribe();
       const req = http.expectOne('/api/recipes');
       req.flush([mockRecipe]);

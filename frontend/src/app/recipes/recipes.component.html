@@ -9,19 +9,19 @@
       aria-label="Rechercher une recette"
     />
     @if (isSearching()) {
-      <button
-        matSuffix
-        mat-icon-button
-        aria-label="Effacer la recherche"
-        (click)="clearSearch()"
-      >
+      <button matSuffix mat-icon-button aria-label="Effacer la recherche" (click)="clearSearch()">
         <mat-icon>close</mat-icon>
       </button>
     }
   </mat-form-field>
 
   @if (recipesService.isLoading()) {
-    <div class="skeleton-list" role="status" aria-label="Chargement des recettes..." aria-busy="true">
+    <div
+      class="skeleton-list"
+      role="status"
+      aria-label="Chargement des recettes..."
+      aria-busy="true"
+    >
       @for (item of [1, 2, 3]; track $index) {
         <div class="skeleton-card"></div>
       }
