@@ -68,10 +68,17 @@
   padding: 6px 0;
   border-bottom: 1px solid var(--color-divider);
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
 
-  .quantity { font-weight: 600; min-width: 40px; }
-  .unit { color: var(--color-text-secondary); }
+  .quantity {
+    font-weight: 600;
+    min-width: 40px;
+  }
+  .unit {
+    color: var(--color-text-secondary);
+  }
 }
 
 .step-list {

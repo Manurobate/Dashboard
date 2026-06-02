@@ -12,24 +12,22 @@
       <button
         mat-icon-button
         [routerLink]="['/recipes', recipe()!.id, 'edit']"
-        aria-label="Modifier la recette">
+        aria-label="Modifier la recette"
+      >
         <mat-icon>edit</mat-icon>
       </button>
     </header>
 
     @if (recipe()!.imageUrl) {
-      <img
-        class="recipe-image"
-        [src]="recipe()!.imageUrl"
-        [alt]="recipe()!.title"
-        loading="lazy" />
+      <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
     }
 
     <section class="servings-section" aria-label="Convives">
       <app-convives-steppper
         [value]="currentServings()"
         [min]="1"
-        (valueChange)="onServingsChange($event)">
+        (valueChange)="onServingsChange($event)"
+      >
       </app-convives-steppper>
     </section>
 
@@ -42,7 +40,7 @@
           <ul class="ingredient-list">
             @for (ing of computedIngredients(); track ing.id) {
               <li class="ingredient-item">
-                <span class="quantity">{{ ing.quantity | number:'1.0-2':'fr' }}</span>
+                <span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
                 @if (ing.unit) {
                   <span class="unit">{{ ing.unit }}</span>
                 }
