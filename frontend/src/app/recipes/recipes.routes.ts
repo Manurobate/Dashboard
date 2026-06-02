@@ -11,9 +11,13 @@ export const recipesRoutes: Routes = [
       import('./recipe-editor/recipe-editor.component').then((m) => m.RecipeEditorComponent),
   },
   {
+    path: ':id',
+    loadComponent: () =>
+      import('./recipe-detail/recipe-detail.component').then((m) => m.RecipeDetailComponent),
+  },
+  {
     path: ':id/edit',
     loadComponent: () =>
       import('./recipe-editor/recipe-editor.component').then((m) => m.RecipeEditorComponent),
   },
-  // Story 5.4 ajoutera : { path: ':id', loadComponent: ... RecipeDetailComponent }
 ];
