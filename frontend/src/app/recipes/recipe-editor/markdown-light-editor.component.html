@@ -1,0 +1,41 @@
+<div class="mle-wrapper">
+  <div class="mle-toolbar" role="toolbar" aria-label="Barre d'outils markdown">
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Gras (**)"
+      (click)="insertMarkdown('**')"
+      [disabled]="isDisabled()"
+    >
+      <mat-icon>format_bold</mat-icon>
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Italique (*)"
+      (click)="insertMarkdown('*')"
+      [disabled]="isDisabled()"
+    >
+      <mat-icon>format_italic</mat-icon>
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Code (`)"
+      (click)="insertMarkdown('`')"
+      [disabled]="isDisabled()"
+    >
+      <mat-icon>code</mat-icon>
+    </button>
+  </div>
+  <textarea
+    #textarea
+    class="mle-textarea"
+    [value]="value()"
+    [disabled]="isDisabled()"
+    [placeholder]="placeholder"
+    (input)="onInput($event)"
+    rows="3"
+    aria-multiline="true"
+  ></textarea>
+</div>

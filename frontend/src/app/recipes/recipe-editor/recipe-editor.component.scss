@@ -1,0 +1,110 @@
+.recipe-editor {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.editor-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.section-divider {
+  margin: 8px 0;
+}
+
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  min-height: 4px;
+}
+
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--mdc-filled-button-container-color, #1976d2);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.step-editor {
+  flex: 1;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
+  flex-shrink: 0;
+  margin-top: 8px;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.btn-add {
+  align-self: flex-start;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}

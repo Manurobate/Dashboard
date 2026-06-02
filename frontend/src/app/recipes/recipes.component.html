@@ -72,6 +72,16 @@
               <a class="recipe-item" [routerLink]="['/recipes', recipe.id]">
                 <span class="recipe-title">{{ recipe.title }}</span>
                 <span class="recipe-servings">{{ recipe.servings }} pers.</span>
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="edit-btn"
+                  [routerLink]="['/recipes', recipe.id, 'edit']"
+                  (click)="$event.stopPropagation()"
+                  [attr.aria-label]="'Modifier ' + recipe.title"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
               </a>
             }
           </div>

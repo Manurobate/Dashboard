@@ -1,7 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { RecipesService, Recipe } from './recipes.service';
+import {
+  RecipesService,
+  Recipe,
+  RecipeDetail,
+  CreateRecipePayload,
+  UpdateRecipePayload,
+} from './recipes.service';
 
 const mockRecipe: Recipe = {
   id: 1,
@@ -12,6 +18,12 @@ const mockRecipe: Recipe = {
   userId: 42,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+const mockDetail: RecipeDetail = {
+  ...mockRecipe,
+  ingredients: [{ id: 1, quantity: 2, unit: null, name: 'Pommes', position: 0, recipeId: 1 }],
+  steps: [{ id: 1, content: 'Éplucher les pommes', position: 0, recipeId: 1 }],
 };
 
 describe('RecipesService', () => {
@@ -67,6 +79,55 @@ describe('RecipesService', () => {
       const req2 = http.expectOne('/api/recipes');
       req2.flush('Erreur', { status: 500, statusText: 'Server Error' });
       expect(service.recipes()).toEqual([]);
+    });
+  });
+
+  describe('getRecipe()', () => {
+    it('appelle GET /api/recipes/:id et retourne le détail', () => {
+      let result: RecipeDetail | undefined;
+      service.getRecipe(1).subscribe((r) => (result = r));
+      const req = http.expectOne('/api/recipes/1');
+      expect(req.request.method).toBe('GET');
+      req.flush(mockDetail);
+      expect(result).toEqual(mockDetail);
+    });
+  });
+
+  describe('createRecipe()', () => {
+    it('appelle POST /api/recipes et met à jour le signal recipes', () => {
+      const payload: CreateRecipePayload = {
+        title: 'Tarte aux pommes',
+        servings: 4,
+        ingredients: [],
+        steps: [],
+      };
+
+      service.createRecipe(payload).subscribe();
+      const req = http.expectOne('/api/recipes');
+      expect(req.request.method).toBe('POST');
+      req.flush(mockDetail);
+      expect(service.recipes()).toContainEqual(mockDetail);
+    });
+  });
+
+  describe('updateRecipe()', () => {
+    it('appelle PATCH /api/recipes/:id et met à jour le signal recipes', () => {
+      service.recipes.set([mockRecipe]);
+      const payload: UpdateRecipePayload = {
+        title: 'Tarte modifiée',
+        servings: 6,
+        ingredients: [],
+        steps: [],
+      };
+      const updated: RecipeDetail = { ...mockDetail, title: 'Tarte modifiée', servings: 6 };
+
+      service.updateRecipe(1, payload).subscribe();
+      const req = http.expectOne('/api/recipes/1');
+      expect(req.request.method).toBe('PATCH');
+      req.flush(updated);
+
+      const found = service.recipes().find((r) => r.id === 1);
+      expect(found?.title).toBe('Tarte modifiée');
     });
   });
 });

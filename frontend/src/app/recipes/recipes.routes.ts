@@ -5,5 +5,15 @@ export const recipesRoutes: Routes = [
     path: '',
     loadComponent: () => import('./recipes.component').then((m) => m.RecipesComponent),
   },
-  // Stories 5.3/5.4 ajouteront : new, :id/edit, :id
+  {
+    path: 'new',
+    loadComponent: () =>
+      import('./recipe-editor/recipe-editor.component').then((m) => m.RecipeEditorComponent),
+  },
+  {
+    path: ':id/edit',
+    loadComponent: () =>
+      import('./recipe-editor/recipe-editor.component').then((m) => m.RecipeEditorComponent),
+  },
+  // Story 5.4 ajoutera : { path: ':id', loadComponent: ... RecipeDetailComponent }
 ];
