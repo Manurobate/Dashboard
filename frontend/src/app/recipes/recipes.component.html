@@ -1,0 +1,82 @@
+<div class="recipes-page">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      placeholder="Rechercher une recette..."
+      [value]="searchQuery()"
+      (input)="onSearchInput($any($event.target).value)"
+      aria-label="Rechercher une recette"
+    />
+    @if (isSearching()) {
+      <button
+        matSuffix
+        mat-icon-button
+        aria-label="Effacer la recherche"
+        (click)="clearSearch()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  @if (recipesService.isLoading()) {
+    <div class="skeleton-list" role="status" aria-label="Chargement des recettes..." aria-busy="true">
+      @for (item of [1, 2, 3]; track $index) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+  }
+
+  @if (!recipesService.isLoading() && !isSearching() && recipesService.recipes().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">menu_book</mat-icon>
+      <p class="empty-message">Aucune recette enregistrée</p>
+      <button mat-flat-button color="primary" routerLink="/recipes/new">
+        <mat-icon>add</mat-icon>
+        Ajouter une recette
+      </button>
+    </div>
+  }
+
+  @if (!recipesService.isLoading() && isSearching()) {
+    <div aria-live="polite" aria-atomic="true" class="search-results">
+      @if (filteredRecipes().length === 0) {
+        <p class="no-results">Aucun résultat pour « {{ searchQuery() }} »</p>
+      } @else {
+        <p class="results-count sr-only">{{ filteredRecipes().length }} résultat(s)</p>
+        <div class="recipe-flat-list">
+          @for (recipe of filteredRecipes(); track recipe.id) {
+            <a class="recipe-item" [routerLink]="['/recipes', recipe.id]">
+              <span class="recipe-title">{{ recipe.title }}</span>
+              @if (recipe.category) {
+                <span class="recipe-category-badge">{{ recipe.category }}</span>
+              }
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (!recipesService.isLoading() && !isSearching() && recipesService.recipes().length > 0) {
+    <mat-accordion class="categories-accordion" multi>
+      @for (group of categorizedRecipes(); track group.category) {
+        <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ group.category }}</mat-panel-title>
+            <mat-panel-description>{{ group.recipes.length }} recette(s)</mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="recipe-list-in-panel">
+            @for (recipe of group.recipes; track recipe.id) {
+              <a class="recipe-item" [routerLink]="['/recipes', recipe.id]">
+                <span class="recipe-title">{{ recipe.title }}</span>
+                <span class="recipe-servings">{{ recipe.servings }} pers.</span>
+              </a>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>
