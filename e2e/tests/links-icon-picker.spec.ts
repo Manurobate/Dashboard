@@ -146,6 +146,9 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await page.click('button:has-text("Choisir une icône")');
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
+    // Attendre que les icônes soient chargées avant de chercher
+    await expect(page.locator('.icon-btn').first()).toBeVisible();
+
     // Rechercher terme inexistant
     await page.fill('input[placeholder*="home"]', 'xyznonexistent123');
     await page.waitForTimeout(200);
