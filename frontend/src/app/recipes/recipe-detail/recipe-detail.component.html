@@ -62,13 +62,13 @@
 
       <section class="steps-section" aria-label="Étapes">
         <h2 class="section-title">Étapes</h2>
-        @if (recipe()!.steps.length === 0) {
+        @if ((recipe()!.steps ?? []).length === 0) {
           <p class="empty-section">Aucune étape renseignée.</p>
         } @else {
           <ol class="step-list">
             @for (step of recipe()!.steps; track step.id) {
               <li class="step-item">
-                <pre class="step-content">{{ step.content }}</pre>
+                <div class="step-content" [innerHTML]="step.content | markdownLight"></div>
               </li>
             }
           </ol>

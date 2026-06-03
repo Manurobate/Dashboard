@@ -9,19 +9,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { RecipesService, Recipe } from './recipes.service';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../shared/components/confirm-dialog/confirm-dialog.component';
+import { RecipesService } from './recipes.service';
 
 @Component({
   selector: 'app-recipes',
@@ -34,17 +28,14 @@ import {
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule,
-    MatSnackBarModule,
   ],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.scss',
 })
 export class RecipesComponent implements OnInit {
   protected readonly recipesService = inject(RecipesService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly searchSubject = new Subject<string>();
 
   readonly searchQuery = signal('');
@@ -64,12 +55,7 @@ export class RecipesComponent implements OnInit {
   readonly filteredRecipes = computed(() => {
     const term = this.searchQuery().toLowerCase().trim();
     if (!term) return [];
-    return this.recipesService
-      .recipes()
-      .filter(
-        (r) =>
-          r.title.toLowerCase().includes(term) || (r.category ?? '').toLowerCase().includes(term),
-      );
+    return this.recipesService.recipes().filter((r) => r.title.toLowerCase().includes(term));
   });
 
   readonly isSearching = computed(() => this.searchQuery().trim().length > 0);
@@ -93,28 +79,7 @@ export class RecipesComponent implements OnInit {
     this.searchSubject.next('');
   }
 
-  onDeleteRecipe(recipe: Recipe, event: Event): void {
-    event.stopPropagation();
-    const ref = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: `Supprimer « ${recipe.title} » ?`,
-        message: 'Cette action est irréversible.',
-        confirmLabel: 'Supprimer',
-      } satisfies ConfirmDialogData,
-    });
-    ref
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((confirmed) => {
-        if (!confirmed) return;
-        this.recipesService
-          .deleteRecipe(recipe.id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => this.snackBar.open('Recette supprimée', undefined, { duration: 3000 }),
-            error: () =>
-              this.snackBar.open('Erreur lors de la suppression', undefined, { duration: 3000 }),
-          });
-      });
+  navigateToRecipe(id: number): void {
+    void this.router.navigate(['/recipes', id]);
   }
 }

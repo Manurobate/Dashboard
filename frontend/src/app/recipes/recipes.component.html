@@ -1,4 +1,11 @@
 <div class="recipes-page">
+  <div class="page-actions">
+    <button mat-flat-button color="primary" routerLink="/recipes/new">
+      <mat-icon>add</mat-icon>
+      Nouvelle recette
+    </button>
+  </div>
+
   <mat-form-field appearance="outline" class="search-field">
     <mat-icon matPrefix>search</mat-icon>
     <input
@@ -47,22 +54,18 @@
         <p class="results-count sr-only">{{ filteredRecipes().length }} résultat(s)</p>
         <div class="recipe-flat-list">
           @for (recipe of filteredRecipes(); track recipe.id) {
-            <a class="recipe-item" [routerLink]="['/recipes', recipe.id]">
+            <div
+              class="recipe-item"
+              [routerLink]="['/recipes', recipe.id]"
+              tabindex="0"
+              role="link"
+              (keydown.enter)="navigateToRecipe(recipe.id)"
+            >
               <span class="recipe-title">{{ recipe.title }}</span>
               @if (recipe.category) {
                 <span class="recipe-category-badge">{{ recipe.category }}</span>
               }
-              <button
-                type="button"
-                mat-icon-button
-                color="warn"
-                class="delete-btn"
-                (click)="onDeleteRecipe(recipe, $event)"
-                [attr.aria-label]="'Supprimer ' + recipe.title"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </a>
+            </div>
           }
         </div>
       }
@@ -79,30 +82,16 @@
           </mat-expansion-panel-header>
           <div class="recipe-list-in-panel">
             @for (recipe of group.recipes; track recipe.id) {
-              <a class="recipe-item" [routerLink]="['/recipes', recipe.id]">
+              <div
+                class="recipe-item"
+                [routerLink]="['/recipes', recipe.id]"
+                tabindex="0"
+                role="link"
+                (keydown.enter)="navigateToRecipe(recipe.id)"
+              >
                 <span class="recipe-title">{{ recipe.title }}</span>
                 <span class="recipe-servings">{{ recipe.servings }} pers.</span>
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="edit-btn"
-                  [routerLink]="['/recipes', recipe.id, 'edit']"
-                  (click)="$event.stopPropagation()"
-                  [attr.aria-label]="'Modifier ' + recipe.title"
-                >
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button
-                  type="button"
-                  mat-icon-button
-                  color="warn"
-                  class="delete-btn"
-                  (click)="onDeleteRecipe(recipe, $event)"
-                  [attr.aria-label]="'Supprimer ' + recipe.title"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </a>
+              </div>
             }
           </div>
         </mat-expansion-panel>

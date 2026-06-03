@@ -13,7 +13,7 @@
   } @else {
     <form [formGroup]="form" (ngSubmit)="submit()" class="editor-form" novalidate>
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Titre *</mat-label>
+        <mat-label>Titre</mat-label>
         <input matInput formControlName="title" maxlength="255" />
         @if (form.get('title')?.hasError('required')) {
           <mat-error>Le titre est obligatoire</mat-error>

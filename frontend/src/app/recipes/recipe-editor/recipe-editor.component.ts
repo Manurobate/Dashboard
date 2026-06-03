@@ -103,6 +103,12 @@ export class RecipeEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.isEditMode()) {
+      for (let i = 0; i < 3; i++) this.ingredients.push(this.createIngredientGroup());
+      this.steps.push(this.createStepGroup());
+      return;
+    }
+
     if (this.isEditMode() && this.recipeId) {
       this.isLoading.set(true);
       this.recipesService

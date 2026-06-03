@@ -17,6 +17,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RecipesService, RecipeDetail } from '../recipes.service';
 import { ConvivesSteppperComponent } from './convives-steppper.component';
+import { MarkdownLightPipe } from './markdown-light.pipe';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -35,6 +36,7 @@ import {
     MatDialogModule,
     MatSnackBarModule,
     ConvivesSteppperComponent,
+    MarkdownLightPipe,
   ],
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.scss'],
@@ -60,7 +62,7 @@ export class RecipeDetailComponent implements OnInit {
     const recipe = this.recipe();
     const servings = this.currentServings();
     if (!recipe || !servings || !recipe.servings) return [];
-    return recipe.ingredients.map((ing) => ({
+    return (recipe.ingredients ?? []).map((ing) => ({
       ...ing,
       quantity: (ing.quantity * servings) / recipe.servings,
     }));

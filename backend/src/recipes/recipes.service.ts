@@ -27,9 +27,10 @@ export class RecipesService {
     const recipe = await this.repo.findOne({
       where: { id, userId },
       relations: ['ingredients', 'steps'],
-      order: { ingredients: { position: 'ASC' }, steps: { position: 'ASC' } },
     });
     if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
+    recipe.ingredients = (recipe.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
+    recipe.steps = (recipe.steps ?? []).slice().sort((a, b) => a.position - b.position);
     return recipe;
   }
 
@@ -70,9 +71,10 @@ export class RecipesService {
       const created = await manager.findOne(Recipe, {
         where: { id: saved.id },
         relations: ['ingredients', 'steps'],
-        order: { ingredients: { position: 'ASC' }, steps: { position: 'ASC' } },
       });
       if (!created) throw new InternalServerErrorException(`Recette ${saved.id} introuvable après création`);
+      created.ingredients = (created.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
+      created.steps = (created.steps ?? []).slice().sort((a, b) => a.position - b.position);
       return created;
     });
   }
@@ -131,9 +133,10 @@ export class RecipesService {
       const updated = await manager.findOne(Recipe, {
         where: { id },
         relations: ['ingredients', 'steps'],
-        order: { ingredients: { position: 'ASC' }, steps: { position: 'ASC' } },
       });
       if (!updated) throw new InternalServerErrorException(`Recette ${id} introuvable après mise à jour`);
+      updated.ingredients = (updated.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
+      updated.steps = (updated.steps ?? []).slice().sort((a, b) => a.position - b.position);
       return updated;
     });
   }
