@@ -16,6 +16,15 @@
       >
         <mat-icon>edit</mat-icon>
       </button>
+      <button
+        type="button"
+        mat-icon-button
+        color="warn"
+        (click)="onDelete()"
+        aria-label="Supprimer la recette"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
     </header>
 
     @if (recipe()!.imageUrl) {

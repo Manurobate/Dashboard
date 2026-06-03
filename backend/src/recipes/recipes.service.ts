@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
@@ -75,6 +75,15 @@ export class RecipesService {
       if (!created) throw new InternalServerErrorException(`Recette ${saved.id} introuvable après création`);
       return created;
     });
+  }
+
+  async remove(userId: number, id: number): Promise<void> {
+    const recipe = await this.repo.findOne({ where: { id } });
+    if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
+    if (recipe.userId !== userId) throw new ForbiddenException(`Recette ${id} non autorisée`);
+    const result = await this.repo.delete({ id });
+    if (result.affected === 0) throw new InternalServerErrorException(`Suppression échouée pour la recette ${id}`);
+    this.logger.log(`Recette ${id} supprimée pour userId=${userId}`);
   }
 
   async update(userId: number, id: number, dto: UpdateRecipeDto): Promise<Recipe> {

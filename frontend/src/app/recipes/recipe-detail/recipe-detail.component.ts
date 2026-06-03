@@ -13,8 +13,14 @@ import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RecipesService, RecipeDetail } from '../recipes.service';
 import { ConvivesSteppperComponent } from './convives-steppper.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -26,6 +32,8 @@ import { ConvivesSteppperComponent } from './convives-steppper.component';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
+    MatSnackBarModule,
     ConvivesSteppperComponent,
   ],
   templateUrl: './recipe-detail.component.html',
@@ -36,6 +44,8 @@ export class RecipeDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly recipesService = inject(RecipesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly recipeId: number = (() => {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -80,5 +90,36 @@ export class RecipeDetailComponent implements OnInit {
 
   onServingsChange(value: number): void {
     this.currentServings.set(value);
+  }
+
+  onDelete(): void {
+    const recipe = this.recipe();
+    if (!recipe) return;
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Supprimer « ${recipe.title} » ?`,
+        message:
+          'Cette action est irréversible. La recette et tous ses ingrédients et étapes seront supprimés.',
+        confirmLabel: 'Supprimer',
+      } satisfies ConfirmDialogData,
+    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.recipesService
+          .deleteRecipe(recipe.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Recette supprimée', undefined, { duration: 3000 });
+              this.router.navigate(['/recipes']);
+            },
+            error: () => {
+              this.snackBar.open('Erreur lors de la suppression', undefined, { duration: 3000 });
+            },
+          });
+      });
   }
 }

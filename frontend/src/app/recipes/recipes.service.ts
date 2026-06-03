@@ -101,4 +101,10 @@ export class RecipesService {
       }),
     );
   }
+
+  deleteRecipe(id: number): Observable<void> {
+    return this.http
+      .delete<void>(`/api/recipes/${id}`)
+      .pipe(tap(() => this.recipes.update((r) => r.filter((x) => x.id !== id))));
+  }
 }

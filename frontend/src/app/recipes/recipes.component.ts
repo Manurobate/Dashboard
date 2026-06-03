@@ -15,7 +15,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { RecipesService } from './recipes.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RecipesService, Recipe } from './recipes.service';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-recipes',
@@ -28,6 +34,8 @@ import { RecipesService } from './recipes.service';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.scss',
@@ -35,6 +43,8 @@ import { RecipesService } from './recipes.service';
 export class RecipesComponent implements OnInit {
   protected readonly recipesService = inject(RecipesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly searchSubject = new Subject<string>();
 
   readonly searchQuery = signal('');
@@ -81,5 +91,30 @@ export class RecipesComponent implements OnInit {
   clearSearch(): void {
     this.searchQuery.set('');
     this.searchSubject.next('');
+  }
+
+  onDeleteRecipe(recipe: Recipe, event: Event): void {
+    event.stopPropagation();
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Supprimer « ${recipe.title} » ?`,
+        message: 'Cette action est irréversible.',
+        confirmLabel: 'Supprimer',
+      } satisfies ConfirmDialogData,
+    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.recipesService
+          .deleteRecipe(recipe.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.snackBar.open('Recette supprimée', undefined, { duration: 3000 }),
+            error: () =>
+              this.snackBar.open('Erreur lors de la suppression', undefined, { duration: 3000 }),
+          });
+      });
   }
 }

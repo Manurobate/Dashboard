@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   ParseIntPipe,
@@ -58,5 +59,15 @@ export class RecipesController {
     @Body() dto: UpdateRecipeDto,
   ) {
     return this.recipesService.update(user.id, id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Supprimer une recette' })
+  remove(
+    @CurrentUser() user: { id: number },
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.recipesService.remove(user.id, id);
   }
 }

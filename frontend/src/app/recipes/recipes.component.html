@@ -52,6 +52,16 @@
               @if (recipe.category) {
                 <span class="recipe-category-badge">{{ recipe.category }}</span>
               }
+              <button
+                type="button"
+                mat-icon-button
+                color="warn"
+                class="delete-btn"
+                (click)="onDeleteRecipe(recipe, $event)"
+                [attr.aria-label]="'Supprimer ' + recipe.title"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
             </a>
           }
         </div>
@@ -81,6 +91,16 @@
                   [attr.aria-label]="'Modifier ' + recipe.title"
                 >
                   <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="warn"
+                  class="delete-btn"
+                  (click)="onDeleteRecipe(recipe, $event)"
+                  [attr.aria-label]="'Supprimer ' + recipe.title"
+                >
+                  <mat-icon>delete</mat-icon>
                 </button>
               </a>
             }
