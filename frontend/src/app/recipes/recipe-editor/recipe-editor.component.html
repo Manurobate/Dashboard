@@ -31,7 +31,11 @@
             [matAutocomplete]="categoryAuto"
             (input)="categoryQuery.set($any($event.target).value)"
           />
-          <mat-autocomplete #categoryAuto autoActiveFirstOption (optionSelected)="categoryQuery.set('')">
+          <mat-autocomplete
+            #categoryAuto
+            autoActiveFirstOption
+            (optionSelected)="categoryQuery.set('')"
+          >
             @for (cat of filteredCategories(); track cat.id) {
               <mat-option [value]="cat.name">{{ cat.name }}</mat-option>
             }

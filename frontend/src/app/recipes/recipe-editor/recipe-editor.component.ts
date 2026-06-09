@@ -29,7 +29,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { RecipesService, RecipeIngredientItem, RecipeStepItem, RecipeCategory } from '../recipes.service';
+import {
+  RecipesService,
+  RecipeIngredientItem,
+  RecipeStepItem,
+  RecipeCategory,
+} from '../recipes.service';
 import { RecipeIngredientRowComponent } from './recipe-ingredient-row.component';
 import { MarkdownLightEditorComponent } from './markdown-light-editor.component';
 
