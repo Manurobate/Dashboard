@@ -63,7 +63,7 @@
             >
               <span class="recipe-title">{{ recipe.title }}</span>
               @if (recipe.category) {
-                <span class="recipe-category-badge">{{ recipe.category }}</span>
+                <span class="recipe-category-badge">{{ recipe.category?.name }}</span>
               }
             </div>
           }

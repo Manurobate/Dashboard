@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, signal, computed, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgIf } from '@angular/common';
 
 @Component({
@@ -19,6 +20,7 @@ import { NgIf } from '@angular/common';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatAutocompleteModule,
     ReactiveFormsModule,
     NgIf,
   ],
@@ -27,5 +29,22 @@ import { NgIf } from '@angular/common';
 })
 export class RecipeIngredientRowComponent {
   @Input({ required: true }) formGroup!: FormGroup;
+  readonly ingredientSuggestions = input<string[]>([]);
+  readonly unitSuggestions = input<string[]>([]);
   @Output() deleteRow = new EventEmitter<void>();
+
+  readonly nameQuery = signal('');
+  readonly unitQuery = signal('');
+
+  readonly filteredIngredients = computed(() => {
+    const q = this.nameQuery().toLowerCase();
+    if (!q) return this.ingredientSuggestions();
+    return this.ingredientSuggestions().filter((s) => s.toLowerCase().includes(q));
+  });
+
+  readonly filteredUnits = computed(() => {
+    const q = this.unitQuery().toLowerCase();
+    if (!q) return this.unitSuggestions();
+    return this.unitSuggestions().filter((s) => s.toLowerCase().includes(q));
+  });
 }

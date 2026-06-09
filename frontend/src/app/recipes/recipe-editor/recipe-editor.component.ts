@@ -5,6 +5,7 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -16,7 +17,7 @@ import {
   AbstractControl,
 } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin, catchError, of } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +28,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RecipesService, RecipeIngredientItem, RecipeStepItem } from '../recipes.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { RecipesService, RecipeIngredientItem, RecipeStepItem, RecipeCategory } from '../recipes.service';
 import { RecipeIngredientRowComponent } from './recipe-ingredient-row.component';
 import { MarkdownLightEditorComponent } from './markdown-light-editor.component';
 
@@ -48,6 +50,7 @@ import { MarkdownLightEditorComponent } from './markdown-light-editor.component'
     MatDividerModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatAutocompleteModule,
     RecipeIngredientRowComponent,
     MarkdownLightEditorComponent,
   ],
@@ -62,6 +65,17 @@ export class RecipeEditorComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly categories = signal<RecipeCategory[]>([]);
+  readonly categoryQuery = signal('');
+  readonly filteredCategories = computed(() => {
+    const q = this.categoryQuery().toLowerCase();
+    if (!q) return this.categories();
+    return this.categories().filter((c) => c.name.toLowerCase().includes(q));
+  });
+
+  readonly ingredientSuggestions = signal<string[]>([]);
+  readonly unitSuggestions = signal<string[]>([]);
+
   readonly recipeId: number | null = (() => {
     const id = this.route.snapshot.paramMap.get('id');
     const parsed = id ? Number(id) : null;
@@ -73,7 +87,7 @@ export class RecipeEditorComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(255)]],
-    category: [''],
+    category: ['', [Validators.required, Validators.maxLength(100)]],
     servings: [4, [Validators.required, Validators.min(1)]],
     imageUrl: [''],
     ingredients: this.fb.array<FormGroup>([]),
@@ -103,6 +117,18 @@ export class RecipeEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    forkJoin({
+      cats: this.recipesService.getCategories().pipe(catchError(() => of([]))),
+      ings: this.recipesService.getIngredientSuggestions().pipe(catchError(() => of([]))),
+      units: this.recipesService.getUnitSuggestions().pipe(catchError(() => of([]))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ cats, ings, units }) => {
+        this.categories.set(cats);
+        this.ingredientSuggestions.set(ings);
+        this.unitSuggestions.set(units);
+      });
+
     if (!this.isEditMode()) {
       for (let i = 0; i < 3; i++) this.ingredients.push(this.createIngredientGroup());
       this.steps.push(this.createStepGroup());
@@ -118,7 +144,7 @@ export class RecipeEditorComponent implements OnInit {
           next: (recipe) => {
             this.form.patchValue({
               title: recipe.title,
-              category: recipe.category ?? '',
+              category: recipe.category?.name ?? '',
               servings: recipe.servings,
               imageUrl: recipe.imageUrl ?? '',
             });
@@ -171,7 +197,7 @@ export class RecipeEditorComponent implements OnInit {
     const raw = this.form.getRawValue();
     const payload = {
       title: raw.title,
-      category: raw.category || null,
+      categoryName: raw.category,
       servings: raw.servings,
       imageUrl: raw.imageUrl || null,
       ingredients: (

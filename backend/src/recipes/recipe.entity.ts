@@ -11,6 +11,7 @@ import {
 import { UserEntity } from '../users/user.entity';
 import { RecipeIngredient } from './recipe-ingredient.entity';
 import { RecipeStep } from './recipe-step.entity';
+import { RecipeCategoryEntity } from './recipe-category.entity';
 
 @Entity('Recipe')
 export class Recipe {
@@ -20,8 +21,12 @@ export class Recipe {
   @Column({ type: 'varchar', length: 255 })
   title!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  category!: string | null;
+  @Column({ type: 'int' })
+  categoryId!: number;
+
+  @ManyToOne(() => RecipeCategoryEntity, { nullable: false, onDelete: 'RESTRICT', eager: false })
+  @JoinColumn({ name: 'categoryId' })
+  category!: RecipeCategoryEntity;
 
   @Column({ type: 'int', default: 4 })
   servings!: number;

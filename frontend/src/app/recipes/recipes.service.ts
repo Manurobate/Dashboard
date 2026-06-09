@@ -2,10 +2,15 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize, catchError, of, EMPTY } from 'rxjs';
 
+export interface RecipeCategory {
+  id: number;
+  name: string;
+}
+
 export interface Recipe {
   id: number;
   title: string;
-  category: string | null;
+  category: RecipeCategory | null;
   servings: number;
   imageUrl: string | null;
   userId: number;
@@ -48,7 +53,7 @@ export interface StepPayload {
 
 export interface CreateRecipePayload {
   title: string;
-  category?: string | null;
+  categoryName?: string | null;
   servings?: number;
   imageUrl?: string | null;
   ingredients: IngredientPayload[];
@@ -57,7 +62,7 @@ export interface CreateRecipePayload {
 
 export interface UpdateRecipePayload {
   title?: string;
-  category?: string | null;
+  categoryName?: string | null;
   servings?: number;
   imageUrl?: string | null;
   ingredients?: IngredientPayload[];
@@ -106,5 +111,17 @@ export class RecipesService {
     return this.http
       .delete<void>(`/api/recipes/${id}`)
       .pipe(tap(() => this.recipes.update((r) => r.filter((x) => x.id !== id))));
+  }
+
+  getCategories(): Observable<RecipeCategory[]> {
+    return this.http.get<RecipeCategory[]>('/api/recipe-categories');
+  }
+
+  getIngredientSuggestions(): Observable<string[]> {
+    return this.http.get<string[]>('/api/recipe-categories/ingredient-suggestions');
+  }
+
+  getUnitSuggestions(): Observable<string[]> {
+    return this.http.get<string[]>('/api/recipe-categories/unit-suggestions');
   }
 }

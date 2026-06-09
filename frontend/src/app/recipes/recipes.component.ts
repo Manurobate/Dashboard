@@ -43,7 +43,7 @@ export class RecipesComponent implements OnInit {
   readonly categorizedRecipes = computed(() => {
     const map = new Map<string, ReturnType<typeof this.recipesService.recipes>[number][]>();
     for (const r of this.recipesService.recipes()) {
-      const key = r.category ?? 'Sans catégorie';
+      const key = r.category?.name ?? 'Sans catégorie';
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(r);
     }
@@ -55,7 +55,11 @@ export class RecipesComponent implements OnInit {
   readonly filteredRecipes = computed(() => {
     const term = this.searchQuery().toLowerCase().trim();
     if (!term) return [];
-    return this.recipesService.recipes().filter((r) => r.title.toLowerCase().includes(term));
+    return this.recipesService.recipes().filter(
+      (r) =>
+        r.title.toLowerCase().includes(term) ||
+        (r.category?.name ?? '').toLowerCase().includes(term),
+    );
   });
 
   readonly isSearching = computed(() => this.searchQuery().trim().length > 0);

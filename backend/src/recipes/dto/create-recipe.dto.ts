@@ -23,10 +23,10 @@ export class CreateRecipeDto {
   title!: string;
 
   @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  @ApiProperty({ required: false })
-  category?: string | null;
+  @IsNotEmpty()
+  @MaxLength(100)
+  @ApiProperty()
+  categoryName!: string;
 
   @IsInt()
   @IsOptional()

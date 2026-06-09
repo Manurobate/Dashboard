@@ -9,12 +9,35 @@
 
   <mat-form-field appearance="outline" class="field-unit">
     <mat-label>Unité</mat-label>
-    <input matInput formControlName="unit" placeholder="g, ml, …" maxlength="50" />
+    <input
+      matInput
+      formControlName="unit"
+      placeholder="g, ml, …"
+      maxlength="50"
+      [matAutocomplete]="unitAuto"
+      (input)="unitQuery.set($any($event.target).value)"
+    />
+    <mat-autocomplete #unitAuto>
+      @for (s of filteredUnits(); track s) {
+        <mat-option [value]="s">{{ s }}</mat-option>
+      }
+    </mat-autocomplete>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="field-name">
     <mat-label>Ingrédient</mat-label>
-    <input matInput formControlName="name" maxlength="255" />
+    <input
+      matInput
+      formControlName="name"
+      maxlength="255"
+      [matAutocomplete]="nameAuto"
+      (input)="nameQuery.set($any($event.target).value)"
+    />
+    <mat-autocomplete #nameAuto>
+      @for (s of filteredIngredients(); track s) {
+        <mat-option [value]="s">{{ s }}</mat-option>
+      }
+    </mat-autocomplete>
     <mat-error *ngIf="formGroup.get('name')?.hasError('required')">Requis</mat-error>
   </mat-form-field>
 

@@ -6,7 +6,8 @@ import { RecipesService } from './recipes.service';
 const mockRecipe = {
   id: 1,
   title: 'Tarte aux pommes',
-  category: 'Desserts',
+  categoryId: 10,
+  category: { id: 10, name: 'Desserts' },
   servings: 4,
   imageUrl: null,
   userId: 42,

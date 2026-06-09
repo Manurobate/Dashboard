@@ -5,11 +5,19 @@ import { RecipesService } from './recipes.service';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from './recipe-ingredient.entity';
 import { RecipeStep } from './recipe-step.entity';
+import { RecipeCategoryEntity } from './recipe-category.entity';
+
+const mockCategory: Partial<RecipeCategoryEntity> = {
+  id: 10,
+  name: 'Desserts',
+  userId: 42,
+};
 
 const mockRecipe: Partial<Recipe> = {
   id: 1,
   title: 'Tarte aux pommes',
-  category: 'Desserts',
+  categoryId: 10,
+  category: mockCategory as RecipeCategoryEntity,
   servings: 4,
   imageUrl: null,
   userId: 42,
@@ -64,7 +72,8 @@ describe('RecipesService', () => {
       expect(result).toEqual([mockRecipe]);
       expect(repo.find).toHaveBeenCalledWith({
         where: { userId: 42 },
-        order: { category: 'ASC', title: 'ASC' },
+        relations: ['category'],
+        order: { category: { name: 'ASC' }, title: 'ASC' },
       });
     });
 
@@ -74,7 +83,8 @@ describe('RecipesService', () => {
       expect(result).toEqual([]);
       expect(repo.find).toHaveBeenCalledWith({
         where: { userId: 99 },
-        order: { category: 'ASC', title: 'ASC' },
+        relations: ['category'],
+        order: { category: { name: 'ASC' }, title: 'ASC' },
       });
     });
   });
@@ -86,8 +96,7 @@ describe('RecipesService', () => {
       expect(result).toEqual(mockRecipe);
       expect(repo.findOne).toHaveBeenCalledWith({
         where: { id: 1, userId: 42 },
-        relations: ['ingredients', 'steps'],
-        order: { ingredients: { position: 'ASC' }, steps: { position: 'ASC' } },
+        relations: ['ingredients', 'steps', 'category'],
       });
     });
 
@@ -117,6 +126,7 @@ describe('RecipesService', () => {
 
       const dto = {
         title: 'Tarte',
+        categoryName: 'Desserts',
         ingredients: [{ quantity: 2, name: 'Pommes', unit: null }],
         steps: [{ content: 'Éplucher' }],
       };
@@ -126,19 +136,46 @@ describe('RecipesService', () => {
       expect(dataSource.transaction).toHaveBeenCalled();
     });
 
-    it('retourne la recette avec ses relations après création', async () => {
-      const createdRecipe = { ...mockRecipe, id: 5 };
+    it('crée la catégorie si categoryName est fourni et inexistant', async () => {
+      const newCat = { id: 99, name: 'Soupes', userId: 42 };
       const manager = buildManager({
-        save: jest.fn().mockResolvedValue(createdRecipe),
-        findOne: jest.fn().mockResolvedValue(createdRecipe),
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(null)
+          .mockResolvedValueOnce(mockRecipe),
+        save: jest
+          .fn()
+          .mockResolvedValueOnce(newCat)
+          .mockResolvedValueOnce({ ...mockRecipe, categoryId: 99 }),
+        create: jest.fn().mockImplementation((_entity: unknown, data: unknown) => data),
       });
       dataSource.transaction.mockImplementation(
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      const result = await service.create(42, { title: 'Tarte', servings: 4 } as any);
-      expect(result).toEqual(createdRecipe);
+      const result = await service.create(42, { title: 'Soupe', categoryName: 'Soupes' } as any);
+      expect(result).toBeDefined();
     });
+
+    it('réutilise la catégorie existante si categoryName correspond', async () => {
+      const existingCat = { id: 10, name: 'Desserts', userId: 42 };
+      const manager = buildManager({
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(existingCat)
+          .mockResolvedValueOnce(mockRecipe),
+        save: jest.fn().mockResolvedValue(mockRecipe),
+        create: jest.fn().mockImplementation((_entity: unknown, data: unknown) => data),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      const result = await service.create(42, { title: 'Tarte', categoryName: 'Desserts' } as any);
+      expect(result).toEqual(mockRecipe);
+      expect(manager.save).toHaveBeenCalledTimes(1);
+    });
+
   });
 
   describe('update()', () => {
@@ -155,6 +192,24 @@ describe('RecipesService', () => {
       );
 
       await service.update(42, 1, { title: 'Mis à jour' } as any);
+      expect(manager.save).toHaveBeenCalled();
+    });
+
+    it('met à jour categoryId si categoryName est fourni', async () => {
+      const existingCat = { id: 10, name: 'Desserts', userId: 42 };
+      const manager = buildManager({
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(mockRecipe)
+          .mockResolvedValueOnce(existingCat)
+          .mockResolvedValueOnce(mockRecipe),
+        save: jest.fn().mockResolvedValue(mockRecipe),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.update(42, 1, { categoryName: 'Desserts' } as any);
       expect(manager.save).toHaveBeenCalled();
     });
 

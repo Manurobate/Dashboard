@@ -27,8 +27,18 @@
             matInput
             formControlName="category"
             placeholder="Ex : Desserts, Plats…"
-            maxlength="255"
+            maxlength="100"
+            [matAutocomplete]="categoryAuto"
+            (input)="categoryQuery.set($any($event.target).value)"
           />
+          <mat-autocomplete #categoryAuto autoActiveFirstOption (optionSelected)="categoryQuery.set('')">
+            @for (cat of filteredCategories(); track cat.id) {
+              <mat-option [value]="cat.name">{{ cat.name }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (form.get('category')?.hasError('required')) {
+            <mat-error>La catégorie est obligatoire</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Convives</mat-label>
@@ -56,6 +66,8 @@
           @for (ctrl of ingredients.controls; track ctrl; let i = $index) {
             <app-recipe-ingredient-row
               [formGroup]="$any(ctrl)"
+              [ingredientSuggestions]="ingredientSuggestions()"
+              [unitSuggestions]="unitSuggestions()"
               (deleteRow)="removeIngredient(i)"
             ></app-recipe-ingredient-row>
           }
