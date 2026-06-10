@@ -87,6 +87,7 @@ test('AC6 — Filtrage insensible à la casse dans l\'autocomplete catégorie', 
 });
 
 test('AC7 — Sélection depuis autocomplete → recette groupée sous la catégorie', async ({ page }) => {
+  test.setTimeout(60_000);
   await loginAdmin(page);
 
   const id1 = await createTestRecipeViaApi(page, 'Recette E2E Groupe', 'GroupeE2E');

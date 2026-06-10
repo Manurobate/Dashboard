@@ -23,7 +23,7 @@ async function loginAdmin(page: Page): Promise<void> {
 
 async function createTestRecipe(page: Page, title: string): Promise<number> {
   const res = await page.request.post('/api/recipes', {
-    data: { title, category: 'E2E Test', servings: 2, ingredients: [], steps: [] },
+    data: { title, categoryName: 'E2E Test', servings: 2, ingredients: [], steps: [] },
   });
   expect(res.status()).toBe(201);
   const recipe = await res.json() as { id: number };
