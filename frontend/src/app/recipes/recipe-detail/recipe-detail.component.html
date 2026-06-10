@@ -1,0 +1,79 @@
+<div class="recipe-detail">
+  @if (isLoading()) {
+    <div class="loading-state" role="status" aria-label="Chargement..." aria-busy="true">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (recipe()) {
+    <header class="detail-header">
+      <button mat-icon-button routerLink="/recipes" aria-label="Retour à la liste">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="recipe-title">{{ recipe()!.title }}</h1>
+      <button
+        mat-icon-button
+        [routerLink]="['/recipes', recipe()!.id, 'edit']"
+        aria-label="Modifier la recette"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        type="button"
+        mat-icon-button
+        color="warn"
+        (click)="onDelete()"
+        aria-label="Supprimer la recette"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </header>
+
+    @if (recipe()!.imageUrl) {
+      <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
+    }
+
+    <section class="servings-section" aria-label="Convives">
+      <app-convives-steppper
+        [value]="currentServings()"
+        [min]="1"
+        (valueChange)="onServingsChange($event)"
+      >
+      </app-convives-steppper>
+    </section>
+
+    <div class="detail-body">
+      <section class="ingredients-section" aria-label="Ingrédients">
+        <h2 class="section-title">Ingrédients</h2>
+        @if (computedIngredients().length === 0) {
+          <p class="empty-section">Aucun ingrédient renseigné.</p>
+        } @else {
+          <ul class="ingredient-list">
+            @for (ing of computedIngredients(); track ing.id) {
+              <li class="ingredient-item">
+                <span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
+                @if (ing.unit) {
+                  <span class="unit">{{ ing.unit }}</span>
+                }
+                <span class="name">{{ ing.name }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="steps-section" aria-label="Étapes">
+        <h2 class="section-title">Étapes</h2>
+        @if ((recipe()!.steps ?? []).length === 0) {
+          <p class="empty-section">Aucune étape renseignée.</p>
+        } @else {
+          <ol class="step-list">
+            @for (step of recipe()!.steps; track step.id) {
+              <li class="step-item">
+                <div class="step-content" [innerHTML]="step.content | markdownLight"></div>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    </div>
+  }
+</div>
