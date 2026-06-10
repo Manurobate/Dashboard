@@ -111,3 +111,10 @@ jobs:
             --title "Dashboard ${{ steps.version.outputs.tag }}" \
             --latest
 
+      # ── 7. Resynchroniser develop sur main ──────────────────────────────────
+      - name: Sync develop → main
+        run: |
+          git checkout develop
+          git merge --ff-only origin/main
+          git push https://x-access-token:${{ secrets.SYNC_PAT }}@github.com/${{ github.repository }}.git develop
+
