@@ -39,7 +39,7 @@ export const routes: Routes = [
   {
     path: 'recipes',
     canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./recipes/recipes.component').then((m) => m.RecipesComponent),
+    loadChildren: () => import('./recipes/recipes.routes').then((r) => r.recipesRoutes),
   },
   {
     path: 'notes',

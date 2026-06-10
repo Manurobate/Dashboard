@@ -1,0 +1,29 @@
+<div
+  class="convives-steppper"
+  role="spinbutton"
+  [attr.aria-valuenow]="value"
+  [attr.aria-valuemin]="min"
+  [attr.aria-valuemax]="max"
+  aria-label="Nombre de convives"
+>
+  <button
+    type="button"
+    mat-icon-button
+    class="step-btn"
+    [disabled]="value <= min"
+    (click)="decrement()"
+    aria-label="Réduire le nombre de convives"
+  >
+    <mat-icon>remove</mat-icon>
+  </button>
+  <span class="value-display" aria-hidden="true">{{ value }} pers.</span>
+  <button
+    type="button"
+    mat-icon-button
+    class="step-btn"
+    (click)="increment()"
+    aria-label="Augmenter le nombre de convives"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

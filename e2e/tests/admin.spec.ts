@@ -99,13 +99,13 @@ test('AC3 — Création avec email existant affiche une erreur inline', async ({
   await page.locator('button:has-text("Nouvel utilisateur")').click({ force: true });
   await page.fill('input[formcontrolname="username"]', adminEmail!);
   await page.fill('input[formcontrolname="name"]', 'Doublon');
-  await page.locator('mat-dialog-container button:has-text("Créer")').click({ force: true });
-
-  // Attendre la réponse 409 du backend avant de vérifier l'erreur inline
-  await page.waitForResponse(
+  // Enregistrer le listener avant le click pour ne pas manquer la réponse 409
+  const conflictResponse = page.waitForResponse(
     (resp) => resp.url().includes('/users') && resp.status() === 409,
     { timeout: 10000 },
   );
+  await page.locator('mat-dialog-container button:has-text("Créer")').click({ force: true });
+  await conflictResponse;
   // L'erreur de conflit est un <p class="conflict-error"> hors mat-form-field
   // (rendu direct via @if sans dépendance à la projection ng-content d'Angular Material)
   await expect(page.locator('p.conflict-error')).toBeVisible({ timeout: 5000 });

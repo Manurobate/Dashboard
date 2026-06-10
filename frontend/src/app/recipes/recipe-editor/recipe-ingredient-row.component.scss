@@ -1,0 +1,40 @@
+.ingredient-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  width: 100%;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.field-quantity {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.field-unit {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.field-name {
+  flex: 1;
+  min-width: 120px;
+}
+
+.drag-placeholder {
+  background: var(--mat-list-item-hover-state-layer-color, rgba(0, 0, 0, 0.04));
+  border: 2px dashed var(--mat-form-field-outlined-idle-border-color, rgba(0, 0, 0, 0.38));
+  border-radius: 4px;
+  height: 56px;
+  flex: 1;
+}
