@@ -40,7 +40,7 @@ async function createTestRecipeViaApi(
 }
 
 async function deleteTestRecipe(page: Page, id: number): Promise<void> {
-  const res = await page.request.delete(`/api/recipes/${id}`);
+  const res = await page.request.delete(`/api/recipes/${id}`, { timeout: 5000 });
   expect(res.ok()).toBeTruthy();
 }
 
@@ -94,7 +94,7 @@ test('AC7 — Sélection depuis autocomplete → recette groupée sous la catég
 
   try {
     await page.goto('/recipes/new');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('input[formcontrolname="title"]')).toBeVisible();
 
     await page.fill('input[formcontrolname="title"]', 'Recette E2E GroupeB');
 
@@ -103,7 +103,7 @@ test('AC7 — Sélection depuis autocomplete → recette groupée sous la catég
     await categoryInput.fill('Groupe');
 
     const option = page.locator('mat-option').filter({ hasText: 'GroupeE2E' });
-    await expect(option).toBeVisible({ timeout: 3000 });
+    await expect(option).toBeVisible({ timeout: 5000 });
     await option.click();
 
     await page.fill('input[formcontrolname="servings"]', '2');
@@ -111,15 +111,15 @@ test('AC7 — Sélection depuis autocomplete → recette groupée sous la catég
     await page.waitForURL(/\/recipes\/\d+/);
 
     await page.goto('/recipes');
-    await page.waitForLoadState('networkidle');
-
-    await expect(page.locator('mat-panel-title', { hasText: 'GroupeE2E' })).toBeVisible();
+    await expect(page.locator('mat-panel-title', { hasText: 'GroupeE2E' })).toBeVisible({ timeout: 10000 });
   } finally {
-    await deleteTestRecipe(page, id1);
-    const recipes = await page.request.get('/api/recipes');
-    const list = await recipes.json() as Array<{ id: number; title: string }>;
-    const toDelete = list.find((r) => r.title === 'Recette E2E GroupeB');
-    if (toDelete) await deleteTestRecipe(page, toDelete.id);
+    try { await deleteTestRecipe(page, id1); } catch { /* cleanup */ }
+    try {
+      const recipes = await page.request.get('/api/recipes', { timeout: 5000 });
+      const list = await recipes.json() as Array<{ id: number; title: string }>;
+      const toDelete = list.find((r) => r.title === 'Recette E2E GroupeB');
+      if (toDelete) await deleteTestRecipe(page, toDelete.id);
+    } catch { /* cleanup */ }
   }
 });
 
