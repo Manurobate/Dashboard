@@ -74,9 +74,9 @@ test('AC1b — Depuis la page détail : Confirmer supprime et redirige vers /rec
     await expect(page.locator('mat-snack-bar-container')).toContainText('Recette supprimée');
 
     await expect(page.locator('.recipe-title').filter({ hasText: 'Recette E2E Supprimer Détail' })).not.toBeVisible();
-  } catch {
+  } catch (e) {
     await deleteTestRecipe(page, recipeId);
-    throw;
+    throw e;
   }
 });
 
