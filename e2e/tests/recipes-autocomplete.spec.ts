@@ -108,11 +108,13 @@ test('AC7 — Sélection depuis autocomplete → recette groupée sous la catég
 
     await page.fill('input[formcontrolname="servings"]', '2');
 
-    // Supprimer les lignes vides par défaut pour que le formulaire soit valide
-    while (await page.locator('button[aria-label="Supprimer cet ingrédient"]').count() > 0) {
-      await page.locator('button[aria-label="Supprimer cet ingrédient"]').first().click();
+    // Remplir les champs requis des lignes d'ingrédients et de l'étape par défaut
+    const ingredientCount = await page.locator('input[formcontrolname="quantity"]').count();
+    for (let i = 0; i < ingredientCount; i++) {
+      await page.locator('input[formcontrolname="quantity"]').nth(i).fill('1');
+      await page.locator('input[formcontrolname="name"]').nth(i).fill('Test');
     }
-    await page.locator('button[aria-label="Supprimer cette étape"]').click();
+    await page.locator('textarea.mle-textarea').fill('Étape test');
 
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/recipes\/\d+/);
