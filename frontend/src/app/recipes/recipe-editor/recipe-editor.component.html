@@ -59,6 +59,18 @@
         <mat-hint>Optionnel — URL publique d'une image pour la recette</mat-hint>
       </mat-form-field>
 
+      <section class="section-avant-propos" aria-label="Avant-propos">
+        <h2 class="section-title">
+          Avant-propos
+          <span class="optional-hint">(optionnel)</span>
+        </h2>
+        <app-markdown-light-editor
+          formControlName="avantPropos"
+          placeholder="Conseils, astuces, informations générales sur cette recette…"
+        >
+        </app-markdown-light-editor>
+      </section>
+
       <section class="section-ingredients" aria-label="Ingrédients">
         <h2 class="section-title">Ingrédients</h2>
         <div

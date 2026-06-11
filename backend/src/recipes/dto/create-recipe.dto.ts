@@ -22,6 +22,12 @@ export class CreateRecipeDto {
   @ApiProperty()
   title!: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  @ApiProperty({ required: false, description: 'Avant-propos optionnel de la recette' })
+  avantPropos?: string | null;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)

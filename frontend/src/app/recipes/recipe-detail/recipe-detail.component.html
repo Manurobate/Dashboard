@@ -31,18 +31,24 @@
       <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
     }
 
-    <section class="servings-section" aria-label="Convives">
-      <app-convives-steppper
-        [value]="currentServings()"
-        [min]="1"
-        (valueChange)="onServingsChange($event)"
-      >
-      </app-convives-steppper>
-    </section>
+    @if (recipe()!.avantPropos) {
+      <section class="avant-propos-section" aria-label="Avant-propos">
+        <h2 class="section-title">Avant-propos</h2>
+        <div class="avant-propos-content" [innerHTML]="recipe()!.avantPropos | markdownLight"></div>
+      </section>
+    }
 
     <div class="detail-body">
       <section class="ingredients-section" aria-label="Ingrédients">
-        <h2 class="section-title">Ingrédients</h2>
+        <div class="ingredients-header">
+          <h2 class="section-title">Ingrédients</h2>
+          <app-convives-steppper
+            [value]="currentServings()"
+            [min]="1"
+            [compact]="true"
+            (valueChange)="onServingsChange($event)"
+          ></app-convives-steppper>
+        </div>
         @if (computedIngredients().length === 0) {
           <p class="empty-section">Aucun ingrédient renseigné.</p>
         } @else {
@@ -61,7 +67,9 @@
       </section>
 
       <section class="steps-section" aria-label="Étapes">
-        <h2 class="section-title">Étapes</h2>
+        <div class="steps-header">
+          <h2 class="section-title">Étapes</h2>
+        </div>
         @if ((recipe()!.steps ?? []).length === 0) {
           <p class="empty-section">Aucune étape renseignée.</p>
         } @else {
