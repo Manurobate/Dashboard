@@ -114,7 +114,7 @@ test('AC7 — Sélection depuis autocomplete → recette groupée sous la catég
       await page.locator('input[formcontrolname="quantity"]').nth(i).fill('1');
       await page.locator('input[formcontrolname="name"]').nth(i).fill('Test');
     }
-    await page.locator('textarea.mle-textarea').fill('Étape test');
+    await page.locator('section.section-steps textarea.mle-textarea').fill('Étape test');
 
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/recipes\/\d+/);
