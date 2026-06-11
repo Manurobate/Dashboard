@@ -14,6 +14,7 @@ export class ConvivesSteppperComponent {
   @Input({ required: true }) value!: number;
   @Input() min = 1;
   @Input() max = 9999;
+  @Input() compact = false;
   @Output() valueChange = new EventEmitter<number>();
 
   increment(): void {

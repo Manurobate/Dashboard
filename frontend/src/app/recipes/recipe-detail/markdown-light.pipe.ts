@@ -16,7 +16,9 @@ export class MarkdownLightPipe implements PipeTransform {
         // **bold** avant *italic* pour éviter les collisions
         .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
         .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+        .replace(/__(.+?)__/g, '<u>$1</u>')
         .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+        .replace(/\r?\n/g, '<br>')
     );
   }
 }

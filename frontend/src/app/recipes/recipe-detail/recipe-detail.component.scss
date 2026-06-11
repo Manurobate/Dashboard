@@ -32,11 +32,24 @@
   margin-bottom: 16px;
 }
 
-.servings-section {
+.avant-propos-section {
   margin-bottom: 24px;
-  padding: 16px;
-  background: var(--mat-sys-surface-container);
-  border-radius: 8px;
+}
+
+.ingredients-header,
+.steps-header {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 12px;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+.ingredients-header {
+  gap: 12px;
 }
 
 .detail-body {

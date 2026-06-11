@@ -95,6 +95,7 @@ export class RecipeEditorComponent implements OnInit {
     category: ['', [Validators.required, Validators.maxLength(100)]],
     servings: [4, [Validators.required, Validators.min(1)]],
     imageUrl: [''],
+    avantPropos: [''],
     ingredients: this.fb.array<FormGroup>([]),
     steps: this.fb.array<FormGroup>([]),
   });
@@ -152,6 +153,7 @@ export class RecipeEditorComponent implements OnInit {
               category: recipe.category?.name ?? '',
               servings: recipe.servings,
               imageUrl: recipe.imageUrl ?? '',
+              avantPropos: recipe.avantPropos ?? '',
             });
             recipe.ingredients.forEach((ing) =>
               this.ingredients.push(this.createIngredientGroup(ing)),
@@ -202,6 +204,7 @@ export class RecipeEditorComponent implements OnInit {
     const raw = this.form.getRawValue();
     const payload = {
       title: raw.title,
+      avantPropos: raw.avantPropos || null,
       categoryName: raw.category,
       servings: raw.servings,
       imageUrl: raw.imageUrl || null,

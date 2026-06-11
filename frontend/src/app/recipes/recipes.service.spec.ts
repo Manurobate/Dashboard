@@ -12,6 +12,7 @@ import {
 const mockRecipe: Recipe = {
   id: 1,
   title: 'Tarte aux pommes',
+  avantPropos: null,
   category: { id: 10, name: 'Desserts' },
   servings: 4,
   imageUrl: null,

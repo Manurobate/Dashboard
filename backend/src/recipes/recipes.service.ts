@@ -55,6 +55,7 @@ export class RecipesService {
       const categoryId = await this.findOrCreateCategory(manager, userId, dto.categoryName);
       const recipe = manager.create(Recipe, {
         title: dto.title,
+        avantPropos: dto.avantPropos || null,
         categoryId,
         servings: dto.servings ?? 4,
         imageUrl: dto.imageUrl ?? null,
@@ -112,6 +113,7 @@ export class RecipesService {
 
       const updateFields: Partial<Recipe> = {
         ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.avantPropos !== undefined && { avantPropos: dto.avantPropos || null }),
         ...(dto.servings !== undefined && { servings: dto.servings }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
       };

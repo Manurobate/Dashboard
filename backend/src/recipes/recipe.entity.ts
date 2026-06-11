@@ -21,6 +21,9 @@ export class Recipe {
   @Column({ type: 'varchar', length: 255 })
   title!: string;
 
+  @Column({ type: 'text', nullable: true })
+  avantPropos: string | null = null;
+
   @Column({ type: 'int' })
   categoryId!: number;
 

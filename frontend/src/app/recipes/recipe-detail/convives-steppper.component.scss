@@ -17,3 +17,20 @@
   min-width: 80px;
   text-align: center;
 }
+
+.compact {
+  gap: 0;
+
+  .step-btn {
+    --mdc-icon-button-state-layer-size: 28px;
+    --mdc-icon-button-icon-size: 16px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .value-display {
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 52px;
+  }
+}

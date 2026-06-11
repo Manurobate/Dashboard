@@ -10,6 +10,7 @@ export interface RecipeCategory {
 export interface Recipe {
   id: number;
   title: string;
+  avantPropos: string | null;
   category: RecipeCategory | null;
   servings: number;
   imageUrl: string | null;
@@ -53,6 +54,7 @@ export interface StepPayload {
 
 export interface CreateRecipePayload {
   title: string;
+  avantPropos?: string | null;
   categoryName?: string | null;
   servings?: number;
   imageUrl?: string | null;
@@ -62,6 +64,7 @@ export interface CreateRecipePayload {
 
 export interface UpdateRecipePayload {
   title?: string;
+  avantPropos?: string | null;
   categoryName?: string | null;
   servings?: number;
   imageUrl?: string | null;
