@@ -20,13 +20,13 @@ La vie numérique personnelle est souvent fragmentée entre des outils mono-fonc
 
 **🍽️ Module Recettes** — CRUD complet avec ingrédients structurés. Un stepper recalcule les quantités en temps réel selon le nombre de convives. Les recettes sont filtrables par recherche en temps réel. Partage par lien public avec durée d'expiration configurable (24h, 7j, 30j, permanent) et révocation à tout moment.
 
-**📝 Module Notes** — Éditeur WYSIWYG (TipTap), organisation en dossiers et sous-dossiers, sauvegarde automatique pendant la saisie. Partage public avec expiration, comme les recettes.
+**📝 Module Notes** — Deux modes au choix dans les paramètres : intégration de [Trilium Notes](https://github.com/TriliumNext/Trilium) via iframe (accès à l'intégralité de ses notes — WYSIWYG, canvas, code, mindmaps… — sans quitter Dashboard) ou système de notes natif (éditeur WYSIWYG, dossiers et sous-dossiers, sauvegarde automatique, partage par lien public). Le module peut être désactivé si non utilisé.
 
 ### Gestion des utilisateurs
 
 L'instance supporte plusieurs comptes (< 10) — famille, amis proches. Chaque utilisateur a un espace strictement isolé. L'admin crée les comptes, génère des mots de passe temporaires (affichés une seule fois, transmis hors-bande), et peut réinitialiser ou désactiver un compte. Aucun serveur mail requis.
 
-Les visiteurs non connectés peuvent accéder aux contenus partagés (recettes, notes) en lecture seule, sans compte et sans voir le reste de l'application.
+Les visiteurs non connectés peuvent accéder aux recettes partagées en lecture seule, sans compte et sans voir le reste de l'application. Le partage de notes Trilium est géré directement depuis l'interface Trilium.
 
 ### Stack technique
 
