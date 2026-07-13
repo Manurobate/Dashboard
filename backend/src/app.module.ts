@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { LinksModule } from './links/links.module';
 import { RecipesModule } from './recipes/recipes.module';
+import { SharingModule } from './sharing/sharing.module';
 import { CsrfMiddleware } from './common/middleware/csrf.middleware';
 
 @Module({
@@ -50,6 +51,7 @@ import { CsrfMiddleware } from './common/middleware/csrf.middleware';
     AuthModule,
     LinksModule,
     RecipesModule,
+    SharingModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
