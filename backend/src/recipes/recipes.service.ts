@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Recipe } from './recipe.entity';
@@ -7,6 +13,7 @@ import { RecipeStep } from './recipe-step.entity';
 import { RecipeCategoryEntity } from './recipe-category.entity';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { PublicToken } from '../sharing/public-token.entity';
 
 @Injectable()
 export class RecipesService {
@@ -31,8 +38,12 @@ export class RecipesService {
       relations: ['ingredients', 'steps', 'category'],
     });
     if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
-    recipe.ingredients = (recipe.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
-    recipe.steps = (recipe.steps ?? []).slice().sort((a, b) => a.position - b.position);
+    recipe.ingredients = (recipe.ingredients ?? [])
+      .slice()
+      .sort((a, b) => a.position - b.position);
+    recipe.steps = (recipe.steps ?? [])
+      .slice()
+      .sort((a, b) => a.position - b.position);
     return recipe;
   }
 
@@ -42,7 +53,9 @@ export class RecipesService {
     categoryName: string,
   ): Promise<number> {
     const name = categoryName.trim();
-    let cat = await manager.findOne(RecipeCategoryEntity, { where: { name, userId } });
+    let cat = await manager.findOne(RecipeCategoryEntity, {
+      where: { name, userId },
+    });
     if (!cat) {
       cat = manager.create(RecipeCategoryEntity, { name, userId });
       cat = await manager.save(cat);
@@ -52,7 +65,11 @@ export class RecipesService {
 
   async create(userId: number, dto: CreateRecipeDto): Promise<Recipe> {
     return this.dataSource.transaction(async (manager) => {
-      const categoryId = await this.findOrCreateCategory(manager, userId, dto.categoryName);
+      const categoryId = await this.findOrCreateCategory(
+        manager,
+        userId,
+        dto.categoryName,
+      );
       const recipe = manager.create(Recipe, {
         title: dto.title,
         avantPropos: dto.avantPropos || null,
@@ -90,9 +107,16 @@ export class RecipesService {
         where: { id: saved.id },
         relations: ['ingredients', 'steps', 'category'],
       });
-      if (!created) throw new InternalServerErrorException(`Recette ${saved.id} introuvable après création`);
-      created.ingredients = (created.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
-      created.steps = (created.steps ?? []).slice().sort((a, b) => a.position - b.position);
+      if (!created)
+        throw new InternalServerErrorException(
+          `Recette ${saved.id} introuvable après création`,
+        );
+      created.ingredients = (created.ingredients ?? [])
+        .slice()
+        .sort((a, b) => a.position - b.position);
+      created.steps = (created.steps ?? [])
+        .slice()
+        .sort((a, b) => a.position - b.position);
       return created;
     });
   }
@@ -100,25 +124,47 @@ export class RecipesService {
   async remove(userId: number, id: number): Promise<void> {
     const recipe = await this.repo.findOne({ where: { id } });
     if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
-    if (recipe.userId !== userId) throw new ForbiddenException(`Recette ${id} non autorisée`);
-    const result = await this.repo.delete({ id });
-    if (result.affected === 0) throw new InternalServerErrorException(`Suppression échouée pour la recette ${id}`);
+    if (recipe.userId !== userId)
+      throw new ForbiddenException(`Recette ${id} non autorisée`);
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.delete(PublicToken, {
+        resourceType: 'recipe',
+        resourceId: id,
+      });
+      const result = await manager.delete(Recipe, { id });
+      if (result.affected === 0) {
+        throw new InternalServerErrorException(
+          `Suppression échouée pour la recette ${id}`,
+        );
+      }
+    });
     this.logger.log(`Recette ${id} supprimée pour userId=${userId}`);
   }
 
-  async update(userId: number, id: number, dto: UpdateRecipeDto): Promise<Recipe> {
+  async update(
+    userId: number,
+    id: number,
+    dto: UpdateRecipeDto,
+  ): Promise<Recipe> {
     return this.dataSource.transaction(async (manager) => {
       const recipe = await manager.findOne(Recipe, { where: { id, userId } });
       if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
 
       const updateFields: Partial<Recipe> = {
         ...(dto.title !== undefined && { title: dto.title }),
-        ...(dto.avantPropos !== undefined && { avantPropos: dto.avantPropos || null }),
+        ...(dto.avantPropos !== undefined && {
+          avantPropos: dto.avantPropos || null,
+        }),
         ...(dto.servings !== undefined && { servings: dto.servings }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
       };
       if (dto.categoryName !== undefined) {
-        updateFields.categoryId = await this.findOrCreateCategory(manager, userId, dto.categoryName);
+        updateFields.categoryId = await this.findOrCreateCategory(
+          manager,
+          userId,
+          dto.categoryName,
+        );
       }
       Object.assign(recipe, updateFields);
       await manager.save(recipe);
@@ -156,9 +202,16 @@ export class RecipesService {
         where: { id },
         relations: ['ingredients', 'steps', 'category'],
       });
-      if (!updated) throw new InternalServerErrorException(`Recette ${id} introuvable après mise à jour`);
-      updated.ingredients = (updated.ingredients ?? []).slice().sort((a, b) => a.position - b.position);
-      updated.steps = (updated.steps ?? []).slice().sort((a, b) => a.position - b.position);
+      if (!updated)
+        throw new InternalServerErrorException(
+          `Recette ${id} introuvable après mise à jour`,
+        );
+      updated.ingredients = (updated.ingredients ?? [])
+        .slice()
+        .sort((a, b) => a.position - b.position);
+      updated.steps = (updated.steps ?? [])
+        .slice()
+        .sort((a, b) => a.position - b.position);
       return updated;
     });
   }

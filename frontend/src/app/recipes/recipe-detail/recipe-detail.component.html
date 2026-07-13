@@ -9,6 +9,20 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <h1 class="recipe-title">{{ recipe()!.title }}</h1>
+      @if (hasActiveShare()) {
+        <span class="share-badge" aria-label="Recette partagée">
+          <mat-icon inline="true">lock</mat-icon>
+          Partagé
+        </span>
+      }
+      <button
+        type="button"
+        mat-icon-button
+        (click)="onShare()"
+        aria-label="Partager la recette"
+      >
+        <mat-icon>share</mat-icon>
+      </button>
       <button
         mat-icon-button
         [routerLink]="['/recipes', recipe()!.id, 'edit']"

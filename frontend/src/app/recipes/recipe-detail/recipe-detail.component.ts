@@ -22,6 +22,11 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import {
+  ShareLinkDialogComponent,
+  ShareLinkDialogData,
+} from '../../shared/components/share-link-dialog/share-link-dialog.component';
+import { SharingService } from '../../shared/services/sharing.service';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -48,6 +53,7 @@ export class RecipeDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly sharingService = inject(SharingService);
 
   readonly recipeId: number = (() => {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -57,6 +63,7 @@ export class RecipeDetailComponent implements OnInit {
   readonly recipe = signal<RecipeDetail | null>(null);
   readonly isLoading = signal(true);
   readonly currentServings = signal(1);
+  readonly hasActiveShare = signal(false);
 
   readonly computedIngredients = computed(() => {
     const recipe = this.recipe();
@@ -88,10 +95,37 @@ export class RecipeDetailComponent implements OnInit {
           this.router.navigate(['/recipes']);
         },
       });
+    this.refreshShareStatus();
   }
 
   onServingsChange(value: number): void {
     this.currentServings.set(value);
+  }
+
+  private refreshShareStatus(): void {
+    this.sharingService
+      .findActiveForResource('recipe', this.recipeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (tokens) => this.hasActiveShare.set(tokens.length > 0),
+        error: () => {},
+      });
+  }
+
+  onShare(): void {
+    const recipe = this.recipe();
+    if (!recipe) return;
+    const ref = this.dialog.open(ShareLinkDialogComponent, {
+      data: {
+        resourceType: 'recipe',
+        resourceId: recipe.id,
+        resourceLabel: recipe.title,
+      } satisfies ShareLinkDialogData,
+    });
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshShareStatus());
   }
 
   onDelete(): void {
