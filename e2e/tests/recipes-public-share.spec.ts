@@ -71,10 +71,12 @@ test('AC1/AC2/AC6 — Vue publique lecture seule accessible sans authentificatio
       await expect(publicPage.locator('.share-view a[href^="/"]')).toHaveCount(0);
 
       // AC2 : le stepper convives recalcule la quantité côté client
-      const quantityBefore = await publicPage.locator('.ingredient-item .quantity').first().innerText();
+      const quantity = publicPage.locator('.ingredient-item .quantity').first();
+      const quantityBefore = await quantity.innerText();
       await publicPage.click('app-convives-steppper button[aria-label="Augmenter le nombre de convives"]');
-      const quantityAfter = await publicPage.locator('.ingredient-item .quantity').first().innerText();
-      expect(quantityAfter).not.toBe(quantityBefore);
+      // Assertion web-first : la mise à jour du DOM est asynchrone (OnPush + signaux),
+      // on attend le recalcul au lieu de lire innerText() une seule fois (évite la course).
+      await expect(quantity).not.toHaveText(quantityBefore);
 
       // AC6 : un token bidon affiche l'état neutre et l'API répond 404
       // Story 6.4 (Décision A) : message unique « expiré ou n'est plus disponible » couvrant

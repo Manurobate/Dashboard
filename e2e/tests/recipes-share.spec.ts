@@ -88,11 +88,15 @@ test('AC4/AC5 — Un lien existant est réaffiché puis révoqué fait disparaî
     await expect(page.locator('mat-dialog-container')).toBeVisible();
     await expect(page.locator('.share-link-value')).toHaveValue(/\/share\//);
 
-    // AC4 : révoquer + confirmer
-    await page.click('mat-dialog-container button:has-text("Révoquer")');
-    // Un second dialog de confirmation s'ouvre
-    await page.click('button:has-text("Révoquer") >> nth=-1');
-    await expect(page.locator('mat-dialog-container')).toContainText('Lien révoqué');
+    // AC4 : révoquer + confirmer. Le dialog de partage ET le dialog de confirmation
+    // exposent tous deux un bouton « Révoquer » ; un sélecteur global (>> nth=-1) peut
+    // viser le bouton du dialog masqué par le backdrop → clic jamais actionnable (30 s).
+    // On scope donc chaque clic à son dialog par rôle + nom accessible.
+    const shareDialog = page.getByRole('dialog', { name: /^Partager/ });
+    await shareDialog.getByRole('button', { name: 'Révoquer' }).click();
+    const confirmDialog = page.getByRole('dialog', { name: 'Révoquer le lien de partage ?' });
+    await confirmDialog.getByRole('button', { name: 'Révoquer' }).click();
+    await expect(shareDialog).toContainText('Lien révoqué');
 
     // Fermer → le badge disparaît
     await page.click('mat-dialog-container button:has-text("Fermer")');
