@@ -24,9 +24,7 @@ export class SharingService {
     resourceType: ShareResourceType,
     resourceId: number,
   ): Observable<PublicShareToken[]> {
-    const params = new HttpParams()
-      .set('resourceType', resourceType)
-      .set('resourceId', resourceId);
+    const params = new HttpParams().set('resourceType', resourceType).set('resourceId', resourceId);
     return this.http.get<PublicShareToken[]>('/api/sharing', { params });
   }
 
@@ -35,7 +33,11 @@ export class SharingService {
     resourceId: number,
     expiresIn: ShareExpiresIn,
   ): Observable<PublicShareToken> {
-    return this.http.post<PublicShareToken>('/api/sharing', { resourceType, resourceId, expiresIn });
+    return this.http.post<PublicShareToken>('/api/sharing', {
+      resourceType,
+      resourceId,
+      expiresIn,
+    });
   }
 
   revokeShareLink(id: number): Observable<PublicShareToken> {
