@@ -160,4 +160,151 @@ describe('SharingService', () => {
       expect(result.map((t) => t.id)).toEqual([1, 2]);
     });
   });
+
+  describe('findPublicRecipe()', () => {
+    const mockRecipeDetail: Partial<Recipe> = {
+      id: 1,
+      title: 'Tarte',
+      avantPropos: 'Un délice',
+      imageUrl: 'https://example.com/img.jpg',
+      servings: 4,
+      userId: 42,
+      categoryId: 7,
+      ingredients: [
+        {
+          id: 2,
+          quantity: 1,
+          unit: 'kg',
+          name: 'Pommes',
+          position: 1,
+          recipeId: 1,
+        } as never,
+        {
+          id: 1,
+          quantity: 200,
+          unit: 'g',
+          name: 'Farine',
+          position: 0,
+          recipeId: 1,
+        } as never,
+      ],
+      steps: [
+        { id: 2, content: 'Cuire', position: 1, recipeId: 1 } as never,
+        { id: 1, content: 'Préparer', position: 0, recipeId: 1 } as never,
+      ],
+    };
+
+    it('retourne la projection publique sans userId/categoryId/id, triée par position', async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 1,
+        revokedAt: null,
+        expiresAt: null,
+      });
+      recipeRepo.findOne.mockResolvedValue(mockRecipeDetail);
+
+      const result = await service.findPublicRecipe('abc');
+
+      expect(result).toEqual({
+        title: 'Tarte',
+        avantPropos: 'Un délice',
+        imageUrl: 'https://example.com/img.jpg',
+        servings: 4,
+        ingredients: [
+          { quantity: 200, unit: 'g', name: 'Farine', position: 0 },
+          { quantity: 1, unit: 'kg', name: 'Pommes', position: 1 },
+        ],
+        steps: [
+          { content: 'Préparer', position: 0 },
+          { content: 'Cuire', position: 1 },
+        ],
+      });
+      const forbiddenKeys = [
+        'id',
+        'userId',
+        'categoryId',
+        'category',
+        'user',
+        'recipeId',
+      ];
+      for (const key of forbiddenKeys) {
+        expect(result).not.toHaveProperty(key);
+      }
+    });
+
+    it('lance NotFoundException si le token est introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.findPublicRecipe('nope')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(recipeRepo.findOne).not.toHaveBeenCalled();
+    });
+
+    it('lance NotFoundException si le token est révoqué', async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 1,
+        revokedAt: new Date(),
+        expiresAt: null,
+      });
+      await expect(service.findPublicRecipe('abc')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('lance NotFoundException si le token est expiré', async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 1,
+        revokedAt: null,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      await expect(service.findPublicRecipe('abc')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('accepte un token permanent (expiresAt null) valide', async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 1,
+        revokedAt: null,
+        expiresAt: null,
+      });
+      recipeRepo.findOne.mockResolvedValue(mockRecipeDetail);
+      await expect(service.findPublicRecipe('abc')).resolves.toBeDefined();
+    });
+
+    it("lance NotFoundException pour un token resourceType 'note' sans appeler recipeRepo", async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'note',
+        resourceId: 1,
+        revokedAt: null,
+        expiresAt: null,
+      });
+      await expect(service.findPublicRecipe('abc')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(recipeRepo.findOne).not.toHaveBeenCalled();
+    });
+
+    it('lance NotFoundException si la recette référencée est absente (orpheline)', async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 999,
+        revokedAt: null,
+        expiresAt: null,
+      });
+      recipeRepo.findOne.mockResolvedValue(null);
+      await expect(service.findPublicRecipe('abc')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });

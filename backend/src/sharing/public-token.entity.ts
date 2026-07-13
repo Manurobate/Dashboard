@@ -15,7 +15,12 @@ export class PublicToken {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    unique: true,
+    collation: 'utf8mb4_bin',
+  })
   token!: string;
 
   @Column({ type: 'varchar', length: 20 })

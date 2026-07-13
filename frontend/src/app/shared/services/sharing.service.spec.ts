@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { SharingService, PublicShareToken } from './sharing.service';
+import { SharingService, PublicShareToken, PublicRecipeView } from './sharing.service';
 
 const mockToken: PublicShareToken = {
   id: 100,
@@ -68,6 +68,25 @@ describe('SharingService', () => {
   describe('buildShareUrl()', () => {
     it("compose l'URL publique à partir de window.location.origin", () => {
       expect(service.buildShareUrl('abc123')).toBe(`${window.location.origin}/share/abc123`);
+    });
+  });
+
+  describe('getPublicRecipe()', () => {
+    it('appelle GET /api/sharing/<token> et mappe la réponse', () => {
+      const mockPublicRecipe: PublicRecipeView = {
+        title: 'Tarte',
+        avantPropos: null,
+        imageUrl: null,
+        servings: 4,
+        ingredients: [{ quantity: 200, unit: 'g', name: 'Farine', position: 0 }],
+        steps: [{ content: 'Cuire', position: 0 }],
+      };
+      let result: PublicRecipeView | undefined;
+      service.getPublicRecipe('abc123').subscribe((r) => (result = r));
+      const req = http.expectOne('/api/sharing/abc123');
+      expect(req.request.method).toBe('GET');
+      req.flush(mockPublicRecipe);
+      expect(result).toEqual(mockPublicRecipe);
     });
   });
 });

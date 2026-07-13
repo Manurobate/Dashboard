@@ -1,0 +1,70 @@
+<div class="share-view">
+  @if (isLoading()) {
+    <div class="loading-state" role="status" aria-label="Chargement..." aria-busy="true">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (hasError()) {
+    <div class="error-state">
+      <h1>Ce lien n'est plus disponible</h1>
+    </div>
+  } @else if (recipe()) {
+    <h1 class="recipe-title">{{ recipe()!.title }}</h1>
+
+    @if (recipe()!.imageUrl) {
+      <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
+    }
+
+    @if (recipe()!.avantPropos) {
+      <section class="avant-propos-section" aria-label="Avant-propos">
+        <h2 class="section-title">Avant-propos</h2>
+        <div class="avant-propos-content" [innerHTML]="recipe()!.avantPropos | markdownLight"></div>
+      </section>
+    }
+
+    <div class="share-body">
+      <section class="ingredients-section" aria-label="Ingrédients">
+        <div class="ingredients-header">
+          <h2 class="section-title">Ingrédients</h2>
+          <app-convives-steppper
+            [value]="currentServings()"
+            [min]="1"
+            [compact]="true"
+            (valueChange)="onServingsChange($event)"
+          ></app-convives-steppper>
+        </div>
+        @if (computedIngredients().length === 0) {
+          <p class="empty-section">Aucun ingrédient renseigné.</p>
+        } @else {
+          <ul class="ingredient-list">
+            @for (ing of computedIngredients(); track $index) {
+              <li class="ingredient-item">
+                <span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
+                @if (ing.unit) {
+                  <span class="unit">{{ ing.unit }}</span>
+                }
+                <span class="name">{{ ing.name }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="steps-section" aria-label="Étapes">
+        <div class="steps-header">
+          <h2 class="section-title">Étapes</h2>
+        </div>
+        @if (recipe()!.steps.length === 0) {
+          <p class="empty-section">Aucune étape renseignée.</p>
+        } @else {
+          <ol class="step-list">
+            @for (step of recipe()!.steps; track $index) {
+              <li class="step-item">
+                <div class="step-content" [innerHTML]="step.content | markdownLight"></div>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    </div>
+  }
+</div>

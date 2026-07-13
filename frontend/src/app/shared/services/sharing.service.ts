@@ -16,6 +16,27 @@ export interface PublicShareToken {
   revokedAt: string | null;
 }
 
+export interface PublicRecipeIngredient {
+  quantity: number;
+  unit: string | null;
+  name: string;
+  position: number;
+}
+
+export interface PublicRecipeStep {
+  content: string;
+  position: number;
+}
+
+export interface PublicRecipeView {
+  title: string;
+  avantPropos: string | null;
+  imageUrl: string | null;
+  servings: number;
+  ingredients: PublicRecipeIngredient[];
+  steps: PublicRecipeStep[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class SharingService {
   private readonly http = inject(HttpClient);
@@ -46,5 +67,9 @@ export class SharingService {
 
   buildShareUrl(token: string): string {
     return `${window.location.origin}/share/${token}`;
+  }
+
+  getPublicRecipe(token: string): Observable<PublicRecipeView> {
+    return this.http.get<PublicRecipeView>(`/api/sharing/${encodeURIComponent(token)}`);
   }
 }
