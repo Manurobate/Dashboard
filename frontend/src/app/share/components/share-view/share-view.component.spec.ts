@@ -24,7 +24,7 @@ describe('ShareViewComponent', () => {
   let themeService: { isDark: ReturnType<typeof vi.fn> };
   let metaSpy: { addTag: ReturnType<typeof vi.fn>; removeTag: ReturnType<typeof vi.fn> };
 
-  async function setup(token = 'abc123') {
+  async function setup(token: string | null = 'abc123') {
     document.body.classList.remove('dark-theme');
 
     const activatedRoute = {
@@ -85,13 +85,54 @@ describe('ShareViewComponent', () => {
     expect(el.querySelector('.avant-propos-section')).toBeFalsy();
   });
 
-  it('passe en état erreur neutre quand getPublicRecipe échoue (404)', async () => {
+  it('passe en état erreur neutre "gone" quand getPublicRecipe échoue (404)', async () => {
     sharingService.getPublicRecipe = vi.fn().mockReturnValue(throwError(() => ({ status: 404 })));
     const { component, fixture } = await setup('xxxx');
-    expect(component.hasError()).toBe(true);
+    expect(component.error()).toBe('gone');
     expect(component.isLoading()).toBe(false);
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain("Ce lien n'est plus disponible");
+    expect(el.textContent).toContain("Ce lien a expiré ou n'est plus disponible.");
+  });
+
+  it.each([[500], [429], [0]])(
+    'passe en état erreur "transient" avec bouton Réessayer quand getPublicRecipe échoue (status %i)',
+    async (status) => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(throwError(() => ({ status })));
+      const { component, fixture } = await setup('xxxx');
+      expect(component.error()).toBe('transient');
+      expect(component.isLoading()).toBe(false);
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.textContent).toContain(
+        'Une erreur est survenue. Réessayez dans quelques instants.',
+      );
+      expect(el.textContent).toContain('Réessayer');
+    },
+  );
+
+  it('passe en état erreur "gone" quand le token est absent de l\'URL', async () => {
+    const { component, fixture } = await setup(null);
+    expect(component.error()).toBe('gone');
+    expect(component.isLoading()).toBe(false);
+    expect(sharingService.getPublicRecipe).not.toHaveBeenCalled();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain("Ce lien a expiré ou n'est plus disponible.");
+  });
+
+  it('recharge la recette via load() après une erreur transitoire (AC4 retry)', async () => {
+    sharingService.getPublicRecipe = vi.fn().mockReturnValue(throwError(() => ({ status: 500 })));
+    const { component, fixture } = await setup('xxxx');
+    expect(component.error()).toBe('transient');
+
+    sharingService.getPublicRecipe = vi.fn().mockReturnValue(of(mockRecipe));
+    component.load();
+    fixture.detectChanges();
+
+    expect(component.error()).toBeNull();
+    expect(component.recipe()).toEqual(mockRecipe);
+    expect(component.isLoading()).toBe(false);
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.recipe-title')?.textContent).toContain(mockRecipe.title);
+    expect(el.querySelector('.error-state')).toBeFalsy();
   });
 
   it('force le thème clair au chargement même si ThemeService.isDark() est true (AC5)', async () => {

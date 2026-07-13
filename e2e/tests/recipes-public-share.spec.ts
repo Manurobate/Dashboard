@@ -77,13 +77,20 @@ test('AC1/AC2/AC6 — Vue publique lecture seule accessible sans authentificatio
       expect(quantityAfter).not.toBe(quantityBefore);
 
       // AC6 : un token bidon affiche l'état neutre et l'API répond 404
+      // Story 6.4 (Décision A) : message unique « expiré ou n'est plus disponible » couvrant
+      // aussi bien un token expiré que révoqué/inexistant, sans révéler la cause exacte.
       await publicPage.goto('/share/xxxx');
       await publicPage.waitForLoadState('networkidle');
-      await expect(publicPage.locator('.error-state')).toContainText("Ce lien n'est plus disponible");
+      await expect(publicPage.locator('.error-state')).toContainText(
+        "Ce lien a expiré ou n'est plus disponible.",
+      );
       await expect(publicPage.locator('.recipe-title')).toHaveCount(0);
 
       const invalidRes = await publicPage.request.get('/api/sharing/xxxx');
       expect(invalidRes.status()).toBe(404);
+      // Différenciation transitoire (5xx/429/réseau) vs lien mort (404) — story 6.4 AC4 : non
+      // testée ici volontairement, une interception réseau ou un throttle réel serait nécessaire
+      // pour la simuler de façon fiable en E2E ; couverte par les tests unitaires (T4).
     } finally {
       await publicContext.close();
     }

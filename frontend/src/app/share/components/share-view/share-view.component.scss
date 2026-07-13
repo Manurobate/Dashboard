@@ -11,9 +11,31 @@
 }
 
 .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   padding: 48px 16px;
   text-align: center;
   color: var(--color-text-secondary);
+
+  h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    max-width: 320px;
+  }
+
+  .error-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--color-text-secondary);
+  }
+
+  button {
+    margin-top: 8px;
+  }
 }
 
 .recipe-title {
