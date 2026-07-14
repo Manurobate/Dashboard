@@ -1,0 +1,27 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="notes-settings">
+  <h3>Notes</h3>
+
+  <mat-slide-toggle formControlName="notesEnabled">Activer les Notes</mat-slide-toggle>
+
+  @if (form.controls.notesEnabled.value) {
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>URL instance Trilium</mat-label>
+      <input
+        matInput
+        formControlName="triliumUrl"
+        placeholder="https://trilium.monserveur.fr"
+        autocomplete="url"
+      />
+    </mat-form-field>
+  }
+
+  <div class="actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="isLoading()">
+      @if (isLoading()) {
+        <mat-progress-spinner diameter="20" mode="indeterminate" />
+      } @else {
+        Sauvegarder
+      }
+    </button>
+  </div>
+</form>

@@ -25,6 +25,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { ResetPasswordResponseDto } from './dto/reset-password-response.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateNotesSettingsDto } from './dto/update-notes-settings.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -48,6 +49,32 @@ export class UsersController {
     const user = await this.usersService.updateProfile(req.user.id, dto.name);
     const { passwordHash: _, refreshTokens: __, ...safeUser } = user;
     return safeUser;
+  }
+
+  @Get('me/notes-settings')
+  @Roles('user', 'admin')
+  @SkipThrottle()
+  @ApiOperation({ summary: "Récupérer les paramètres Notes de l'utilisateur courant" })
+  @ApiResponse({ status: 200, description: 'Paramètres Notes' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  async getNotesSettings(
+    @Req() req: Request & { user: { id: number } },
+  ): Promise<{ triliumUrl: string | null; notesEnabled: boolean }> {
+    return this.usersService.getNotesSettings(req.user.id);
+  }
+
+  @Patch('me/notes-settings')
+  @HttpCode(HttpStatus.OK)
+  @Roles('user', 'admin')
+  @SkipThrottle()
+  @ApiOperation({ summary: "Mettre à jour les paramètres Notes de l'utilisateur courant" })
+  @ApiResponse({ status: 200, description: 'Paramètres Notes mis à jour' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  async updateNotesSettings(
+    @Req() req: Request & { user: { id: number } },
+    @Body() dto: UpdateNotesSettingsDto,
+  ): Promise<{ triliumUrl: string | null; notesEnabled: boolean }> {
+    return this.usersService.updateNotesSettings(req.user.id, dto);
   }
 
   @Get()

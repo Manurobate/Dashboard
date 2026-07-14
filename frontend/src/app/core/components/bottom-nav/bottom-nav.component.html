@@ -7,8 +7,10 @@
     <mat-icon>restaurant_menu</mat-icon>
     <span class="bottom-nav-label">Recettes</span>
   </a>
-  <a routerLink="/notes" routerLinkActive="active" class="bottom-nav-item" aria-label="Notes">
-    <mat-icon>note</mat-icon>
-    <span class="bottom-nav-label">Notes</span>
-  </a>
+  @if (authService.currentUser()?.notesEnabled) {
+    <a routerLink="/notes" routerLinkActive="active" class="bottom-nav-item" aria-label="Notes">
+      <mat-icon>note</mat-icon>
+      <span class="bottom-nav-label">Notes</span>
+    </a>
+  }
 </nav>
