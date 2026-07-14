@@ -1,40 +1,35 @@
-<div class="recipe-detail">
+<div class="share-view">
   @if (isLoading()) {
     <div class="loading-state" role="status" aria-label="Chargement..." aria-busy="true">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
+  } @else if (error()) {
+    @if (error() === 'gone') {
+      <div class="error-state error-state--gone" role="alert">
+        <svg class="error-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1 0 1.43-.98 2.63-2.31 2.98l1.46 1.46C20.88 15.61 22 13.95 22 12c0-2.76-2.24-5-5-5zm-1 4h-2.19l2 2H16zM2 4.27l3.11 3.11C3.29 8.12 2 9.91 2 12c0 2.76 2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1 0-1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4.01 1.41-1.41L3.41 2.86 2 4.27zM12 13.9V13h-.9l.9.9z"
+          />
+        </svg>
+        <h1>Ce lien a expiré ou n'est plus disponible.</h1>
+      </div>
+    } @else {
+      <div class="error-state error-state--transient" role="alert">
+        <svg class="error-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M19.35 10.04C18.67 6.59 15.64 4 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46C10.21 6.23 11.08 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C24.16 18.16 25 16.68 25 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.15 0 10.77 0 14c0 3.31 2.69 6 6 6h11.73l2 2L21 20.73 4.27 4 3 5.27zM7.73 10l8 8H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h1.73z"
+          />
+        </svg>
+        <h1>Une erreur est survenue. Réessayez dans quelques instants.</h1>
+        <button mat-stroked-button type="button" [disabled]="isLoading()" (click)="load()">
+          Réessayer
+        </button>
+      </div>
+    }
   } @else if (recipe()) {
-    <header class="detail-header">
-      <button mat-icon-button routerLink="/recipes" aria-label="Retour à la liste">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1 class="recipe-title">{{ recipe()!.title }}</h1>
-      @if (hasActiveShare()) {
-        <span class="share-badge" aria-label="Recette partagée">
-          <mat-icon inline="true">lock</mat-icon>
-          Partagé
-        </span>
-      }
-      <button type="button" mat-icon-button (click)="onShare()" aria-label="Partager la recette">
-        <mat-icon>share</mat-icon>
-      </button>
-      <button
-        mat-icon-button
-        [routerLink]="['/recipes', recipe()!.id, 'edit']"
-        aria-label="Modifier la recette"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button
-        type="button"
-        mat-icon-button
-        color="warn"
-        (click)="onDelete()"
-        aria-label="Supprimer la recette"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-    </header>
+    <h1 class="recipe-title">{{ recipe()!.title }}</h1>
 
     @if (recipe()!.imageUrl) {
       <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
@@ -47,7 +42,7 @@
       </section>
     }
 
-    <div class="detail-body">
+    <div class="share-body">
       <section class="ingredients-section" aria-label="Ingrédients">
         <div class="ingredients-header">
           <h2 class="section-title">Ingrédients</h2>
@@ -62,7 +57,7 @@
           <p class="empty-section">Aucun ingrédient renseigné.</p>
         } @else {
           <ul class="ingredient-list">
-            @for (ing of computedIngredients(); track ing.id) {
+            @for (ing of computedIngredients(); track $index) {
               <li class="ingredient-item">
                 <span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
                 @if (ing.unit) {
@@ -79,11 +74,11 @@
         <div class="steps-header">
           <h2 class="section-title">Étapes</h2>
         </div>
-        @if ((recipe()!.steps ?? []).length === 0) {
+        @if (recipe()!.steps.length === 0) {
           <p class="empty-section">Aucune étape renseignée.</p>
         } @else {
           <ol class="step-list">
-            @for (step of recipe()!.steps; track step.id) {
+            @for (step of recipe()!.steps; track $index) {
               <li class="step-item">
                 <div class="step-content" [innerHTML]="step.content | markdownLight"></div>
               </li>

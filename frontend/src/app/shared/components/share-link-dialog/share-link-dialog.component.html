@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Partager « {{ data.resourceLabel }} »</h2>
+
+<mat-dialog-content>
+  @if (state() === 'idle') {
+    <p class="share-intro">Choisissez la durée de validité du lien de partage :</p>
+    <mat-radio-group
+      class="expires-group"
+      aria-label="Durée d'expiration"
+      [value]="selectedExpiresIn()"
+      (change)="onExpiresInChange($event.value)"
+    >
+      @for (option of expiresOptions; track option.value) {
+        <mat-radio-button [value]="option.value">{{ option.label }}</mat-radio-button>
+      }
+    </mat-radio-group>
+  }
+
+  @if (state() === 'generating') {
+    <div class="generating-state" role="status" aria-busy="true">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Génération du lien...</span>
+    </div>
+  }
+
+  @if (state() === 'link-ready') {
+    <p>Ce lien donne un accès public en lecture seule à la recette :</p>
+    <div class="share-link-box">
+      <input
+        class="share-link-value"
+        type="text"
+        readonly
+        [value]="shareUrl()"
+        aria-label="Lien de partage"
+      />
+      <button mat-icon-button aria-label="Copier le lien" (click)="copyLink()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+    @if (currentToken(); as token) {
+      <p class="share-status">
+        <mat-icon inline="true">lock</mat-icon>
+        Lien actif — {{ formatExpiration(token) }}
+      </p>
+    }
+  }
+
+  @if (state() === 'revoked') {
+    <p class="share-revoked">
+      <mat-icon inline="true">link_off</mat-icon>
+      Lien révoqué. Il n'est plus accessible aux visiteurs.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (state() === 'idle') {
+    <button mat-button (click)="close()">Annuler</button>
+    <button mat-flat-button color="primary" (click)="generate()">Générer le lien</button>
+  }
+  @if (state() === 'generating') {
+    <button mat-button disabled>Génération...</button>
+  }
+  @if (state() === 'link-ready') {
+    <button mat-button (click)="regenerate()">Régénérer</button>
+    <button mat-button color="warn" (click)="revoke()">Révoquer</button>
+    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
+  }
+  @if (state() === 'revoked') {
+    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
+  }
+</mat-dialog-actions>

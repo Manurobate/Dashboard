@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken, getDataSourceToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { Recipe } from './recipe.entity';
 import { RecipeIngredient } from './recipe-ingredient.entity';
 import { RecipeStep } from './recipe-step.entity';
 import { RecipeCategoryEntity } from './recipe-category.entity';
+import { PublicToken } from '../sharing/public-token.entity';
 
 const mockCategory: Partial<RecipeCategoryEntity> = {
   id: 10,
@@ -34,7 +35,9 @@ describe('RecipesService', () => {
   let dataSource: { transaction: jest.Mock };
 
   const buildManager = (overrides: Record<string, jest.Mock> = {}) => ({
-    create: jest.fn().mockImplementation((_entity: unknown, data: unknown) => data),
+    create: jest
+      .fn()
+      .mockImplementation((_entity: unknown, data: unknown) => data),
     save: jest.fn().mockResolvedValue(mockRecipe),
     delete: jest.fn().mockResolvedValue(undefined),
     findOne: jest.fn().mockResolvedValue(mockRecipe),
@@ -51,7 +54,9 @@ describe('RecipesService', () => {
     dataSource = {
       transaction: jest
         .fn()
-        .mockImplementation(async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager)),
+        .mockImplementation(
+          async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+        ),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -114,10 +119,12 @@ describe('RecipesService', () => {
   describe('create()', () => {
     it('sauvegarde la recette + ingrédients + étapes via transaction', async () => {
       const manager = buildManager({
-        save: jest.fn().mockImplementation((_entityOrData: unknown, _data?: unknown) => {
-          if (_data) return Promise.resolve(_data);
-          return Promise.resolve({ ...(_entityOrData as object), id: 1 });
-        }),
+        save: jest
+          .fn()
+          .mockImplementation((_entityOrData: unknown, _data?: unknown) => {
+            if (_data) return Promise.resolve(_data);
+            return Promise.resolve({ ...(_entityOrData as object), id: 1 });
+          }),
         findOne: jest.fn().mockResolvedValue(mockRecipe),
       });
       dataSource.transaction.mockImplementation(
@@ -131,7 +138,7 @@ describe('RecipesService', () => {
         steps: [{ content: 'Éplucher' }],
       };
 
-      const result = await service.create(42, dto as any);
+      const result = await service.create(42, dto);
       expect(result).toEqual(mockRecipe);
       expect(dataSource.transaction).toHaveBeenCalled();
     });
@@ -147,13 +154,18 @@ describe('RecipesService', () => {
           .fn()
           .mockResolvedValueOnce(newCat)
           .mockResolvedValueOnce({ ...mockRecipe, categoryId: 99 }),
-        create: jest.fn().mockImplementation((_entity: unknown, data: unknown) => data),
+        create: jest
+          .fn()
+          .mockImplementation((_entity: unknown, data: unknown) => data),
       });
       dataSource.transaction.mockImplementation(
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      const result = await service.create(42, { title: 'Soupe', categoryName: 'Soupes' } as any);
+      const result = await service.create(42, {
+        title: 'Soupe',
+        categoryName: 'Soupes',
+      });
       expect(result).toBeDefined();
     });
 
@@ -165,17 +177,21 @@ describe('RecipesService', () => {
           .mockResolvedValueOnce(existingCat)
           .mockResolvedValueOnce(mockRecipe),
         save: jest.fn().mockResolvedValue(mockRecipe),
-        create: jest.fn().mockImplementation((_entity: unknown, data: unknown) => data),
+        create: jest
+          .fn()
+          .mockImplementation((_entity: unknown, data: unknown) => data),
       });
       dataSource.transaction.mockImplementation(
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      const result = await service.create(42, { title: 'Tarte', categoryName: 'Desserts' } as any);
+      const result = await service.create(42, {
+        title: 'Tarte',
+        categoryName: 'Desserts',
+      });
       expect(result).toEqual(mockRecipe);
       expect(manager.save).toHaveBeenCalledTimes(1);
     });
-
   });
 
   describe('update()', () => {
@@ -191,7 +207,7 @@ describe('RecipesService', () => {
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      await service.update(42, 1, { title: 'Mis à jour' } as any);
+      await service.update(42, 1, { title: 'Mis à jour' });
       expect(manager.save).toHaveBeenCalled();
     });
 
@@ -209,7 +225,7 @@ describe('RecipesService', () => {
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      await service.update(42, 1, { categoryName: 'Desserts' } as any);
+      await service.update(42, 1, { categoryName: 'Desserts' });
       expect(manager.save).toHaveBeenCalled();
     });
 
@@ -225,9 +241,11 @@ describe('RecipesService', () => {
 
       await service.update(42, 1, {
         ingredients: [{ quantity: 1, name: 'Farine', unit: 'kg' }],
-      } as any);
+      });
 
-      expect(manager.delete).toHaveBeenCalledWith(RecipeIngredient, { recipeId: 1 });
+      expect(manager.delete).toHaveBeenCalledWith(RecipeIngredient, {
+        recipeId: 1,
+      });
     });
 
     it('remplace les étapes si fournies', async () => {
@@ -240,18 +258,55 @@ describe('RecipesService', () => {
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      await service.update(42, 1, { steps: [{ content: 'Mélanger' }] } as any);
+      await service.update(42, 1, { steps: [{ content: 'Mélanger' }] });
 
       expect(manager.delete).toHaveBeenCalledWith(RecipeStep, { recipeId: 1 });
     });
 
     it('lance NotFoundException si recette introuvable', async () => {
-      const manager = buildManager({ findOne: jest.fn().mockResolvedValue(null) });
+      const manager = buildManager({
+        findOne: jest.fn().mockResolvedValue(null),
+      });
       dataSource.transaction.mockImplementation(
         async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
       );
 
-      await expect(service.update(42, 999, { title: 'X' } as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update(42, 999, { title: 'X' } as any),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove()', () => {
+    it('supprime les PublicToken orphelins puis la recette dans une transaction', async () => {
+      repo.findOne.mockResolvedValue(mockRecipe);
+      const manager = buildManager({
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.remove(42, 1);
+
+      expect(dataSource.transaction).toHaveBeenCalled();
+      expect(manager.delete).toHaveBeenNthCalledWith(1, PublicToken, {
+        resourceType: 'recipe',
+        resourceId: 1,
+      });
+      expect(manager.delete).toHaveBeenNthCalledWith(2, Recipe, { id: 1 });
+    });
+
+    it('lance NotFoundException si la recette est introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.remove(42, 999)).rejects.toThrow(NotFoundException);
+      expect(dataSource.transaction).not.toHaveBeenCalled();
+    });
+
+    it('lance ForbiddenException si la recette appartient à un autre utilisateur', async () => {
+      repo.findOne.mockResolvedValue({ ...mockRecipe, userId: 7 });
+      await expect(service.remove(42, 1)).rejects.toThrow(ForbiddenException);
+      expect(dataSource.transaction).not.toHaveBeenCalled();
     });
   });
 });
