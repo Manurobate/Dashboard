@@ -11,6 +11,7 @@ import { UserEntity } from './user.entity';
 import { UserListItemDto } from './dto/user-list-item.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateNotesSettingsDto } from './dto/update-notes-settings.dto';
 
 const mockUser: Partial<UserEntity> = {
   id: 1,
@@ -42,6 +43,8 @@ describe('UsersController', () => {
             enableUser: jest.fn(),
             deleteUser: jest.fn(),
             updateProfile: jest.fn(),
+            getNotesSettings: jest.fn(),
+            updateNotesSettings: jest.fn(),
           },
         },
       ],
@@ -78,6 +81,41 @@ describe('UsersController', () => {
 
       const dto: UpdateProfileDto = { name: '' };
       await expect(controller.updateProfile(mockReq, dto)).rejects.toThrow();
+    });
+  });
+
+  describe('GET /users/me/notes-settings (getNotesSettings)', () => {
+    const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
+
+    it('délègue au service et retourne { triliumUrl, notesEnabled }', async () => {
+      const settings = { triliumUrl: 'https://trilium.example.fr', notesEnabled: true };
+      (usersService as any).getNotesSettings.mockResolvedValue(settings);
+
+      const result = await controller.getNotesSettings(mockReq);
+
+      expect((usersService as any).getNotesSettings).toHaveBeenCalledWith(1);
+      expect(result).toEqual(settings);
+    });
+  });
+
+  describe('PATCH /users/me/notes-settings (updateNotesSettings)', () => {
+    const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
+
+    it('délègue au service avec le dto et retourne { triliumUrl, notesEnabled }', async () => {
+      const dto: UpdateNotesSettingsDto = {
+        notesEnabled: true,
+        triliumUrl: 'https://trilium.example.fr',
+      };
+      const settings = { triliumUrl: dto.triliumUrl!, notesEnabled: true };
+      (usersService as any).updateNotesSettings.mockResolvedValue(settings);
+
+      const result = await controller.updateNotesSettings(mockReq, dto);
+
+      expect((usersService as any).updateNotesSettings).toHaveBeenCalledWith(
+        1,
+        dto,
+      );
+      expect(result).toEqual(settings);
     });
   });
 

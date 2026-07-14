@@ -526,6 +526,63 @@ describe('UsersService', () => {
     });
   });
 
+  describe('getNotesSettings', () => {
+    it('retourne { triliumUrl, notesEnabled } depuis le user', async () => {
+      repo.findOne.mockResolvedValue({
+        ...mockUser,
+        triliumUrl: 'https://trilium.example.fr',
+        notesEnabled: true,
+      } as UserEntity);
+
+      const result = await service.getNotesSettings(1);
+
+      expect(result).toEqual({
+        triliumUrl: 'https://trilium.example.fr',
+        notesEnabled: true,
+      });
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(service.getNotesSettings(999)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('updateNotesSettings', () => {
+    it('appelle update avec les champs fournis et retourne les valeurs rechargées', async () => {
+      repo.findOne.mockResolvedValue({
+        ...mockUser,
+        triliumUrl: 'https://trilium.example.fr',
+        notesEnabled: true,
+      } as UserEntity);
+      const updateMock = jest.fn().mockResolvedValue({ affected: 1 });
+      (repo as any).update = updateMock;
+
+      const dto = {
+        notesEnabled: true,
+        triliumUrl: 'https://trilium.example.fr',
+      };
+      const result = await service.updateNotesSettings(1, dto);
+
+      expect(updateMock).toHaveBeenCalledWith({ id: 1 }, dto);
+      expect(result).toEqual({
+        triliumUrl: 'https://trilium.example.fr',
+        notesEnabled: true,
+      });
+    });
+
+    it('lance NotFoundException si utilisateur introuvable', async () => {
+      repo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateNotesSettings(999, { notesEnabled: true }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
   describe('findByUsername', () => {
     it('should return user when username exists', async () => {
       repo.findOne.mockResolvedValue(mockUser as UserEntity);

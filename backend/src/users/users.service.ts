@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { UserEntity, UserRole } from './user.entity';
 import { RefreshTokenEntity } from '../auth/entities/refresh-token.entity';
+import { UpdateNotesSettingsDto } from './dto/update-notes-settings.dto';
 
 @Injectable()
 export class UsersService {
@@ -157,6 +158,26 @@ export class UsersService {
     if (!user) throw new NotFoundException(`Utilisateur ${userId} introuvable`);
     await this.userRepository.update({ id: userId }, { name });
     return { ...user, name };
+  }
+
+  async getNotesSettings(
+    userId: number,
+  ): Promise<{ triliumUrl: string | null; notesEnabled: boolean }> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException(`Utilisateur ${userId} introuvable`);
+    return { triliumUrl: user.triliumUrl, notesEnabled: user.notesEnabled };
+  }
+
+  async updateNotesSettings(
+    userId: number,
+    dto: UpdateNotesSettingsDto,
+  ): Promise<{ triliumUrl: string | null; notesEnabled: boolean }> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException(`Utilisateur ${userId} introuvable`);
+    if (Object.keys(dto).length > 0) {
+      await this.userRepository.update({ id: userId }, dto);
+    }
+    return this.getNotesSettings(userId);
   }
 
   async createUserWithTempPassword(

@@ -37,6 +37,11 @@ export const routes: Routes = [
     loadComponent: () => import('./links/links.component').then((m) => m.LinksComponent),
   },
   {
+    path: 'settings',
+    canActivate: [authGuard, mustChangePasswordGuard],
+    loadChildren: () => import('./settings/settings.routes').then((r) => r.settingsRoutes),
+  },
+  {
     path: 'recipes',
     canActivate: [authGuard, mustChangePasswordGuard],
     loadChildren: () => import('./recipes/recipes.routes').then((r) => r.recipesRoutes),

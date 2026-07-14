@@ -12,6 +12,8 @@ const mockUser: AuthUser = {
   role: 'user',
   mustChangePassword: false,
   isActive: true,
+  triliumUrl: null,
+  notesEnabled: true,
 };
 
 const mockAuthService = {
