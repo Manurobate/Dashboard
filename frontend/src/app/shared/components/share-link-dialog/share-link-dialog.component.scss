@@ -1,0 +1,59 @@
+.share-intro {
+  margin: 0 0 12px;
+}
+
+.expires-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.generating-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: var(--color-text-secondary);
+}
+
+.share-link-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  background: rgba(var(--color-primary-rgb, 183, 28, 28), 0.08);
+  margin: 12px 0;
+}
+
+.share-link-value {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  min-width: 0;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.share-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin: 8px 0 0;
+}
+
+.share-revoked {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}

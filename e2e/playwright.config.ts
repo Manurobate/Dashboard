@@ -11,6 +11,10 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost',
     headless: true,
+    // Accorde l'accès presse-papier au contexte : sans cette permission, chromium
+    // headless rejette navigator.clipboard.writeText() (NotAllowedError) et le
+    // dialog de partage retombe sur son message défensif « copiez-le manuellement ».
+    permissions: ['clipboard-read', 'clipboard-write'],
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     extraHTTPHeaders: {
