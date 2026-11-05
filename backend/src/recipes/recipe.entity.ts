@@ -27,7 +27,11 @@ export class Recipe {
   @Column({ type: 'int' })
   categoryId!: number;
 
-  @ManyToOne(() => RecipeCategoryEntity, { nullable: false, onDelete: 'RESTRICT', eager: false })
+  @ManyToOne(() => RecipeCategoryEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    eager: false,
+  })
   @JoinColumn({ name: 'categoryId' })
   category!: RecipeCategoryEntity;
 

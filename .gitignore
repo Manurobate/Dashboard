@@ -52,10 +52,7 @@ coverage/
 backups/*.sql
 
 # IA
-.claude
-_bmad
-_bmad-output
-CLAUDE.md
+.claude/settings.local.json
 
 # E2E Playwright
 e2e/node_modules/

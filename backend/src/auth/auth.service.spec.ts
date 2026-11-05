@@ -17,6 +17,8 @@ const mockUser: UserEntity = {
   role: 'admin',
   mustChangePassword: true,
   isActive: true,
+  triliumUrl: null,
+  notesEnabled: false,
   createdAt: new Date(),
   updatedAt: new Date(),
   refreshTokens: [],

@@ -59,7 +59,9 @@ describe('RecipesController', () => {
 
     it('propage NotFoundException du service', async () => {
       recipesService.findOne.mockRejectedValue(new NotFoundException());
-      await expect(controller.findOne(mockUser, 999)).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne(mockUser, 999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -75,14 +77,16 @@ describe('RecipesController', () => {
   describe('update()', () => {
     it('met à jour la recette et la retourne', async () => {
       const dto = { title: 'Tarte modifiée' };
-      const result = await controller.update(mockUser, 1, dto as any);
+      const result = await controller.update(mockUser, 1, dto);
       expect(recipesService.update).toHaveBeenCalledWith(42, 1, dto);
       expect(result).toEqual(mockRecipe);
     });
 
     it('propage NotFoundException du service', async () => {
       recipesService.update.mockRejectedValue(new NotFoundException());
-      await expect(controller.update(mockUser, 999, {} as any)).rejects.toThrow(NotFoundException);
+      await expect(controller.update(mockUser, 999, {} as any)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

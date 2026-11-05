@@ -27,14 +27,16 @@
         [active]="recipesLink.isActive"
         >Recettes</a
       >
-      <a
-        mat-tab-link
-        routerLink="/notes"
-        routerLinkActive
-        #notesLink="routerLinkActive"
-        [active]="notesLink.isActive"
-        >Notes</a
-      >
+      @if (authService.currentUser()?.notesEnabled) {
+        <a
+          mat-tab-link
+          routerLink="/notes"
+          routerLinkActive
+          #notesLink="routerLinkActive"
+          [active]="notesLink.isActive"
+          >Notes</a
+        >
+      }
     </nav>
   }
 
@@ -59,6 +61,10 @@
           <span>Administration</span>
         </a>
       }
+      <a mat-menu-item routerLink="/settings">
+        <mat-icon>settings</mat-icon>
+        <span>Paramètres</span>
+      </a>
       <a mat-menu-item routerLink="/profile">
         <mat-icon>person</mat-icon>
         <span>Mon profil</span>

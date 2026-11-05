@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { LinksModule } from './links/links.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { SharingModule } from './sharing/sharing.module';
+import { TriliumModule } from './trilium/trilium.module';
 import { CsrfMiddleware } from './common/middleware/csrf.middleware';
 
 @Module({
@@ -52,6 +53,7 @@ import { CsrfMiddleware } from './common/middleware/csrf.middleware';
     LinksModule,
     RecipesModule,
     SharingModule,
+    TriliumModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

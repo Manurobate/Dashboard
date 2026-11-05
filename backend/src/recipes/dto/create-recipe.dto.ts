@@ -25,7 +25,10 @@ export class CreateRecipeDto {
   @IsOptional()
   @IsString()
   @MaxLength(5000)
-  @ApiProperty({ required: false, description: 'Avant-propos optionnel de la recette' })
+  @ApiProperty({
+    required: false,
+    description: 'Avant-propos optionnel de la recette',
+  })
   avantPropos?: string | null;
 
   @IsString()
@@ -40,7 +43,9 @@ export class CreateRecipeDto {
   @ApiProperty({ required: false })
   servings?: number;
 
-  @ValidateIf((o: CreateRecipeDto) => o.imageUrl !== null && o.imageUrl !== undefined)
+  @ValidateIf(
+    (o: CreateRecipeDto) => o.imageUrl !== null && o.imageUrl !== undefined,
+  )
   @IsUrl({}, { message: 'URL invalide' })
   @IsOptional()
   @MaxLength(2083)

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Aperçu des palettes de couleurs</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #2a2a2a;
+      padding: 32px 16px;
+    }
+
+    h1.page-title {
+      color: #ffffff;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .page-subtitle {
+      color: #888;
+      text-align: center;
+      font-size: 0.85rem;
+      margin-bottom: 48px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .option-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-label {
+      color: #aaa;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .option-title {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .option-desc {
+      color: #888;
+      font-size: 0.82rem;
+      margin-bottom: 16px;
+    }
+
+    .themes-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .theme-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .theme-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      font-weight: 600;
+    }
+
+    /* ===== COMPOSANTS UI ===== */
+
+    .ui-topbar {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      height: 56px;
+      gap: 8px;
+    }
+    .ui-topbar .app-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-right: 16px;
+    }
+    .ui-topbar .nav-tabs {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+    .ui-topbar .nav-tab {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .ui-topbar .nav-tab.active {
+      font-weight: 600;
+    }
+    .ui-topbar .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .ui-body {
+      padding: 20px 16px;
+    }
+
+    .edit-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .edit-bar span { font-size: 0.8rem; }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+    }
+    .btn-sm {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .card-header .chevron { font-size: 0.7rem; }
+    .card-links {
+      padding: 4px 0 8px;
+    }
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .link-favicon {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .snackbar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      margin-top: 14px;
+    }
+
+    /* ===== OPTION A — NOIR & BRAISE ===== */
+
+    /* Dark A */
+    .a-dark { background: #0F0F0F; }
+    .a-dark .theme-label { background: #1A1A1A; color: #9E9E9E; }
+    .a-dark .ui-topbar { background: #1A1A1A; }
+    .a-dark .ui-topbar .app-name { color: #EF5350; }
+    .a-dark .nav-tab { color: #9E9E9E; }
+    .a-dark .nav-tab:hover { background: rgba(239,83,80,0.1); color: #EF5350; }
+    .a-dark .nav-tab.active { background: rgba(239,83,80,0.15); color: #EF5350; }
+    .a-dark .icon-btn { background: rgba(255,255,255,0.08); color: #ccc; }
+    .a-dark .edit-bar { background: #1A1A1A; color: #9E9E9E; }
+    .a-dark .btn { background: #EF5350; color: #fff; }
+    .a-dark .card { background: #1A1A1A; }
+    .a-dark .card-header { color: #ffffff; border-bottom: 1px solid #2a2a2a; }
+    .a-dark .link-item { color: #e0e0e0; }
+    .a-dark .link-item:hover { background: rgba(239,83,80,0.08); }
+    .a-dark .link-favicon { background: rgba(239,83,80,0.2); color: #EF5350; }
+    .a-dark .btn-sm { background: rgba(239,83,80,0.15); color: #EF5350; }
+    .a-dark .snackbar { background: #2a2a2a; color: #e0e0e0; }
+    .a-dark .snackbar .dot { color: #EF5350; }
+    .a-dark .ui-body { color: #fff; }
+
+    /* Light A */
+    .a-light { background: #F5F5F5; }
+    .a-light .theme-label { background: #e8e8e8; color: #757575; }
+    .a-light .ui-topbar { background: #C62828; }
+    .a-light .ui-topbar .app-name { color: #ffffff; }
+    .a-light .nav-tab { color: rgba(255,255,255,0.75); }
+    .a-light .nav-tab:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .a-light .nav-tab.active { background: rgba(255,255,255,0.2); color: #ffffff; font-weight: 700; }
+    .a-light .icon-btn { background: rgba(255,255,255,0.15); color: #fff; }
+    .a-light .edit-bar { background: #fff; color: #757575; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .a-light .btn { background: #C62828; color: #fff; }
+    .a-light .card { background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .a-light .card-header { color: #212121; border-bottom: 1px solid #f0f0f0; }
+    .a-light .link-item { color: #424242; }
+    .a-light .link-item:hover { background: rgba(198,40,40,0.05); }
+    .a-light .link-favicon { background: rgba(198,40,40,0.1); color: #C62828; }
+    .a-light .btn-sm { background: rgba(198,40,40,0.1); color: #C62828; }
+    .a-light .snackbar { background: #323232; color: #fff; }
+    .a-light .snackbar .dot { color: #EF9A9A; }
+    .a-light .ui-body { color: #212121; }
+
+    /* ===== OPTION B — CHARBON & CRAMOISI ===== */
+
+    /* Dark B */
+    .b-dark { background: #141414; }
+    .b-dark .theme-label { background: #212121; color: #757575; }
+    .b-dark .ui-topbar { background: #212121; }
+    .b-dark .ui-topbar .app-name { color: #D32F2F; }
+    .b-dark .nav-tab { color: #9E9E9E; }
+    .b-dark .nav-tab:hover { background: rgba(211,47,47,0.1); color: #D32F2F; }
+    .b-dark .nav-tab.active { background: rgba(211,47,47,0.15); color: #D32F2F; }
+    .b-dark .icon-btn { background: rgba(255,255,255,0.06); color: #bbb; }
+    .b-dark .edit-bar { background: #212121; color: #757575; }
+    .b-dark .btn { background: #D32F2F; color: #fff; }
+    .b-dark .card { background: #212121; }
+    .b-dark .card-header { color: #f5f5f5; border-bottom: 1px solid #2d2d2d; }
+    .b-dark .link-item { color: #d5d5d5; }
+    .b-dark .link-item:hover { background: rgba(211,47,47,0.07); }
+    .b-dark .link-favicon { background: rgba(211,47,47,0.18); color: #EF9A9A; }
+    .b-dark .btn-sm { background: rgba(239,154,154,0.15); color: #EF9A9A; }
+    .b-dark .snackbar { background: #303030; color: #e5e5e5; }
+    .b-dark .snackbar .dot { color: #EF9A9A; }
+    .b-dark .ui-body { color: #fff; }
+
+    /* Light B */
+    .b-light { background: #FAFAFA; }
+    .b-light .theme-label { background: #eeeeee; color: #757575; }
+    .b-light .ui-topbar { background: #212121; }
+    .b-light .ui-topbar .app-name { color: #EF9A9A; }
+    .b-light .nav-tab { color: rgba(255,255,255,0.65); }
+    .b-light .nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .b-light .nav-tab.active { background: rgba(239,154,154,0.2); color: #EF9A9A; font-weight: 700; }
+    .b-light .icon-btn { background: rgba(255,255,255,0.1); color: #ccc; }
+    .b-light .edit-bar { background: #fff; color: #757575; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .b-light .btn { background: #B71C1C; color: #fff; }
+    .b-light .card { background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .b-light .card-header { color: #1a1a1a; border-bottom: 1px solid #f0f0f0; }
+    .b-light .link-item { color: #333; }
+    .b-light .link-item:hover { background: rgba(183,28,28,0.04); }
+    .b-light .link-favicon { background: rgba(183,28,28,0.08); color: #B71C1C; }
+    .b-light .btn-sm { background: rgba(183,28,28,0.08); color: #B71C1C; }
+    .b-light .snackbar { background: #323232; color: #fff; }
+    .b-light .snackbar .dot { color: #EF9A9A; }
+    .b-light .ui-body { color: #1a1a1a; }
+
+    /* ===== OPTION C — MINIMALISME ROUGE ===== */
+
+    /* Dark C */
+    .c-dark { background: #121212; }
+    .c-dark .theme-label { background: #1E1E1E; color: #757575; }
+    .c-dark .ui-topbar { background: #1E1E1E; }
+    .c-dark .ui-topbar .app-name { color: #F44336; }
+    .c-dark .nav-tab { color: #B0BEC5; }
+    .c-dark .nav-tab:hover { background: rgba(244,67,54,0.1); color: #F44336; }
+    .c-dark .nav-tab.active { background: rgba(244,67,54,0.15); color: #F44336; }
+    .c-dark .icon-btn { background: rgba(255,255,255,0.07); color: #B0BEC5; }
+    .c-dark .edit-bar { background: #1E1E1E; color: #757575; }
+    .c-dark .btn { background: #F44336; color: #fff; }
+    .c-dark .card { background: #1E1E1E; }
+    .c-dark .card-header { color: #ffffff; border-bottom: 1px solid #2c2c2c; }
+    .c-dark .link-item { color: #B0BEC5; }
+    .c-dark .link-item:hover { background: rgba(244,67,54,0.08); }
+    .c-dark .link-favicon { background: rgba(244,67,54,0.2); color: #F44336; }
+    .c-dark .btn-sm { background: rgba(244,67,54,0.15); color: #F44336; }
+    .c-dark .snackbar { background: #2c2c2c; color: #eceff1; }
+    .c-dark .snackbar .dot { color: #F44336; }
+    .c-dark .ui-body { color: #fff; }
+
+    /* Light C */
+    .c-light { background: #FFFFFF; }
+    .c-light .theme-label { background: #f5f5f5; color: #757575; }
+    .c-light .ui-topbar { background: #FFFFFF; border-bottom: 1px solid #e0e0e0; }
+    .c-light .ui-topbar .app-name { color: #E53935; }
+    .c-light .nav-tab { color: #607D8B; }
+    .c-light .nav-tab:hover { background: rgba(229,57,53,0.06); color: #E53935; }
+    .c-light .nav-tab.active { background: rgba(229,57,53,0.1); color: #E53935; font-weight: 700; }
+    .c-light .icon-btn { background: rgba(0,0,0,0.04); color: #607D8B; }
+    .c-light .edit-bar { background: #f8f8f8; color: #757575; border: 1px solid #ebebeb; }
+    .c-light .btn { background: #E53935; color: #fff; }
+    .c-light .card { background: #f8f8f8; border: 1px solid #e8e8e8; }
+    .c-light .card-header { color: #212121; border-bottom: 1px solid #ebebeb; }
+    .c-light .link-item { color: #424242; }
+    .c-light .link-item:hover { background: rgba(229,57,53,0.05); }
+    .c-light .link-favicon { background: rgba(229,57,53,0.1); color: #E53935; }
+    .c-light .btn-sm { background: rgba(229,57,53,0.1); color: #E53935; }
+    .c-light .snackbar { background: #323232; color: #fff; }
+    .c-light .snackbar .dot { color: #E53935; }
+    .c-light .ui-body { color: #212121; }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 8px 0;
+    }
+
+    @media (max-width: 700px) {
+      .themes-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="page-title">Dashboard — Aperçu des palettes</h1>
+<p class="page-subtitle">Simulation des composants principaux (top bar, cards Liens, snackbar)</p>
+
+<div class="options-grid">
+
+  <!-- ===== OPTION A ===== -->
+  <div class="option-block">
+    <div class="option-label">Option A</div>
+    <div class="option-title">Noir & Braise</div>
+    <div class="option-desc">Thème sombre dramatique (noir profond + rouge vif). Thème clair avec top bar rouge grenat.</div>
+    <div class="themes-row">
+
+      <!-- Dark A -->
+      <div class="theme-card a-dark">
+        <div class="theme-label">Thème sombre</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+      <!-- Light A -->
+      <div class="theme-card a-light">
+        <div class="theme-label">Thème clair</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== OPTION B ===== -->
+  <div class="option-block">
+    <div class="option-label">Option B</div>
+    <div class="option-title">Charbon & Cramoisi</div>
+    <div class="option-desc">Rouge plus profond et moins saturé. Thème clair avec top bar charbon (anthracite) et accents rouge pâle.</div>
+    <div class="themes-row">
+
+      <!-- Dark B -->
+      <div class="theme-card b-dark">
+        <div class="theme-label">Thème sombre</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+      <!-- Light B -->
+      <div class="theme-card b-light">
+        <div class="theme-label">Thème clair</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== OPTION C ===== -->
+  <div class="option-block">
+    <div class="option-label">Option C</div>
+    <div class="option-title">Minimalisme Rouge</div>
+    <div class="option-desc">Rouge Material pur. Thème clair sur fond blanc pur avec top bar blanche. Le plus neutre et standard.</div>
+    <div class="themes-row">
+
+      <!-- Dark C -->
+      <div class="theme-card c-dark">
+        <div class="theme-label">Thème sombre</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+      <!-- Light C -->
+      <div class="theme-card c-light">
+        <div class="theme-label">Thème clair</div>
+        <div class="ui-topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="ui-body">
+          <div class="edit-bar">
+            <span>3 catégories · 12 liens</span>
+            <button class="btn">✎ Modifier</button>
+          </div>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span>🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">S</div>
+                  <span>Steam</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">T</div>
+                  <span>Twitch</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span>🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-links">
+                <div class="link-item">
+                  <div class="link-favicon">G</div>
+                  <span>GitHub</span>
+                </div>
+                <div class="link-item">
+                  <div class="link-favicon">N</div>
+                  <span>NPM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="snackbar"><span class="dot">●</span> Lien ajouté avec succès</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

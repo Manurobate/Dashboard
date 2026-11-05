@@ -33,10 +33,13 @@ export class RecipeCategoriesService {
       .select('DISTINCT ri.unit', 'unit')
       .from('RecipeIngredient', 'ri')
       .innerJoin('Recipe', 'r', 'ri.recipeId = r.id')
-      .where('r.userId = :userId AND ri.unit IS NOT NULL AND ri.unit != :empty', {
-        userId,
-        empty: '',
-      })
+      .where(
+        'r.userId = :userId AND ri.unit IS NOT NULL AND ri.unit != :empty',
+        {
+          userId,
+          empty: '',
+        },
+      )
       .orderBy('ri.unit', 'ASC')
       .getRawMany<{ unit: string }>();
     return rows.map((r) => r.unit);

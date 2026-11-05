@@ -33,6 +33,12 @@ export class UserEntity {
   @Column({ default: true })
   isActive!: boolean;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  triliumUrl!: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  notesEnabled!: boolean;
+
   @CreateDateColumn()
   createdAt!: Date;
 

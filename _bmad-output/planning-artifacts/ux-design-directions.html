@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Directions de design</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      padding: 40px 20px;
+      color: #fff;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .page-header h1 {
+      font-size: 1.6rem;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: #EF5350;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      color: #666;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+    .page-header .legend {
+      display: inline-flex;
+      gap: 24px;
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #242424;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .legend .dot-d { width: 8px; height: 8px; border-radius: 50%; background: #EF5350; }
+    .legend .dot-l { width: 8px; height: 8px; border-radius: 50%; background: #C62828; }
+
+    .directions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .direction-block {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .direction-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .direction-num {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #EF5350;
+      font-weight: 700;
+    }
+    .direction-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .direction-desc {
+      font-size: 0.78rem;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .mockup-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mockup {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+    .mockup-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      font-weight: 600;
+    }
+
+    /* ===== SHARED TOPBAR ===== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      height: 48px;
+      gap: 6px;
+    }
+    .app-name { font-size: 0.95rem; font-weight: 700; margin-right: 10px; }
+    .nav-tabs { display: flex; gap: 2px; flex: 1; }
+    .nav-tab {
+      padding: 5px 11px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .topbar-actions { display: flex; gap: 6px; align-items: center; }
+    .icon-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; border: none; cursor: pointer;
+    }
+    .body-area { padding: 14px; }
+    .cards-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cards-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .card-title { font-size: 0.75rem; font-weight: 600; }
+    .link-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 0; font-size: 0.7rem;
+    }
+    .fav {
+      width: 14px; height: 14px; border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 700; flex-shrink: 0;
+    }
+    .edit-mode-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 10px; border-radius: 6px; margin-bottom: 10px;
+      font-size: 0.7rem;
+    }
+    .btn-edit {
+      padding: 4px 10px; border-radius: 4px;
+      font-size: 0.68rem; font-weight: 700; border: none; cursor: pointer;
+    }
+
+    /* ============================================================
+       DIRECTION 1 — MINIMALISTE PLAT
+       Très épuré. Pas d'ombres. Séparateurs fins. Beaucoup d'air.
+    ============================================================ */
+
+    /* D1 Dark */
+    .d1-dark { background: #0F0F0F; }
+    .d1-dark .mockup-label { background: #161616; color: #555; }
+    .d1-dark .topbar { background: #0F0F0F; border-bottom: 1px solid #222; }
+    .d1-dark .app-name { color: #EF5350; }
+    .d1-dark .nav-tab { color: #666; }
+    .d1-dark .nav-tab.active { color: #EF5350; border-bottom: 2px solid #EF5350; border-radius: 0; }
+    .d1-dark .icon-btn { background: transparent; color: #555; border: 1px solid #2a2a2a; }
+    .d1-dark .body-area { }
+    .d1-dark .edit-mode-bar { background: transparent; color: #555; border: 1px solid #222; }
+    .d1-dark .btn-edit { background: transparent; color: #EF5350; border: 1px solid #EF5350; }
+    .d1-dark .card { padding: 10px 0; border-bottom: 1px solid #1e1e1e; }
+    .d1-dark .card-title { color: #999; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; padding-bottom: 6px; }
+    .d1-dark .link-row { color: #ddd; border-bottom: 1px solid #181818; }
+    .d1-dark .fav { background: #1e1e1e; color: #666; }
+
+    /* D1 Light */
+    .d1-light { background: #FFFFFF; }
+    .d1-light .mockup-label { background: #f5f5f5; color: #aaa; }
+    .d1-light .topbar { background: #FFFFFF; border-bottom: 1px solid #eee; }
+    .d1-light .app-name { color: #C62828; }
+    .d1-light .nav-tab { color: #bbb; }
+    .d1-light .nav-tab.active { color: #C62828; border-bottom: 2px solid #C62828; border-radius: 0; }
+    .d1-light .icon-btn { background: transparent; color: #bbb; border: 1px solid #eee; }
+    .d1-light .edit-mode-bar { background: transparent; color: #bbb; border: 1px solid #eee; }
+    .d1-light .btn-edit { background: transparent; color: #C62828; border: 1px solid #C62828; }
+    .d1-light .card { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .d1-light .card-title { color: #bbb; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; padding-bottom: 6px; }
+    .d1-light .link-row { color: #333; border-bottom: 1px solid #f8f8f8; }
+    .d1-light .fav { background: #f5f5f5; color: #aaa; }
+
+    /* ============================================================
+       DIRECTION 2 — ACCENT BORDURE
+       Cards avec bordure gauche rouge. Style dev-tool / terminal.
+    ============================================================ */
+
+    /* D2 Dark */
+    .d2-dark { background: #111; }
+    .d2-dark .mockup-label { background: #191919; color: #555; }
+    .d2-dark .topbar { background: #191919; }
+    .d2-dark .app-name { color: #EF5350; }
+    .d2-dark .nav-tab { color: #666; }
+    .d2-dark .nav-tab.active { background: rgba(239,83,80,0.12); color: #EF5350; font-weight: 700; }
+    .d2-dark .icon-btn { background: #222; color: #666; }
+    .d2-dark .card {
+      background: #191919;
+      border-left: 3px solid #EF5350;
+      border-radius: 0 6px 6px 0;
+      padding: 10px 12px;
+    }
+    .d2-dark .card-title { color: #EF5350; font-size: 0.72rem; margin-bottom: 6px; }
+    .d2-dark .link-row { color: #ccc; }
+    .d2-dark .fav { background: rgba(239,83,80,0.15); color: #EF5350; }
+    .d2-dark .edit-mode-bar { background: #191919; color: #555; border-left: 3px solid #333; border-radius: 0 4px 4px 0; }
+    .d2-dark .btn-edit { background: rgba(239,83,80,0.15); color: #EF5350; }
+
+    /* D2 Light */
+    .d2-light { background: #F8F8F8; }
+    .d2-light .mockup-label { background: #efefef; color: #aaa; }
+    .d2-light .topbar { background: #C62828; }
+    .d2-light .app-name { color: #fff; }
+    .d2-light .nav-tab { color: rgba(255,255,255,0.6); }
+    .d2-light .nav-tab.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 700; }
+    .d2-light .icon-btn { background: rgba(255,255,255,0.15); color: #fff; }
+    .d2-light .card {
+      background: #fff;
+      border-left: 3px solid #C62828;
+      border-radius: 0 6px 6px 0;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .d2-light .card-title { color: #C62828; font-size: 0.72rem; margin-bottom: 6px; }
+    .d2-light .link-row { color: #333; }
+    .d2-light .fav { background: rgba(198,40,40,0.08); color: #C62828; }
+    .d2-light .edit-mode-bar { background: #fff; color: #bbb; border: 1px solid #eee; }
+    .d2-light .btn-edit { background: rgba(198,40,40,0.1); color: #C62828; }
+
+    /* ============================================================
+       DIRECTION 3 — CARDS ÉLEVÉES
+       Ombres prononcées, surfaces élevées. Material Elevation max.
+    ============================================================ */
+
+    /* D3 Dark */
+    .d3-dark { background: #0A0A0A; }
+    .d3-dark .mockup-label { background: #161616; color: #555; }
+    .d3-dark .topbar { background: #1F1F1F; box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    .d3-dark .app-name { color: #EF5350; }
+    .d3-dark .nav-tab { color: #777; }
+    .d3-dark .nav-tab.active { background: rgba(239,83,80,0.15); color: #EF5350; }
+    .d3-dark .icon-btn { background: #2a2a2a; color: #888; }
+    .d3-dark .card {
+      background: #1E1E1E;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 2px 6px rgba(239,83,80,0.08);
+    }
+    .d3-dark .card-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .d3-dark .card-title { color: #fff; font-size: 0.8rem; }
+    .d3-dark .card-count { font-size: 0.65rem; color: #EF5350; background: rgba(239,83,80,0.12); padding: 2px 7px; border-radius: 10px; }
+    .d3-dark .link-row { color: #ccc; }
+    .d3-dark .fav { background: rgba(239,83,80,0.18); color: #EF5350; }
+    .d3-dark .edit-mode-bar { background: #1E1E1E; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border-radius: 8px; }
+    .d3-dark .btn-edit { background: #EF5350; color: #fff; }
+
+    /* D3 Light */
+    .d3-light { background: #EFEFEF; }
+    .d3-light .mockup-label { background: #e5e5e5; color: #aaa; }
+    .d3-light .topbar { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .d3-light .app-name { color: #C62828; }
+    .d3-light .nav-tab { color: #aaa; }
+    .d3-light .nav-tab.active { background: rgba(198,40,40,0.1); color: #C62828; font-weight: 700; }
+    .d3-light .icon-btn { background: #f5f5f5; color: #aaa; }
+    .d3-light .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .d3-light .card-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .d3-light .card-title { color: #212121; font-size: 0.8rem; }
+    .d3-light .card-count { font-size: 0.65rem; color: #C62828; background: rgba(198,40,40,0.08); padding: 2px 7px; border-radius: 10px; }
+    .d3-light .link-row { color: #424242; }
+    .d3-light .fav { background: rgba(198,40,40,0.1); color: #C62828; }
+    .d3-light .edit-mode-bar { background: #fff; color: #aaa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; }
+    .d3-light .btn-edit { background: #C62828; color: #fff; }
+
+    /* ============================================================
+       DIRECTION 4 — COMPACT DENSE
+       Densité maximale. Dashboard professionnel. Pas de padding inutile.
+    ============================================================ */
+
+    /* D4 Dark */
+    .d4-dark { background: #111; }
+    .d4-dark .mockup-label { background: #191919; color: #555; }
+    .d4-dark .topbar { background: #1a1a1a; height: 40px; padding: 0 12px; }
+    .d4-dark .app-name { font-size: 0.82rem; color: #EF5350; }
+    .d4-dark .nav-tab { font-size: 0.68rem; padding: 4px 8px; color: #666; }
+    .d4-dark .nav-tab.active { color: #EF5350; font-weight: 700; }
+    .d4-dark .icon-btn { width: 24px; height: 24px; font-size: 0.65rem; background: transparent; color: #555; }
+    .d4-dark .body-area { padding: 8px; }
+    .d4-dark .cards-grid-3 > .card {
+      background: #1a1a1a;
+      border-radius: 4px;
+      padding: 8px;
+    }
+    .d4-dark .card-title { color: #EF5350; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #222; padding-bottom: 4px; margin-bottom: 4px; }
+    .d4-dark .link-row { font-size: 0.65rem; color: #aaa; padding: 2px 0; }
+    .d4-dark .fav { width: 10px; height: 10px; background: #222; color: #EF5350; font-size: 0.45rem; }
+    .d4-dark .edit-mode-bar { background: #1a1a1a; color: #555; border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; font-size: 0.65rem; }
+    .d4-dark .btn-edit { background: rgba(239,83,80,0.15); color: #EF5350; font-size: 0.62rem; padding: 2px 8px; }
+
+    /* D4 Light */
+    .d4-light { background: #F5F5F5; }
+    .d4-light .mockup-label { background: #ebebeb; color: #aaa; }
+    .d4-light .topbar { background: #C62828; height: 40px; padding: 0 12px; }
+    .d4-light .app-name { font-size: 0.82rem; color: #fff; }
+    .d4-light .nav-tab { font-size: 0.68rem; padding: 4px 8px; color: rgba(255,255,255,0.6); }
+    .d4-light .nav-tab.active { color: #fff; font-weight: 700; background: rgba(255,255,255,0.18); }
+    .d4-light .icon-btn { width: 24px; height: 24px; font-size: 0.65rem; background: rgba(255,255,255,0.15); color: #fff; }
+    .d4-light .body-area { padding: 8px; }
+    .d4-light .cards-grid-3 > .card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .d4-light .card-title { color: #C62828; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; margin-bottom: 4px; }
+    .d4-light .link-row { font-size: 0.65rem; color: #444; padding: 2px 0; }
+    .d4-light .fav { width: 10px; height: 10px; background: rgba(198,40,40,0.08); color: #C62828; font-size: 0.45rem; }
+    .d4-light .edit-mode-bar { background: #fff; color: #bbb; border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; font-size: 0.65rem; border: 1px solid #eee; }
+    .d4-light .btn-edit { background: rgba(198,40,40,0.1); color: #C62828; font-size: 0.62px; padding: 2px 8px; }
+
+    /* ============================================================
+       DIRECTION 5 — CARDS COLORÉES PAR CATÉGORIE
+       Header de card avec teinte rouge, gradient sur l'en-tête.
+    ============================================================ */
+
+    /* D5 Dark */
+    .d5-dark { background: #0D0D0D; }
+    .d5-dark .mockup-label { background: #181818; color: #555; }
+    .d5-dark .topbar { background: #181818; }
+    .d5-dark .app-name { color: #fff; font-weight: 300; letter-spacing: 0.1em; }
+    .d5-dark .app-name span { color: #EF5350; font-weight: 700; }
+    .d5-dark .nav-tab { color: #666; }
+    .d5-dark .nav-tab.active { color: #fff; font-weight: 600; }
+    .d5-dark .icon-btn { background: #222; color: #888; }
+    .d5-dark .card { border-radius: 8px; overflow: hidden; }
+    .d5-dark .card-head {
+      background: linear-gradient(135deg, #B71C1C, #EF5350);
+      padding: 10px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .d5-dark .card-head .card-title { color: #fff; font-size: 0.78rem; }
+    .d5-dark .card-head .chevron { color: rgba(255,255,255,0.6); font-size: 0.6rem; }
+    .d5-dark .card-body { background: #1C1C1C; padding: 6px 12px 10px; }
+    .d5-dark .link-row { color: #ccc; border-bottom: 1px solid #242424; }
+    .d5-dark .fav { background: rgba(239,83,80,0.2); color: #EF5350; }
+    .d5-dark .edit-mode-bar { background: #181818; color: #666; border-radius: 6px; }
+    .d5-dark .btn-edit { background: #EF5350; color: #fff; }
+
+    /* D5 Light */
+    .d5-light { background: #FAFAFA; }
+    .d5-light .mockup-label { background: #f0f0f0; color: #aaa; }
+    .d5-light .topbar { background: #fff; border-bottom: 1px solid #eee; }
+    .d5-light .app-name { color: #333; font-weight: 300; letter-spacing: 0.1em; }
+    .d5-light .app-name span { color: #C62828; font-weight: 700; }
+    .d5-light .nav-tab { color: #bbb; }
+    .d5-light .nav-tab.active { color: #C62828; font-weight: 600; }
+    .d5-light .icon-btn { background: #f5f5f5; color: #aaa; }
+    .d5-light .card { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .d5-light .card-head {
+      background: linear-gradient(135deg, #C62828, #EF5350);
+      padding: 10px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .d5-light .card-head .card-title { color: #fff; font-size: 0.78rem; }
+    .d5-light .card-head .chevron { color: rgba(255,255,255,0.7); font-size: 0.6rem; }
+    .d5-light .card-body { background: #fff; padding: 6px 12px 10px; }
+    .d5-light .link-row { color: #333; border-bottom: 1px solid #f5f5f5; }
+    .d5-light .fav { background: rgba(198,40,40,0.08); color: #C62828; }
+    .d5-light .edit-mode-bar { background: #fff; color: #bbb; border: 1px solid #eee; border-radius: 6px; }
+    .d5-light .btn-edit { background: #C62828; color: #fff; }
+
+    /* ============================================================
+       DIRECTION 6 — GLASSMORPHISM SOMBRE
+       Transparence + flou. Ambiance premium. Thème sombre uniquement.
+    ============================================================ */
+
+    .d6-wrap {
+      background: linear-gradient(135deg, #1a0000 0%, #0F0F0F 40%, #0a0a14 100%);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+    .d6-wrap .mockup-label { background: rgba(255,255,255,0.04); color: #555; }
+    .d6-topbar {
+      display: flex; align-items: center; padding: 0 14px; height: 48px; gap: 6px;
+      background: rgba(239,83,80,0.08);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(239,83,80,0.15);
+    }
+    .d6-topbar .app-name { font-size: 0.95rem; font-weight: 700; color: #EF5350; margin-right: 10px; }
+    .d6-topbar .nav-tab { padding: 5px 11px; border-radius: 5px; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .d6-topbar .nav-tab.active { background: rgba(239,83,80,0.2); color: #EF5350; font-weight: 700; }
+    .d6-topbar .icon-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 0.75rem; display: flex; align-items: center; justify-content: center; }
+    .d6-topbar .topbar-actions { display: flex; gap: 6px; }
+    .d6-body { padding: 14px; }
+    .d6-edit-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.35);
+    }
+    .d6-btn-edit { padding: 4px 10px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; border: 1px solid rgba(239,83,80,0.5); background: rgba(239,83,80,0.1); color: #EF5350; cursor: pointer; }
+    .d6-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .d6-card {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(239,83,80,0.15);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .d6-card-title { color: rgba(239,83,80,0.9); font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    .d6-card-title .chev { color: rgba(255,255,255,0.2); font-size: 0.6rem; }
+    .d6-link { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.7rem; color: rgba(255,255,255,0.65); border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .d6-fav { width: 14px; height: 14px; border-radius: 2px; background: rgba(239,83,80,0.12); border: 1px solid rgba(239,83,80,0.2); color: #EF5350; font-size: 0.55rem; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+
+    .d6-note {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 0.72rem;
+      color: #555;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    /* Divider between options */
+    .section-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: rgba(255,255,255,0.04);
+      margin: 8px 0;
+    }
+
+    @media (max-width: 900px) {
+      .directions-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .mockup-pair { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Dashboard — Directions de design</h1>
+  <p>6 directions visuelles · Palette Option A (Noir & Braise) · Module Liens</p>
+  <div class="legend">
+    <span><span class="dot-d"></span> Thème sombre</span>
+    <span><span class="dot-l"></span> Thème clair</span>
+  </div>
+</div>
+
+<div class="directions-grid">
+
+  <!-- ===== DIRECTION 1 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">01</span>
+      <span class="direction-name">Minimaliste Plat</span>
+    </div>
+    <p class="direction-desc">Zéro ombre, séparateurs fins, beaucoup d'espace. Le rouge uniquement en accent et onglet actif. Ambiance très sobre et neutre.</p>
+    <div class="mockup-pair">
+      <div class="mockup d1-dark">
+        <div class="mockup-label">Sombre</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="card">
+            <div class="card-title">🎮 Jeux vidéo</div>
+            <div class="link-row"><div class="fav">S</div>Steam</div>
+            <div class="link-row"><div class="fav">T</div>Twitch</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🛠 Dev</div>
+            <div class="link-row"><div class="fav">G</div>GitHub</div>
+            <div class="link-row"><div class="fav">N</div>NPM</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🍳 Cuisine</div>
+            <div class="link-row"><div class="fav">M</div>Marmiton</div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup d1-light">
+        <div class="mockup-label">Clair</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="card">
+            <div class="card-title">🎮 Jeux vidéo</div>
+            <div class="link-row"><div class="fav">S</div>Steam</div>
+            <div class="link-row"><div class="fav">T</div>Twitch</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🛠 Dev</div>
+            <div class="link-row"><div class="fav">G</div>GitHub</div>
+            <div class="link-row"><div class="fav">N</div>NPM</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🍳 Cuisine</div>
+            <div class="link-row"><div class="fav">M</div>Marmiton</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DIRECTION 2 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">02</span>
+      <span class="direction-name">Accent Bordure</span>
+    </div>
+    <p class="direction-desc">Bordure gauche rouge sur chaque card. Style proche des éditeurs de code / outils dev. Identité forte, très lisible.</p>
+    <div class="mockup-pair">
+      <div class="mockup d2-dark">
+        <div class="mockup-label">Sombre</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-title">🎮 Jeux</div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🛠 Dev</div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup d2-light">
+        <div class="mockup-label">Clair</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-title">🎮 Jeux</div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🛠 Dev</div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DIRECTION 3 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">03</span>
+      <span class="direction-name">Cards Élevées</span>
+    </div>
+    <p class="direction-desc">Ombres prononcées, surfaces nettement séparées du fond. Badge rouge avec compteur de liens par catégorie. Effet Material Elevation complet.</p>
+    <div class="mockup-pair">
+      <div class="mockup d3-dark">
+        <div class="mockup-label">Sombre</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-header-row">
+                <span class="card-title">🎮 Jeux</span>
+                <span class="card-count">4</span>
+              </div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+            </div>
+            <div class="card">
+              <div class="card-header-row">
+                <span class="card-title">🛠 Dev</span>
+                <span class="card-count">6</span>
+              </div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup d3-light">
+        <div class="mockup-label">Clair</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-header-row">
+                <span class="card-title">🎮 Jeux</span>
+                <span class="card-count">4</span>
+              </div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+            </div>
+            <div class="card">
+              <div class="card-header-row">
+                <span class="card-title">🛠 Dev</span>
+                <span class="card-count">6</span>
+              </div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DIRECTION 4 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">04</span>
+      <span class="direction-name">Compact Dense</span>
+    </div>
+    <p class="direction-desc">Grille 3 colonnes, petits textes, padding minimal. Maximum de liens visibles sans scroller. Style dashboard professionnel ou terminal.</p>
+    <div class="mockup-pair">
+      <div class="mockup d4-dark">
+        <div class="mockup-label">Sombre</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens · 3 catégories</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-3">
+            <div class="card">
+              <div class="card-title">🎮 Jeux</div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+              <div class="link-row"><div class="fav">G</div>GOG</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🛠 Dev</div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+              <div class="link-row"><div class="fav">D</div>Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🍳 Cuisine</div>
+              <div class="link-row"><div class="fav">M</div>Marmiton</div>
+              <div class="link-row"><div class="fav">750</div>750g</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup d4-light">
+        <div class="mockup-label">Clair</div>
+        <div class="topbar">
+          <span class="app-name">Dashboard</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens · 3 catégories</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-3">
+            <div class="card">
+              <div class="card-title">🎮 Jeux</div>
+              <div class="link-row"><div class="fav">S</div>Steam</div>
+              <div class="link-row"><div class="fav">T</div>Twitch</div>
+              <div class="link-row"><div class="fav">G</div>GOG</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🛠 Dev</div>
+              <div class="link-row"><div class="fav">G</div>GitHub</div>
+              <div class="link-row"><div class="fav">N</div>NPM</div>
+              <div class="link-row"><div class="fav">D</div>Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-title">🍳 Cuisine</div>
+              <div class="link-row"><div class="fav">M</div>Marmiton</div>
+              <div class="link-row"><div class="fav">750</div>750g</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DIRECTION 5 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">05</span>
+      <span class="direction-name">Headers Dégradés</span>
+    </div>
+    <p class="direction-desc">En-tête de chaque card avec un dégradé rouge. Contraste fort entre header coloré et corps neutre. Le plus "visuel" des 6.</p>
+    <div class="mockup-pair">
+      <div class="mockup d5-dark">
+        <div class="mockup-label">Sombre</div>
+        <div class="topbar">
+          <span class="app-name"><span>Dash</span>board</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">☀</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-body">
+                <div class="link-row"><div class="fav">S</div>Steam</div>
+                <div class="link-row"><div class="fav">T</div>Twitch</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-body">
+                <div class="link-row"><div class="fav">G</div>GitHub</div>
+                <div class="link-row"><div class="fav">N</div>NPM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mockup d5-light">
+        <div class="mockup-label">Clair</div>
+        <div class="topbar">
+          <span class="app-name"><span>Dash</span>board</span>
+          <div class="nav-tabs">
+            <span class="nav-tab active">Liens</span>
+            <span class="nav-tab">Recettes</span>
+            <span class="nav-tab">Notes</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn">🌙</button>
+            <button class="icon-btn">◉</button>
+          </div>
+        </div>
+        <div class="body-area">
+          <div class="edit-mode-bar">
+            <span>12 liens</span>
+            <button class="btn-edit">✎ Modifier</button>
+          </div>
+          <div class="cards-grid-2">
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">🎮 Jeux</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-body">
+                <div class="link-row"><div class="fav">S</div>Steam</div>
+                <div class="link-row"><div class="fav">T</div>Twitch</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title">🛠 Dev</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="card-body">
+                <div class="link-row"><div class="fav">G</div>GitHub</div>
+                <div class="link-row"><div class="fav">N</div>NPM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DIRECTION 6 ===== -->
+  <div class="direction-block">
+    <div class="direction-meta">
+      <span class="direction-num">06</span>
+      <span class="direction-name">Glassmorphism</span>
+    </div>
+    <p class="direction-desc">Surfaces semi-transparentes avec flou. Fond avec gradient rouge sombre subtil. Ambiance premium, uniquement en thème sombre — difficile à reproduire en clair.</p>
+    <div class="d6-wrap">
+      <div class="mockup-label" style="padding:5px 10px; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:600;">Sombre uniquement</div>
+      <div class="d6-topbar">
+        <span class="app-name">Dashboard</span>
+        <div class="nav-tabs">
+          <span class="nav-tab active">Liens</span>
+          <span class="nav-tab">Recettes</span>
+          <span class="nav-tab">Notes</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="d6-topbar icon-btn">☀</button>
+          <button class="d6-topbar icon-btn">◉</button>
+        </div>
+      </div>
+      <div class="d6-body">
+        <div class="d6-edit-bar">
+          <span>12 liens · 3 catégories</span>
+          <button class="d6-btn-edit">✎ Modifier</button>
+        </div>
+        <div class="d6-grid">
+          <div class="d6-card">
+            <div class="d6-card-title">🎮 Jeux <span class="chev">▼</span></div>
+            <div class="d6-link"><div class="d6-fav">S</div>Steam</div>
+            <div class="d6-link"><div class="d6-fav">T</div>Twitch</div>
+          </div>
+          <div class="d6-card">
+            <div class="d6-card-title">🛠 Dev <span class="chev">▼</span></div>
+            <div class="d6-link"><div class="d6-fav">G</div>GitHub</div>
+            <div class="d6-link"><div class="d6-fav">N</div>NPM</div>
+          </div>
+          <div class="d6-card">
+            <div class="d6-card-title">🍳 Cuisine <span class="chev">▼</span></div>
+            <div class="d6-link"><div class="d6-fav">M</div>Marmiton</div>
+          </div>
+          <div class="d6-card">
+            <div class="d6-card-title">📰 Infos <span class="chev">▼</span></div>
+            <div class="d6-link"><div class="d6-fav">L</div>Le Monde</div>
+          </div>
+        </div>
+        <p class="d6-note">backdrop-filter: blur(8px) · border: 1px solid rgba(rouge, 0.15)</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
