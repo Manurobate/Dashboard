@@ -244,7 +244,7 @@ npm install @nestjs/swagger swagger-ui-express
 
 | Décision | Choix | Rationale |
 |----------|-------|-----------|
-| Images Docker | `node:22-alpine` (backend + build) + `nginx:alpine` (frontend statics) | Légèreté maximale |
+| Images Docker | `node:24-alpine` (backend + build) + `nginx:alpine` (frontend statics) | Légèreté maximale |
 | Base de données | Configurable via env vars — MariaDB embarquée optionnelle | Supporte base externe ou embarquée selon l'utilisateur |
 | Dumps | Script `scripts/backup.sh` si base embarquée ; base externe = infrastructure existante | Responsabilité claire, pas de magie cachée |
 | Config | `.env` + `@nestjs/config` avec validation `Joi` au démarrage | Plantage propre si variable manquante |

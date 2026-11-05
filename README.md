@@ -204,7 +204,7 @@ L'onglet Notes affiche votre instance Trilium dans une iframe. Côté Trilium (o
 ## Développement
 
 ```bash
-# Prérequis : Node 22, Docker
+# Prérequis : Node 24, Docker
 
 # Backend
 cd backend && npm install && npm run start:dev
