@@ -14,9 +14,31 @@ permissions:
   contents: read
 
 jobs:
+  # Ignore le push de synchronisation fait par le CD (develop reprend main en
+  # fast-forward) : le code est identique à main, déjà testé sur develop.
+  gate:
+    name: Gate — ignorer la synchro develop ← main
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SKIP=false
+          if [ "${{ github.event_name }}" = "push" ]; then
+            MAIN_SHA=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha)
+            [ "$MAIN_SHA" = "${{ github.sha }}" ] && SKIP=true
+          fi
+          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+          echo "skip=$SKIP"
+
   backend:
     name: Backend — Lint + Tests
     runs-on: ubuntu-latest
+    needs: gate
+    if: needs.gate.outputs.skip != 'true'
     defaults:
       run:
         working-directory: backend
@@ -52,6 +74,8 @@ jobs:
   frontend:
     name: Frontend — Prettier + Tests + Build
     runs-on: ubuntu-latest
+    needs: gate
+    if: needs.gate.outputs.skip != 'true'
     defaults:
       run:
         working-directory: frontend
