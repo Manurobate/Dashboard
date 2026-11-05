@@ -1,0 +1,7 @@
+# Configuration des notes de release générées par GitHub (--generate-notes).
+# La PR develop → main contient les mêmes commits que les PR de feature déjà
+# listées : on l'exclut grâce au label "release", posé automatiquement par cd.yml.
+changelog:
+  exclude:
+    labels:
+      - release
