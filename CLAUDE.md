@@ -35,6 +35,7 @@ Points d'attention liés au script du CD :
 - Un changement cassant doit être signalé avec **`feat!:`** dans le sujet. Un `BREAKING CHANGE` placé dans le corps du message n'est pas détecté (seul le sujet est lu).
 - Sujet en français, à l'impératif ou au nominal, concis. Référence la story si elle existe : `feat: onglet Notes avec iframe Trilium (story 7.3)`.
 - **Aucune signature** : pas de ligne `Co-Authored-By:`, pas de mention « Generated with Claude Code », ni aucune autre attribution à la fin du message. Les commits doivent ressembler à ceux de Manu, qui ne signe pas les siens.
+- **Même règle pour les descriptions de PR** : aucune signature ni mention « Generated with Claude Code » en fin de description.
 
 ## Le projet
 
@@ -72,6 +73,8 @@ Changement de cap notable (2026-06-18) : plutôt que de réimplémenter un syst�
 ### Git flow
 - Branches `feat/*` / `fix/*` → PR vers **`develop`** (la CI y lance lint, Prettier, tests et build ; les E2E tournent au merge dans `develop`, ou sur une PR portant le label `run-e2e`) → PR `develop` → **`main`**.
 - Un merge sur `main` déclenche le CD : tag semver, images GHCR, GitHub Release.
+- **Jamais de commit direct sur `develop`** : toujours passer par une branche (`feat/*`, `fix/*`, `ci/*`, `docs/*`…) et une PR. Les notes de release sont générées à partir des PR fusionnées (`--generate-notes`), et la PR `develop` → `main` en est exclue (label `release` posé par le CD, cf. `.github/release.yml`) : un commit direct n'y apparaîtrait pas.
+- **Titre de PR = message de commit** au format Conventional Commits sans scope (`fix: …`, `feat: …`). C'est lui qui s'affiche dans les notes de release. Propose-le à Manu à l'ouverture de la PR.
 
 ## Commandes utiles
 
