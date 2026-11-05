@@ -71,7 +71,10 @@ Changement de cap notable (2026-06-18) : plutôt que de réimplémenter un syst�
 - **Backend** (`backend/`) : `npx jest` (ou `npx jest <pattern>`), `npm run lint` (ESLint --fix), typecheck `npx tsc --noEmit -p tsconfig.build.json`.
 - **Frontend** (`frontend/`) : tests via **`npx ng test --no-watch`**. Ne pas lancer `npx vitest` directement : ça échoue, car les globals sont fournis par le builder Angular. Il n'y a pas d'ESLint frontend, uniquement Prettier. Le typecheck des templates passe par `npx ng build`.
 - **E2E** (`e2e/`) : `npx playwright test <pattern>`. Nécessite la stack lancée et les variables `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`. `--list` vérifie la compilation sans exécuter.
-- Formater avec Prettier avant de proposer un commit : la CI le vérifie.
+- **Formatage obligatoire avant chaque commit** : aucun hook git ne le fait automatiquement, et la CI échoue sur un fichier mal formaté. Avant de proposer un message de commit, lance Prettier sur les fichiers modifiés :
+  - **Frontend** (`frontend/`) : `npm run prettier:write`, puis `npm run prettier:check` (même commande que la CI, périmètre `src/**/*.{ts,html,scss}`).
+  - **Backend** (`backend/`) : `npm run format` (Prettier) puis `npm run lint` (ESLint --fix, qui applique aussi Prettier).
+  - Si le formatage modifie des fichiers, inclus-les dans le commit. Ne reformate pas des fichiers que tu n'as pas touchés, pour garder des diffs lisibles.
 
 ## Conventions techniques établies
 
