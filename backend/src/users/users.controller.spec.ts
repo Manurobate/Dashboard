@@ -88,7 +88,10 @@ describe('UsersController', () => {
     const mockReq = { user: { id: 1 } } as Request & { user: { id: number } };
 
     it('délègue au service et retourne { triliumUrl, notesEnabled }', async () => {
-      const settings = { triliumUrl: 'https://trilium.example.fr', notesEnabled: true };
+      const settings = {
+        triliumUrl: 'https://trilium.example.fr',
+        notesEnabled: true,
+      };
       (usersService as any).getNotesSettings.mockResolvedValue(settings);
 
       const result = await controller.getNotesSettings(mockReq);

@@ -44,10 +44,7 @@ export class RecipesController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Créer une recette' })
-  create(
-    @CurrentUser() user: { id: number },
-    @Body() dto: CreateRecipeDto,
-  ) {
+  create(@CurrentUser() user: { id: number }, @Body() dto: CreateRecipeDto) {
     return this.recipesService.create(user.id, dto);
   }
 

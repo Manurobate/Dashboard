@@ -54,7 +54,9 @@ export class UsersController {
   @Get('me/notes-settings')
   @Roles('user', 'admin')
   @SkipThrottle()
-  @ApiOperation({ summary: "Récupérer les paramètres Notes de l'utilisateur courant" })
+  @ApiOperation({
+    summary: "Récupérer les paramètres Notes de l'utilisateur courant",
+  })
   @ApiResponse({ status: 200, description: 'Paramètres Notes' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   async getNotesSettings(
@@ -67,7 +69,9 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Roles('user', 'admin')
   @SkipThrottle()
-  @ApiOperation({ summary: "Mettre à jour les paramètres Notes de l'utilisateur courant" })
+  @ApiOperation({
+    summary: "Mettre à jour les paramètres Notes de l'utilisateur courant",
+  })
   @ApiResponse({ status: 200, description: 'Paramètres Notes mis à jour' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   async updateNotesSettings(

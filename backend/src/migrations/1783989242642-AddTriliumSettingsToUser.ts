@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddTriliumSettingsToUser1783989242642
-  implements MigrationInterface
-{
+export class AddTriliumSettingsToUser1783989242642 implements MigrationInterface {
   name = 'AddTriliumSettingsToUser1783989242642';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -15,7 +13,9 @@ export class AddTriliumSettingsToUser1783989242642
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE \`User\` DROP COLUMN \`notesEnabled\``);
+    await queryRunner.query(
+      `ALTER TABLE \`User\` DROP COLUMN \`notesEnabled\``,
+    );
     await queryRunner.query(`ALTER TABLE \`User\` DROP COLUMN \`triliumUrl\``);
   }
 }
