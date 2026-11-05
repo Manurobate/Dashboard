@@ -1,0 +1,35 @@
+@if (safeUrl(); as src) {
+  <div class="notes-frame">
+    @if (isLoading()) {
+      <mat-progress-bar
+        mode="indeterminate"
+        class="frame-progress"
+        aria-label="Chargement de Trilium"
+      />
+    }
+    @if (loadTimedOut()) {
+      <div class="frame-help" role="status">
+        <span>
+          Si votre instance Trilium est accessible mais ne s'affiche pas, vérifiez que l'embedding
+          est autorisé dans sa configuration (<code>frame-ancestors</code>).
+        </span>
+        <a [href]="validUrl()" target="_blank" rel="noopener"
+          >Ouvrir Trilium dans un nouvel onglet</a
+        >
+      </div>
+    }
+    <iframe
+      [src]="src"
+      title="Trilium Notes"
+      allow="clipboard-read; clipboard-write; fullscreen"
+      (load)="onLoad()"
+    ></iframe>
+  </div>
+} @else {
+  <div class="empty-state" role="status">
+    <mat-icon class="empty-icon" aria-hidden="true">note_alt</mat-icon>
+    <p class="empty-message">Aucune instance Trilium configurée</p>
+    <p class="empty-hint">Renseignez l'URL de votre instance dans vos paramètres.</p>
+    <a mat-stroked-button routerLink="/settings">Configurer dans Paramètres</a>
+  </div>
+}

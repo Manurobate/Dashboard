@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { mustChangePasswordGuard } from './core/guards/must-change-password.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { notesEnabledGuard } from './core/guards/notes-enabled.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -48,8 +49,8 @@ export const routes: Routes = [
   },
   {
     path: 'notes',
-    canActivate: [authGuard, mustChangePasswordGuard],
-    loadComponent: () => import('./notes/notes.component').then((m) => m.NotesComponent),
+    canActivate: [authGuard, mustChangePasswordGuard, notesEnabledGuard],
+    loadChildren: () => import('./notes/notes.routes').then((r) => r.notesRoutes),
   },
   {
     path: 'admin',

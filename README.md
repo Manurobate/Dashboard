@@ -191,6 +191,16 @@ DASHBOARD_VERSION=1.2.0
 
 ---
 
+### Intégration Trilium (onglet Notes)
+
+L'onglet Notes affiche votre instance Trilium dans une iframe. Côté Trilium (ou son reverse proxy) :
+
+- Autoriser l'embedding : header `Content-Security-Policy: frame-ancestors 'self' https://<origine-du-dashboard>` (retirer ou ajuster `X-Frame-Options` s'il est présent).
+- **Mixed content** : si le Dashboard est servi en HTTPS, Trilium doit l'être aussi, sinon le navigateur bloque l'iframe.
+- **Cookies tiers** : si Dashboard et Trilium sont sur des domaines différents, certains navigateurs peuvent bloquer la session Trilium (reconnexion demandée).
+
+---
+
 ## Développement
 
 ```bash
