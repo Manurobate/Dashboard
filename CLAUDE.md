@@ -12,7 +12,8 @@ Pour tout ce qui relève du développement, **pas besoin de demander l'autorisat
 - **Ne jamais faire de `git commit` ni de `git push` sans que Manu ait explicitement donné son feu vert** pour ce commit ou ce push précis.
 - Un accord donné une fois ne vaut pas pour les suivants : redemande à chaque fois.
 - Il en va de même pour tout ce qui réécrit l'historique ou touche au dépôt distant (`--amend`, `rebase`, `reset --hard`, `push --force`, suppression de branche, création de PR, merge).
-- Préparer le travail est autorisé (`git add`, `git status`, `git diff`, proposer un message de commit). Attends le « go » avant de commiter.
+- Préparer le travail est autorisé (`git add`, `git status`, `git diff`). Attends le « go » avant de commiter.
+- **Toujours montrer le message de commit avant de commiter**, même quand Manu demande explicitement un commit. Affiche le message complet et la liste des fichiers concernés, puis attends qu'il valide ou modifie le message. Ne lance `git commit` qu'après cette validation.
 
 ### Messages de commit : Conventional Commits obligatoires
 Le pipeline CD (`.github/workflows/cd.yml`) calcule la version sémantique à partir du **sujet** des commits depuis le dernier tag. Le préfixe compte donc vraiment :
