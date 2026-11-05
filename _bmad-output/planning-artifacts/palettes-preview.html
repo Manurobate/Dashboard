@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Propositions de palettes</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 32px 16px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.875rem;
+      margin-bottom: 48px;
+    }
+
+    .palette-section {
+      margin-bottom: 64px;
+    }
+    .palette-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .palette-desc {
+      color: #bbb;
+      font-size: 0.8rem;
+      margin-bottom: 20px;
+    }
+
+    .themes-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* ── UI Mockup ── */
+    .mockup {
+      flex: 1;
+      min-width: 300px;
+      max-width: 420px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .mockup-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      height: 56px;
+      gap: 16px;
+    }
+    .topbar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .topbar-tabs {
+      display: flex;
+      gap: 0;
+      flex: 1;
+      margin-left: 8px;
+    }
+    .tab {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+    }
+    .tab.active {
+      font-weight: 700;
+    }
+    .topbar-icons {
+      display: flex;
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Page content */
+    .page {
+      padding: 16px;
+      min-height: 280px;
+    }
+    .page-h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .card {
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .card-emoji { font-size: 1rem; }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .chip {
+      margin-left: auto;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+      font-size: 0.72rem;
+    }
+    .favicon {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Button */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    /* Swatches */
+    .swatches {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .swatch-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+    .swatch-name {
+      font-size: 0.6rem;
+      color: #999;
+      text-align: center;
+    }
+    .swatch-hex {
+      font-size: 0.6rem;
+      color: #ccc;
+      font-family: monospace;
+    }
+
+    /* Separator */
+    .sep {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 48px 0;
+    }
+
+    /* Current badge */
+    .badge-current {
+      display: inline-block;
+      background: #333;
+      color: #aaa;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PALETTE COURANTE (référence)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* Courante — Light */
+    .cur-light .topbar { background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .cur-light .topbar-title { color: #C62828; }
+    .cur-light .tab { color: #757575; }
+    .cur-light .tab.active { color: #C62828; background: rgba(198,40,40,0.12); }
+    .cur-light .icon-btn { color: #757575; background: transparent; }
+    .cur-light .page { background: #F5F5F5; }
+    .cur-light .page-h1 { color: #212121; }
+    .cur-light .card { background: #FFFFFF; }
+    .cur-light .card-title { color: #212121; }
+    .cur-light .chip { background: rgba(198,40,40,0.12); color: #C62828; }
+    .cur-light .link-item { color: #424242; }
+    .cur-light .favicon { background: #C62828; }
+    .cur-light .btn-primary { background: #C62828; color: #FFFFFF; }
+
+    /* Courante — Dark */
+    .cur-dark .topbar { background: #1F1F1F; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .cur-dark .topbar-title { color: #EF5350; }
+    .cur-dark .tab { color: #9E9E9E; }
+    .cur-dark .tab.active { color: #EF5350; background: rgba(239,83,80,0.12); }
+    .cur-dark .icon-btn { color: #9E9E9E; background: transparent; }
+    .cur-dark .page { background: #0F0F0F; }
+    .cur-dark .page-h1 { color: #FFFFFF; }
+    .cur-dark .card { background: #1A1A1A; }
+    .cur-dark .card-title { color: #FFFFFF; }
+    .cur-dark .chip { background: rgba(239,83,80,0.15); color: #EF5350; }
+    .cur-dark .link-item { color: #BDBDBD; }
+    .cur-dark .favicon { background: #EF5350; }
+    .cur-dark .btn-primary { background: #EF5350; color: #FFFFFF; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PALETTE A — "Rouge Vif"
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* A — Light */
+    .a-light .topbar { background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .a-light .topbar-title { color: #D50000; }
+    .a-light .tab { color: #757575; }
+    .a-light .tab.active { color: #D50000; background: rgba(213,0,0,0.10); }
+    .a-light .icon-btn { color: #757575; }
+    .a-light .page { background: #F5F5F5; }
+    .a-light .page-h1 { color: #212121; }
+    .a-light .card { background: #FFFFFF; }
+    .a-light .card-title { color: #212121; }
+    .a-light .chip { background: rgba(213,0,0,0.10); color: #D50000; }
+    .a-light .link-item { color: #424242; }
+    .a-light .favicon { background: #D50000; }
+    .a-light .btn-primary { background: #D50000; color: #FFFFFF; }
+
+    /* A — Dark */
+    .a-dark .topbar { background: #111111; box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    .a-dark .topbar-title { color: #FF1744; }
+    .a-dark .tab { color: #9E9E9E; }
+    .a-dark .tab.active { color: #FF1744; background: rgba(255,23,68,0.14); }
+    .a-dark .icon-btn { color: #9E9E9E; }
+    .a-dark .page { background: #080808; }
+    .a-dark .page-h1 { color: #FFFFFF; }
+    .a-dark .card { background: #161616; }
+    .a-dark .card-title { color: #FFFFFF; }
+    .a-dark .chip { background: rgba(255,23,68,0.16); color: #FF1744; }
+    .a-dark .link-item { color: #BDBDBD; }
+    .a-dark .favicon { background: #FF1744; }
+    .a-dark .btn-primary { background: #FF1744; color: #FFFFFF; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PALETTE B — "Noir & Écarlate"
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* B — Light */
+    .b-light .topbar { background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .b-light .topbar-title { color: #CC0000; }
+    .b-light .tab { color: #616161; }
+    .b-light .tab.active { color: #CC0000; background: rgba(204,0,0,0.09); }
+    .b-light .icon-btn { color: #616161; }
+    .b-light .page { background: #FAFAFA; }
+    .b-light .page-h1 { color: #1A1A1A; }
+    .b-light .card { background: #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .b-light .card-title { color: #1A1A1A; }
+    .b-light .chip { background: rgba(204,0,0,0.09); color: #CC0000; }
+    .b-light .link-item { color: #3D3D3D; }
+    .b-light .favicon { background: #CC0000; }
+    .b-light .btn-primary { background: #CC0000; color: #FFFFFF; }
+
+    /* B — Dark */
+    .b-dark .topbar { background: #0A0A0A; box-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .b-dark .topbar-title { color: #FF2222; }
+    .b-dark .tab { color: #888888; }
+    .b-dark .tab.active { color: #FF2222; background: rgba(255,34,34,0.13); }
+    .b-dark .icon-btn { color: #888888; }
+    .b-dark .page { background: #000000; }
+    .b-dark .page-h1 { color: #FFFFFF; }
+    .b-dark .card { background: #111111; }
+    .b-dark .card-title { color: #FFFFFF; }
+    .b-dark .chip { background: rgba(255,34,34,0.15); color: #FF2222; }
+    .b-dark .link-item { color: #BBBBBB; }
+    .b-dark .favicon { background: #FF2222; }
+    .b-dark .btn-primary { background: #FF2222; color: #FFFFFF; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PALETTE C — "Braise Profonde"
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* C — Light */
+    .c-light .topbar { background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .c-light .topbar-title { color: #B71C1C; }
+    .c-light .tab { color: #757575; }
+    .c-light .tab.active { color: #B71C1C; background: rgba(183,28,28,0.10); }
+    .c-light .icon-btn { color: #757575; }
+    .c-light .page { background: #F5F5F5; }
+    .c-light .page-h1 { color: #212121; }
+    .c-light .card { background: #FFFFFF; }
+    .c-light .card-title { color: #212121; }
+    .c-light .chip { background: rgba(183,28,28,0.10); color: #B71C1C; }
+    .c-light .link-item { color: #424242; }
+    .c-light .favicon { background: #B71C1C; }
+    .c-light .btn-primary { background: #B71C1C; color: #FFFFFF; }
+
+    /* C — Dark */
+    .c-dark .topbar { background: #141414; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .c-dark .topbar-title { color: #EF4444; }
+    .c-dark .tab { color: #9E9E9E; }
+    .c-dark .tab.active { color: #EF4444; background: rgba(239,68,68,0.13); }
+    .c-dark .icon-btn { color: #9E9E9E; }
+    .c-dark .page { background: #0A0A0A; }
+    .c-dark .page-h1 { color: #FFFFFF; }
+    .c-dark .card { background: #1C1C1C; }
+    .c-dark .card-title { color: #FFFFFF; }
+    .c-dark .chip { background: rgba(239,68,68,0.14); color: #EF4444; }
+    .c-dark .link-item { color: #BDBDBD; }
+    .c-dark .favicon { background: #EF4444; }
+    .c-dark .btn-primary { background: #EF4444; color: #FFFFFF; }
+  </style>
+</head>
+<body>
+
+<h1>Dashboard — Propositions de palettes de couleurs</h1>
+<p class="subtitle">Comparaison visuelle : thème clair (gauche) · thème sombre (droite)</p>
+
+<!-- ─────────────────────────────────────────────────────────────
+     RÉFÉRENCE — Palette actuelle
+───────────────────────────────────────────────────────────── -->
+<div class="palette-section">
+  <div class="palette-title">🔍 Palette actuelle <span class="badge-current">référence</span></div>
+  <div class="palette-desc">Light: #C62828 (Red-800) · Dark: #EF5350 (Red-400) — le rosé/saumon que tu veux corriger</div>
+
+  <div class="themes-row">
+
+    <div>
+      <div class="mockup-label">☀️ Thème clair</div>
+      <div class="mockup cur-light">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">🌙</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mockup-label">🌙 Thème sombre</div>
+      <div class="mockup cur-dark">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">☀️</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-dot" style="background:#C62828"></div><div class="swatch-name">Primary Light</div><div class="swatch-hex">#C62828</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#EF5350"></div><div class="swatch-name">Primary Dark</div><div class="swatch-hex">#EF5350 ← rosé</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#FF8A80"></div><div class="swatch-name">P-Light Dark</div><div class="swatch-hex">#FF8A80 ← rose</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#0F0F0F"></div><div class="swatch-name">Bg Dark</div><div class="swatch-hex">#0F0F0F</div></div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─────────────────────────────────────────────────────────────
+     PALETTE A — Rouge Vif
+───────────────────────────────────────────────────────────── -->
+<div class="palette-section">
+  <div class="palette-title" style="color:#FF1744">⚡ Option A — "Rouge Vif"</div>
+  <div class="palette-desc">Light: #D50000 (Red A700 — pur, saturé, zéro rose) · Dark: #FF1744 (Red A400 — rouge électrique) sur fond #080808</div>
+
+  <div class="themes-row">
+
+    <div>
+      <div class="mockup-label">☀️ Thème clair</div>
+      <div class="mockup a-light">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">🌙</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mockup-label">🌙 Thème sombre</div>
+      <div class="mockup a-dark">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">☀️</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-dot" style="background:#D50000; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Light</div><div class="swatch-hex">#D50000</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#FF1744; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Dark</div><div class="swatch-hex">#FF1744 ✓ pur</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#FF4D6A; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">P-Light Dark</div><div class="swatch-hex">#FF4D6A</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#080808; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Bg Dark</div><div class="swatch-hex">#080808 ↑ noir++</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#161616; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Surface Dark</div><div class="swatch-hex">#161616</div></div>
+  </div>
+
+  <div style="margin-top:12px; font-size:0.8rem; color:#aaa;">
+    <strong style="color:#FF1744">⚡ Effet :</strong> Rouge électrique, vibrant, agressif. Contraste maximum en dark. Le rouge "pète" vraiment.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─────────────────────────────────────────────────────────────
+     PALETTE B — Noir & Écarlate
+───────────────────────────────────────────────────────────── -->
+<div class="palette-section">
+  <div class="palette-title" style="color:#FF2222">🔴 Option B — "Noir &amp; Écarlate"</div>
+  <div class="palette-desc">Light: #CC0000 (rouge pur classique web, sans orangé ni rose) · Dark: #FF2222 (écarlate vif) sur fond #000000 (noir absolu)</div>
+
+  <div class="themes-row">
+
+    <div>
+      <div class="mockup-label">☀️ Thème clair</div>
+      <div class="mockup b-light">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">🌙</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mockup-label">🌙 Thème sombre</div>
+      <div class="mockup b-dark">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">☀️</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-dot" style="background:#CC0000; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Light</div><div class="swatch-hex">#CC0000</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#FF2222; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Dark</div><div class="swatch-hex">#FF2222 ✓ pur</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#FF5555; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">P-Light Dark</div><div class="swatch-hex">#FF5555</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#000000; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Bg Dark</div><div class="swatch-hex">#000000 ← noir pur</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#111111; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Surface Dark</div><div class="swatch-hex">#111111</div></div>
+  </div>
+
+  <div style="margin-top:12px; font-size:0.8rem; color:#aaa;">
+    <strong style="color:#FF2222">🔴 Effet :</strong> Graphique, radical, contrastes extrêmes. Rouge-noir pur, zéro compromis. Très "hacker" / élégant hardcore.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─────────────────────────────────────────────────────────────
+     PALETTE C — Braise Profonde
+───────────────────────────────────────────────────────────── -->
+<div class="palette-section">
+  <div class="palette-title" style="color:#EF4444">🌋 Option C — "Braise Profonde"</div>
+  <div class="palette-desc">Light: #B71C1C (Red-900 — rouge sombre, profond) · Dark: #EF4444 (rouge pur équilibré, sans rose) sur fond #0A0A0A</div>
+
+  <div class="themes-row">
+
+    <div>
+      <div class="mockup-label">☀️ Thème clair</div>
+      <div class="mockup c-light">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">🌙</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mockup-label">🌙 Thème sombre</div>
+      <div class="mockup c-dark">
+        <div class="topbar">
+          <span class="topbar-title">Dashboard</span>
+          <div class="topbar-tabs">
+            <span class="tab active">Accueil</span>
+            <span class="tab">Recettes</span>
+            <span class="tab">Notes</span>
+          </div>
+          <div class="topbar-icons">
+            <span class="icon-btn">☀️</span>
+            <span class="icon-btn">👤</span>
+          </div>
+        </div>
+        <div class="page">
+          <h2 class="page-h1">Dashboard de Manu</h2>
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">🛠️</span>
+                <span class="card-title">Dev</span>
+                <span class="chip">3</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> GitHub</div>
+              <div class="link-item"><span class="favicon"></span> MDN Docs</div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-emoji">📺</span>
+                <span class="card-title">Médias</span>
+                <span class="chip">2</span>
+              </div>
+              <div class="link-item"><span class="favicon"></span> YouTube</div>
+              <div class="link-item"><span class="favicon"></span> Twitch</div>
+            </div>
+          </div>
+          <button class="btn-primary">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-dot" style="background:#B71C1C; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Light</div><div class="swatch-hex">#B71C1C</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#EF4444; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Primary Dark</div><div class="swatch-hex">#EF4444 ✓ pur</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#F87171; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">P-Light Dark</div><div class="swatch-hex">#F87171</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#0A0A0A; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Bg Dark</div><div class="swatch-hex">#0A0A0A</div></div>
+    <div class="swatch"><div class="swatch-dot" style="background:#1C1C1C; border:2px solid rgba(255,255,255,0.3)"></div><div class="swatch-name">Surface Dark</div><div class="swatch-hex">#1C1C1C</div></div>
+  </div>
+
+  <div style="margin-top:12px; font-size:0.8rem; color:#aaa;">
+    <strong style="color:#EF4444">🌋 Effet :</strong> Élégant et sobre. Rouge profond en clair (très lisible), rouge pur et énergique en sombre. Le plus équilibré des trois.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─────────────────────────────────────────────────────────────
+     TABLEAU RÉCAPITULATIF
+───────────────────────────────────────────────────────────── -->
+<div style="margin-top: 32px; padding: 24px; background: #222; border-radius: 12px;">
+  <h2 style="margin-bottom: 16px; font-size: 1rem;">📊 Récapitulatif des tokens CSS</h2>
+  <table style="width:100%; border-collapse: collapse; font-size: 0.75rem; font-family: monospace;">
+    <thead>
+      <tr style="color:#aaa; border-bottom: 1px solid #444;">
+        <th style="text-align:left; padding: 8px 12px;">Token</th>
+        <th style="text-align:left; padding: 8px 12px; color:#888">Actuel</th>
+        <th style="text-align:left; padding: 8px 12px; color:#FF1744">Option A</th>
+        <th style="text-align:left; padding: 8px 12px; color:#FF2222">Option B</th>
+        <th style="text-align:left; padding: 8px 12px; color:#EF4444">Option C</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 6px 12px; color:#ccc">--color-primary (light)</td>
+        <td style="padding: 6px 12px;"><span style="background:#C62828; color:#fff; padding:1px 6px; border-radius:3px">#C62828</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#D50000; color:#fff; padding:1px 6px; border-radius:3px">#D50000</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#CC0000; color:#fff; padding:1px 6px; border-radius:3px">#CC0000</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#B71C1C; color:#fff; padding:1px 6px; border-radius:3px">#B71C1C</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 6px 12px; color:#ccc">--color-primary (dark)</td>
+        <td style="padding: 6px 12px;"><span style="background:#EF5350; color:#fff; padding:1px 6px; border-radius:3px">#EF5350 ← rosé</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#FF1744; color:#fff; padding:1px 6px; border-radius:3px">#FF1744</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#FF2222; color:#fff; padding:1px 6px; border-radius:3px">#FF2222</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#EF4444; color:#fff; padding:1px 6px; border-radius:3px">#EF4444</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 6px 12px; color:#ccc">--color-primary-light (dark)</td>
+        <td style="padding: 6px 12px;"><span style="background:#FF8A80; color:#333; padding:1px 6px; border-radius:3px">#FF8A80 ← rose</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#FF4D6A; color:#fff; padding:1px 6px; border-radius:3px">#FF4D6A</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#FF5555; color:#fff; padding:1px 6px; border-radius:3px">#FF5555</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#F87171; color:#333; padding:1px 6px; border-radius:3px">#F87171</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 6px 12px; color:#ccc">--color-background (dark)</td>
+        <td style="padding: 6px 12px;"><span style="background:#0F0F0F; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#0F0F0F</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#080808; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#080808</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#000000; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#000000</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#0A0A0A; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#0A0A0A</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 6px 12px; color:#ccc">--color-surface (dark)</td>
+        <td style="padding: 6px 12px;"><span style="background:#1A1A1A; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#1A1A1A</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#161616; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#161616</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#111111; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#111111</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#1C1C1C; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#1C1C1C</span></td>
+      </tr>
+      <tr>
+        <td style="padding: 6px 12px; color:#ccc">Topbar bg (dark)</td>
+        <td style="padding: 6px 12px;"><span style="background:#1F1F1F; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#1F1F1F</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#111111; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#111111</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#0A0A0A; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#0A0A0A</span></td>
+        <td style="padding: 6px 12px;"><span style="background:#141414; color:#aaa; padding:1px 6px; border-radius:3px; border:1px solid #333">#141414</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top:32px; padding:20px; background:#1a1a2e; border-radius:12px; text-align:center; color:#888; font-size:0.8rem;">
+  Ouvre ce fichier dans ton navigateur : <code style="background:#333; padding:2px 6px; border-radius:3px;">_bmad-output/planning-artifacts/palettes-preview.html</code>
+</div>
+
+</body>
+</html>
