@@ -1,0 +1,40 @@
+{
+  "attribution": {
+    "commit": ""
+  },
+  "permissions": {
+    "ask": [
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git merge*)",
+      "Bash(git rebase*)",
+      "Bash(git reset --hard*)",
+      "Bash(git cherry-pick*)",
+      "Bash(git revert*)",
+      "Bash(git tag*)",
+      "Bash(git branch -d*)",
+      "Bash(git branch -D*)",
+      "Bash(git branch --delete*)",
+      "Bash(git -C * commit*)",
+      "Bash(git -C * push*)",
+      "Bash(git -C * merge*)",
+      "Bash(git -C * rebase*)",
+      "Bash(git -C * reset --hard*)",
+      "Bash(git -C * cherry-pick*)",
+      "Bash(git -C * revert*)",
+      "Bash(git -C * tag*)",
+      "Bash(git -C * branch -d*)",
+      "Bash(git -C * branch -D*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh pr close*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh pr comment*)",
+      "Bash(gh pr review*)",
+      "Bash(gh release*)",
+      "Bash(gh workflow run*)",
+      "Bash(gh run rerun*)",
+      "Bash(gh api*)"
+    ]
+  }
+}

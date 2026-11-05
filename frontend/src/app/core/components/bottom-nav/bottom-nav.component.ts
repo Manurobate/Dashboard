@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-bottom-nav',
@@ -9,4 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './bottom-nav.component.html',
   styleUrl: './bottom-nav.component.scss',
 })
-export class BottomNavComponent {}
+export class BottomNavComponent {
+  protected readonly authService = inject(AuthService);
+}

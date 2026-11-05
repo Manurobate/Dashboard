@@ -10,7 +10,14 @@ import { RecipeCategoriesController } from './recipe-categories.controller';
 import { RecipeCategoriesService } from './recipe-categories.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Recipe, RecipeIngredient, RecipeStep, RecipeCategoryEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Recipe,
+      RecipeIngredient,
+      RecipeStep,
+      RecipeCategoryEntity,
+    ]),
+  ],
   controllers: [RecipesController, RecipeCategoriesController],
   providers: [RecipesService, RecipeCategoriesService],
   exports: [RecipesService, TypeOrmModule],

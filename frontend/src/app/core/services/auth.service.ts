@@ -9,6 +9,8 @@ export interface AuthUser {
   role: 'admin' | 'user';
   mustChangePassword: boolean;
   isActive: boolean;
+  triliumUrl: string | null;
+  notesEnabled: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -75,6 +77,18 @@ export class AuthService {
     return this.http
       .patch<AuthUser>('/api/auth/change-password', { newPassword, confirmPassword })
       .pipe(tap((user) => this.currentUser.set(user)));
+  }
+
+  updateNotesSettings(dto: {
+    notesEnabled: boolean;
+    triliumUrl: string | null;
+  }): Observable<{ triliumUrl: string | null; notesEnabled: boolean }> {
+    return this.http
+      .patch<{
+        triliumUrl: string | null;
+        notesEnabled: boolean;
+      }>('/api/users/me/notes-settings', dto)
+      .pipe(tap((res) => this.currentUser.update((u) => (u ? { ...u, ...res } : u))));
   }
 
   logout(): Observable<void> {
