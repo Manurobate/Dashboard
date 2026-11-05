@@ -14,21 +14,18 @@ permissions:
   contents: write   # push tag + GitHub Release
   packages: write   # push images sur GHCR
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 jobs:
   release:
     name: Bump · Build · Publish
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0                        # historique complet pour l'analyse des commits
           token: ${{ secrets.SYNC_PAT }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -68,17 +65,17 @@ jobs:
 
       # ── 3. Login GHCR ────────────────────────────────────────────────────────
       - name: Login GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       # ── 4. Build & Push backend ──────────────────────────────────────────────
       - name: Build & Push backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           push: true
@@ -90,7 +87,7 @@ jobs:
 
       # ── 5. Build & Push frontend ─────────────────────────────────────────────
       - name: Build & Push frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           push: true
