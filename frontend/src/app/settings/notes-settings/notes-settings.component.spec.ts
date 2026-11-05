@@ -1,10 +1,11 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { signal } from '@angular/core';
 import { NotesSettingsComponent } from './notes-settings.component';
 import { AuthService, AuthUser } from '../../core/services/auth.service';
+import { TriliumService } from './trilium.service';
 
 const mockUser: AuthUser = {
   id: 1,
@@ -25,6 +26,7 @@ describe('NotesSettingsComponent', () => {
     updateNotesSettings: ReturnType<typeof vi.fn>;
   };
   let snackBar: { open: ReturnType<typeof vi.fn> };
+  let triliumService: { ping: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     authService = {
@@ -32,6 +34,7 @@ describe('NotesSettingsComponent', () => {
       updateNotesSettings: vi.fn(),
     };
     snackBar = { open: vi.fn() };
+    triliumService = { ping: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [NotesSettingsComponent],
@@ -39,6 +42,7 @@ describe('NotesSettingsComponent', () => {
         provideAnimationsAsync(),
         { provide: AuthService, useValue: authService },
         { provide: MatSnackBar, useValue: snackBar },
+        { provide: TriliumService, useValue: triliumService },
       ],
     }).compileComponents();
 
@@ -124,5 +128,111 @@ describe('NotesSettingsComponent', () => {
       { duration: 4000 },
     );
     expect(component.isLoading()).toBe(false);
+  });
+
+  describe('onTest()', () => {
+    beforeEach(() => {
+      authService.currentUser.set({
+        ...mockUser,
+        notesEnabled: true,
+        triliumUrl: 'https://trilium.example.fr',
+      });
+    });
+
+    it('reachable:true → testResult() === "success"', () => {
+      triliumService.ping.mockReturnValue(of({ reachable: true }));
+      fixture.detectChanges();
+
+      component.onTest();
+
+      expect(triliumService.ping).toHaveBeenCalledWith('https://trilium.example.fr');
+      expect(component.testResult()).toBe('success');
+      expect(component.isTesting()).toBe(false);
+    });
+
+    it('reachable:false → testResult() === "error"', () => {
+      triliumService.ping.mockReturnValue(of({ reachable: false, reason: 'fetch failed' }));
+      fixture.detectChanges();
+
+      component.onTest();
+
+      expect(component.testResult()).toBe('error');
+    });
+
+    it('erreur HTTP → testResult() === "error"', () => {
+      triliumService.ping.mockReturnValue(throwError(() => new Error('fail')));
+      fixture.detectChanges();
+
+      component.onTest();
+
+      expect(component.testResult()).toBe('error');
+      expect(component.isTesting()).toBe(false);
+    });
+
+    it('URL vide → ping non appelé', () => {
+      fixture.detectChanges();
+      component.form.controls.triliumUrl.setValue('   ');
+
+      component.onTest();
+
+      expect(triliumService.ping).not.toHaveBeenCalled();
+    });
+
+    it('bouton "Tester la connexion" désactivé si URL vide', () => {
+      authService.currentUser.set({ ...mockUser, notesEnabled: true, triliumUrl: '' });
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const button = compiled.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+      expect(button.disabled).toBe(true);
+    });
+
+    it('bouton "Tester la connexion" désactivé si URL composée d\'espaces', () => {
+      fixture.detectChanges();
+      component.form.controls.triliumUrl.setValue('   ');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const button = compiled.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+      expect(button.disabled).toBe(true);
+    });
+
+    it('isTesting() vrai pendant la requête', () => {
+      const pending = new Subject<{ reachable: boolean }>();
+      triliumService.ping.mockReturnValue(pending.asObservable());
+      fixture.detectChanges();
+
+      component.onTest();
+      expect(component.isTesting()).toBe(true);
+      expect(component.canTest()).toBe(false);
+
+      pending.next({ reachable: true });
+      pending.complete();
+      expect(component.isTesting()).toBe(false);
+    });
+
+    it("ignore une réponse arrivée après modification de l'URL", () => {
+      const pending = new Subject<{ reachable: boolean }>();
+      triliumService.ping.mockReturnValue(pending.asObservable());
+      fixture.detectChanges();
+
+      component.onTest();
+      component.form.controls.triliumUrl.setValue('https://autre-instance.fr');
+      pending.next({ reachable: true });
+
+      expect(component.testResult()).toBeNull();
+      expect(component.isTesting()).toBe(false);
+    });
+
+    it("réinitialise testResult à null quand l'URL change", () => {
+      triliumService.ping.mockReturnValue(of({ reachable: true }));
+      fixture.detectChanges();
+      component.onTest();
+      expect(component.testResult()).toBe('success');
+
+      component.form.controls.triliumUrl.setValue('https://autre-instance.fr');
+
+      expect(component.testResult()).toBeNull();
+    });
   });
 });

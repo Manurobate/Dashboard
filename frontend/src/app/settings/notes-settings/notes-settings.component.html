@@ -13,6 +13,41 @@
         autocomplete="url"
       />
     </mat-form-field>
+
+    <div class="test-connection">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="onTest()"
+        [disabled]="!canTest()"
+        [attr.aria-busy]="isTesting()"
+      >
+        @if (isTesting()) {
+          <mat-progress-spinner
+            diameter="20"
+            mode="indeterminate"
+            aria-label="Test de connexion en cours"
+          />
+        } @else {
+          Tester la connexion
+        }
+      </button>
+
+      <div role="status" aria-live="polite">
+        @if (testResult() === 'success') {
+          <span class="test-result success">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            Instance accessible
+          </span>
+        }
+        @if (testResult() === 'error') {
+          <span class="test-result error">
+            <mat-icon aria-hidden="true">cancel</mat-icon>
+            Instance inaccessible — vérifiez l'URL
+          </span>
+        }
+      </div>
+    </div>
   }
 
   <div class="actions">
