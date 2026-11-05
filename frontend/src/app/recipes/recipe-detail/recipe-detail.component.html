@@ -79,7 +79,7 @@
         <div class="steps-header">
           <h2 class="section-title">Étapes</h2>
         </div>
-        @if ((recipe()!.steps ?? []).length === 0) {
+        @if (recipe()!.steps.length === 0) {
           <p class="empty-section">Aucune étape renseignée.</p>
         } @else {
           <ol class="step-list">
