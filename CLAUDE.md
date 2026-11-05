@@ -50,10 +50,17 @@ Points d'attention liés au script du CD :
 - **PWA** : app shell, manifest, icônes (sources de marque dans `brand/`).
 
 ### Historique et méthode : tout a été fait avec BMAD
-Le projet a été conçu et développé avec la méthode **BMAD** (v6, config dans `_bmad/`, skills dans `.claude/skills/`) : product brief → PRD → UX → architecture → epics/stories → sprints, avec revue de code et rétrospectives. Toute la documentation générée est versionnée dans **`_bmad-output/`** et fait foi. **Consulte-la avant de coder** :
+Le projet a été conçu et développé avec la méthode **BMAD** (v6.12.4, config dans `_bmad/`, skills dans `.claude/skills/`) : product brief → PRD → UX → architecture → epics/stories → sprints, avec revue de code et rétrospectives. Toute la documentation générée est versionnée dans **`_bmad-output/`** et fait foi. **Consulte-la avant de coder** :
 
 - `_bmad-output/planning-artifacts/` : `prd.md`, `architecture.md`, `epics.md`, `ux-design-Dashboard.md`, ainsi que les `sprint-change-proposal-*.md` qui tracent les changements de cap.
-- `_bmad-output/implementation-artifacts/` : un fichier par story (`<epic>-<story>-<slug>.md`), les specs ponctuelles (`spec-*.md`), `deferred-work.md` (dette et travaux reportés) et surtout **`sprint-status.yaml`**, la source de vérité sur l'avancement.
+- `_bmad-output/implementation-artifacts/` : un fichier par story (`<epic>-<story>-<slug>.md`, généré par `bmad-build`), les specs ponctuelles (`spec-*.md`), `deferred-work.md` (dette et travaux reportés) et surtout **`sprint-status.yaml`**, la source de vérité sur l'avancement.
+
+#### Flux de travail BMAD (depuis la mise à jour 6.12.4, 2026-11-05)
+`create-story`, `dev-story` et `quick-dev` ne sont plus installés : tout passe par **`bmad-build`**.
+- **Implémenter une story** : `/bmad-build` (ex. « story 8-0 »), ou l'agent Amelia (`/bmad-agent-dev`, code `BD`). Le skill lit `epics.md`, met en cache `epic-N-context.md`, génère un fichier de spec dans `implementation-artifacts/`, planifie (point de validation humain), implémente, relit, puis présente. Il met à jour `sprint-status.yaml`. Les stories en backlog n'ont pas de fichier avant ce passage.
+- **Autres skills** : `bmad-code-review` (revue ad hoc en plus), `bmad-walkthrough` (relecture guidée), `bmad-qa-generate-e2e-tests`, `bmad-sprint-planning` (planning et statut), `bmad-retrospective`, `bmad-correct-course`, `bmad-prd`, `bmad-architecture`, `bmad-spec`, `bmad-help` (quoi faire ensuite).
+- **Agents** : Mary (analyste), John (PM), Sally (UX), Winston (architecte), Amelia (dev). Ce sont des points d'entrée avec menu, pas des modes obligatoires.
+- Les règles de ce fichier (pas de commit sans accord, Conventional Commits, Prettier) priment sur les workflows BMAD.
 
 Avancement (novembre 2026) :
 - Epics 1 à 6 terminés : infra et design system, authentification, administration, Liens, Recettes, partage public des recettes.
