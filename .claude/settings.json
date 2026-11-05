@@ -3,6 +3,22 @@
     "commit": ""
   },
   "permissions": {
+    "allow": [
+      "Bash(git add*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch --show-current)",
+      "Bash(git branch -a*)",
+      "Bash(git branch -v*)",
+      "Bash(git branch --list*)",
+      "Bash(git -C * add*)",
+      "Bash(git -C * status*)",
+      "Bash(git -C * diff*)",
+      "Bash(git -C * log*)",
+      "Bash(git -C * show*)"
+    ],
     "ask": [
       "Bash(git commit*)",
       "Bash(git push*)",

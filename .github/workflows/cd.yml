@@ -13,6 +13,7 @@ concurrency:
 permissions:
   contents: write   # push tag + GitHub Release
   packages: write   # push images sur GHCR
+  pull-requests: write   # label "release" sur la PR develop → main
 
 jobs:
   release:
@@ -98,7 +99,20 @@ jobs:
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
-      # ── 6. GitHub Release ────────────────────────────────────────────────────
+      # ── 6. Exclure la PR develop → main des notes de release ────────────────
+      # Elle contient les mêmes commits que les PR de feature déjà listées.
+      # .github/release.yml exclut les PR portant le label "release".
+      - name: Labelliser la PR de release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create release --color 0E8A16 \
+            --description "PR develop → main (exclue des notes de release)" --force
+          for PR in $(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '.[].number'); do
+            gh pr edit "$PR" --add-label release
+          done
+
+      # ── 7. GitHub Release ────────────────────────────────────────────────────
       - name: Créer la GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,7 +122,7 @@ jobs:
             --title "Dashboard ${{ steps.version.outputs.tag }}" \
             --latest
 
-      # ── 7. Resynchroniser develop sur main ──────────────────────────────────
+      # ── 8. Resynchroniser develop sur main ──────────────────────────────────
       - name: Sync develop → main
         run: |
           git checkout develop
