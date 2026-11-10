@@ -178,7 +178,6 @@
   {"name":"speaker","label":"Haut-parleur"},
   {"name":"keyboard","label":"Clavier"},
   {"name":"mouse","label":"Souris"},
-  {"name":"printer","label":"Imprimante"},
   {"name":"scanner","label":"Scanner"},
   {"name":"router","label":"Routeur"},
   {"name":"wifi","label":"WiFi"},
