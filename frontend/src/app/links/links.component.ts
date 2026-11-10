@@ -140,7 +140,7 @@ export class LinksComponent implements OnInit {
   openAddLinkDialog(categoryId: number): void {
     const ref = this.dialog.open<LinkDialogComponent, LinkDialogData, LinkDialogResult>(
       LinkDialogComponent,
-      { width: '480px', maxWidth: '95vw', data: { categoryId } },
+      { width: '440px', maxWidth: '95vw', panelClass: 'ember-form-dialog', data: { categoryId } },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -161,7 +161,12 @@ export class LinksComponent implements OnInit {
   openEditLinkDialog(link: Link): void {
     const ref = this.dialog.open<LinkDialogComponent, LinkDialogData, LinkDialogResult>(
       LinkDialogComponent,
-      { width: '480px', maxWidth: '95vw', data: { link, categoryId: link.categoryId } },
+      {
+        width: '440px',
+        maxWidth: '95vw',
+        panelClass: 'ember-form-dialog',
+        data: { link, categoryId: link.categoryId },
+      },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -214,7 +219,7 @@ export class LinksComponent implements OnInit {
   openAddCategoryDialog(): void {
     const ref = this.dialog.open<CategoryDialogComponent, CategoryDialogData, CategoryDialogResult>(
       CategoryDialogComponent,
-      { width: '400px', maxWidth: '95vw', data: {} },
+      { width: '440px', maxWidth: '95vw', panelClass: 'ember-form-dialog', data: {} },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -235,7 +240,12 @@ export class LinksComponent implements OnInit {
   openEditCategoryDialog(cat: LinkCategory): void {
     const ref = this.dialog.open<CategoryDialogComponent, CategoryDialogData, CategoryDialogResult>(
       CategoryDialogComponent,
-      { width: '400px', maxWidth: '95vw', data: { category: cat } },
+      {
+        width: '440px',
+        maxWidth: '95vw',
+        panelClass: 'ember-form-dialog',
+        data: { category: cat },
+      },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -304,6 +314,12 @@ export class LinksComponent implements OnInit {
           all.map((l) => (l.id === updated.id ? { ...l, ...updated } : l)),
         );
         this.isMoving = false;
+        const target = this.linkCategoriesService
+          .categories()
+          .find((c) => c.id === event.targetCategoryId);
+        this.snackBar.open(target ? `Lien déplacé vers ${target.name}` : 'Lien déplacé', 'Fermer', {
+          duration: 3000,
+        });
       },
       error: () => {
         this.linksService.links.update((all) =>

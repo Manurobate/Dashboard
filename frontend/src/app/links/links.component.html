@@ -34,7 +34,7 @@
     </div>
   } @else {
     <div class="links-inner">
-      <div class="header-actions" [class.read-mode]="!editMode()">
+      <div class="header-actions" [class.read-mode]="!editMode()" [class.edit-mode]="editMode()">
         @if (!editMode()) {
           <!-- Affordance seule (FR50) : champ désactivé, aucune logique ni raccourci -->
           <div class="search-bar">
@@ -50,7 +50,8 @@
           </div>
         }
         @if (editMode()) {
-          <button mat-button color="primary" (click)="openAddCategoryDialog()">
+          <span class="links-edit-mode-badge" role="status">Mode édition</span>
+          <button mat-stroked-button class="add-category-btn" (click)="openAddCategoryDialog()">
             <mat-icon>add</mat-icon>
             Ajouter une catégorie
           </button>
@@ -166,6 +167,7 @@
 
       <div
         cdkDropList
+        cdkDropListOrientation="mixed"
         (cdkDropListDropped)="drop($event)"
         class="category-list"
         [class.edit-mode]="editMode()"

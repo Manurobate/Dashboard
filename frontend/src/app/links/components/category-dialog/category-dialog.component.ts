@@ -77,8 +77,9 @@ export class CategoryDialogComponent implements OnInit {
       IconPickerDialogData,
       string | null | undefined
     >(MaterialIconPickerComponent, {
-      width: '520px',
+      width: '480px',
       maxWidth: '95vw',
+      panelClass: 'ember-form-dialog',
       data: { currentIcon: this.selectedIcon() },
     });
     ref

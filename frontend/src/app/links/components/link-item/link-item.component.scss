@@ -1,38 +1,73 @@
+:host {
+  display: block;
+}
+
 .link-item-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 2px 0;
 
+  // Ligne d'édition (maquette 03-edit)
   &.edit-mode {
-    padding: 6px 8px;
-    border-radius: 6px;
-    background: var(--mat-sys-surface-container-low);
-
-    &.cdk-drag-preview {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    &.cdk-drag-placeholder {
-      opacity: 0.4;
-    }
+    gap: 10px;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 4px 6px 4px 8px;
+    border-radius: 10px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-divider);
 
     button[mat-icon-button] {
-      --mdc-icon-button-state-layer-size: 32px;
+      --mat-icon-button-state-layer-size: 32px;
       width: 32px;
       height: 32px;
+      padding: 6px;
+      color: var(--color-text-secondary);
 
       mat-icon {
         font-size: 18px;
+        width: 18px;
+        height: 18px;
         line-height: 18px;
       }
     }
   }
 }
 
+// ── Drag & drop (spec Motion Ember) : le CDK pose ses classes sur l'hôte cdkDrag ──
+:host(.cdk-drag-preview) .link-item-wrapper {
+  transform: rotate(-3deg) scale(1.03);
+  box-shadow: var(--drag-shadow);
+  border-color: var(--color-border-strong);
+
+  // Fantôme épuré comme la maquette : poignée, tuile et titre
+  .link-actions {
+    display: none;
+  }
+}
+
+// opacity (et non visibility) : la poignée porte un `visibility` inline
+:host(.cdk-drag-placeholder) .link-item-wrapper {
+  border: 1px dashed var(--color-primary);
+  background: var(--color-primary-soft);
+
+  > * {
+    opacity: 0;
+  }
+}
+
+:host(.cdk-drag-animating) {
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 .drag-handle {
   cursor: grab;
-  color: var(--mat-sys-on-surface-variant);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
   font-size: 18px;
   width: 18px;

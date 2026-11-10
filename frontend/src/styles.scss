@@ -89,6 +89,7 @@ html {
   --color-on-primary: #ffffff;
   --color-error: #c62828;
   --card-shadow: 0 20px 44px -24px rgba(18, 18, 24, 0.24);
+  --drag-shadow: 0 24px 48px -12px rgba(18, 18, 24, 0.35);
 
   // ── Overrides AM3 — surfaces neutres (sans teinte rose de la palette red) ──
   --mat-sys-primary: #cd3228;
@@ -139,6 +140,7 @@ html:has(body.dark-theme) {
   --color-on-primary: #ffffff;
   --color-error: #ff6b6b;
   --card-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+  --drag-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85);
 
   --color-warning: #ffb74d;
   --color-on-warning: #1c1c1c;
@@ -358,6 +360,135 @@ html {
 
   .dialog-confirm.mat-mdc-unelevated-button {
     border-radius: 999px;
+  }
+}
+
+// Pastille « Mode édition » de la page Liens (maquette 03-edit), hors composant pour son budget de style
+.links-edit-mode-badge {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+  font-size: 13px;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+// Dialogs de formulaire Ember (panelClass `ember-form-dialog`, maquettes 18 à 20)
+.ember-form-dialog .mat-mdc-dialog-container {
+  --mat-dialog-subhead-size: 20px;
+  --mat-dialog-subhead-weight: 700;
+  --mat-dialog-subhead-color: var(--color-text-primary);
+  --mat-dialog-headline-padding: 24px 26px 14px;
+  --mat-dialog-content-padding: 0 26px;
+  --mat-dialog-actions-padding: 20px 18px 18px;
+
+  .mat-mdc-dialog-title::before {
+    display: none;
+  }
+
+  .mat-mdc-dialog-actions .mat-mdc-button {
+    --mat-button-text-label-text-color: var(--color-text-secondary);
+    --mat-button-text-label-text-weight: 600;
+    --mat-button-text-container-shape: 999px;
+    font-size: 15px;
+
+    &.dialog-primary-action {
+      --mat-button-text-label-text-color: var(--color-primary);
+    }
+
+    &:disabled {
+      --mat-button-text-disabled-label-text-color: color-mix(
+        in srgb,
+        var(--color-text-secondary) 60%,
+        transparent
+      );
+    }
+  }
+}
+
+// ── Champ de formulaire Ember : label au-dessus, champ plein (9.4, réutilisé en 9.5 et 9.7) ──
+.field-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+
+  .field-required {
+    color: var(--color-primary);
+    margin-left: 2px;
+  }
+
+  .field-hint {
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+}
+
+.mat-mdc-form-field.ember-field {
+  --mat-form-field-container-height: 46px;
+  --mat-form-field-container-vertical-padding: 11px;
+  --mat-form-field-container-text-size: 15px;
+  --mat-form-field-container-text-tracking: normal;
+  --mat-form-field-subscript-text-tracking: normal;
+  --mat-form-field-outlined-container-shape: 10px;
+  --mat-form-field-outlined-outline-color: var(--color-divider);
+  --mat-form-field-outlined-hover-outline-color: var(--color-border-strong);
+  --mat-form-field-outlined-focus-outline-color: var(--color-primary);
+  --mat-form-field-outlined-focus-outline-width: 1px;
+  --mat-form-field-outlined-error-outline-color: var(--color-error);
+  --mat-form-field-outlined-error-hover-outline-color: var(--color-error);
+  --mat-form-field-outlined-error-focus-outline-color: var(--color-error);
+  --mat-form-field-outlined-input-text-color: var(--color-text-primary);
+  --mat-form-field-outlined-input-text-placeholder-color: var(--color-text-secondary);
+  --mat-form-field-outlined-caret-color: var(--color-primary);
+  --mat-form-field-trailing-icon-color: var(--color-text-secondary);
+  width: 100%;
+
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--color-surface-2);
+    border-radius: 10px;
+    transition: box-shadow 160ms ease;
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    box-shadow: none;
+  }
+
+  .mat-mdc-form-field-icon-suffix > .mat-icon {
+    padding: 0 12px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    box-sizing: content-box;
+  }
+
+  textarea.mat-mdc-input-element {
+    resize: vertical;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mat-mdc-text-field-wrapper {
+      transition: none;
+    }
   }
 }
 

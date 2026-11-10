@@ -416,6 +416,39 @@ describe('LinksComponent', () => {
       component.handleMoveLink({ linkId: 999, targetCategoryId: 2 });
       expect(linksService.moveLink).not.toHaveBeenCalled();
     });
+
+    it('affiche « Lien déplacé vers {catégorie} » 3s quand le déplacement réussit', () => {
+      linkCategoriesService.categories.set([mockCat, { ...mockCat, id: 2, name: 'Admin' }]);
+      linksService.links.set([{ ...mockLink, categoryId: 1 }]);
+      linksService.moveLink.mockReturnValue(of({ ...mockLink, categoryId: 2 }));
+
+      component.handleMoveLink({ linkId: 10, targetCategoryId: 2 });
+
+      expect(snackBar.open).toHaveBeenCalledWith('Lien déplacé vers Admin', 'Fermer', {
+        duration: 3000,
+      });
+    });
+
+    it('affiche « Lien déplacé » si la catégorie cible est introuvable', () => {
+      linkCategoriesService.categories.set([mockCat]);
+      linksService.links.set([{ ...mockLink, categoryId: 1 }]);
+      linksService.moveLink.mockReturnValue(of({ ...mockLink, categoryId: 99 }));
+
+      component.handleMoveLink({ linkId: 10, targetCategoryId: 99 });
+
+      expect(snackBar.open).toHaveBeenCalledWith('Lien déplacé', 'Fermer', { duration: 3000 });
+    });
+
+    it("n'affiche pas la snackbar de succès quand le déplacement échoue", () => {
+      linkCategoriesService.categories.set([mockCat, { ...mockCat, id: 2, name: 'Admin' }]);
+      linksService.links.set([{ ...mockLink, categoryId: 1 }]);
+      linksService.moveLink.mockReturnValue(throwError(() => new Error('network')));
+
+      component.handleMoveLink({ linkId: 10, targetCategoryId: 2 });
+
+      expect(snackBar.open).toHaveBeenCalledTimes(1);
+      expect(snackBar.open.mock.calls[0][0]).toBe('Erreur lors du déplacement');
+    });
   });
 
   describe('État vide (AC2)', () => {
@@ -564,6 +597,56 @@ describe('LinksComponent', () => {
       ) as NodeListOf<HTMLElement>;
       expect(cards[0].style.getPropertyValue('--card-index')).toBe('0');
       expect(cards[1].style.getPropertyValue('--card-index')).toBe('1');
+    });
+  });
+
+  describe('Mode édition Ember (maquette 03-edit)', () => {
+    beforeEach(() => {
+      linkCategoriesService.categories.set([mockCat]);
+    });
+
+    it('affiche la pastille « Mode édition » et un bouton bordé seulement en édition', () => {
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.links-edit-mode-badge')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.add-category-btn')).toBeNull();
+
+      component.toggleEditMode();
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector('.links-edit-mode-badge') as HTMLElement;
+      expect(badge.textContent?.trim()).toBe('Mode édition');
+      expect(badge.getAttribute('role')).toBe('status');
+      const addBtn = fixture.nativeElement.querySelector('.add-category-btn') as HTMLElement;
+      expect(addBtn.hasAttribute('mat-stroked-button')).toBe(true);
+      expect(addBtn.textContent).toContain('Ajouter une catégorie');
+    });
+
+    it('le bouton « Ajouter une catégorie » ouvre le dialog de catégorie', () => {
+      dialog.open.mockReturnValue({ afterClosed: () => of(undefined) });
+      component.toggleEditMode();
+      fixture.detectChanges();
+      (fixture.nativeElement.querySelector('.add-category-btn') as HTMLButtonElement).click();
+      expect(dialog.open).toHaveBeenCalled();
+    });
+
+    it('la grille des catégories reste une grille en édition (orientation mixed)', () => {
+      component.toggleEditMode();
+      fixture.detectChanges();
+      const list = fixture.debugElement.query(By.css('.category-list'));
+      expect(list.nativeElement.classList).toContain('cdk-drop-list');
+      expect(list.attributes['cdkDropListOrientation']).toBe('mixed');
+    });
+
+    it('ouvre les dialogs lien et catégorie en 440px avec la panelClass ember-form-dialog', () => {
+      dialog.open.mockReturnValue({ afterClosed: () => of(undefined) });
+      component.openAddLinkDialog(1);
+      component.openEditLinkDialog(mockLink);
+      component.openAddCategoryDialog();
+      component.openEditCategoryDialog(mockCat);
+      for (const call of dialog.open.mock.calls) {
+        expect(call[1]).toMatchObject({ width: '440px', panelClass: 'ember-form-dialog' });
+      }
+      expect(dialog.open).toHaveBeenCalledTimes(4);
     });
   });
 
