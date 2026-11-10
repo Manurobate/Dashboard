@@ -69,6 +69,7 @@ export class ProfileComponent implements OnInit {
         error: () => {
           this.snackBar.open('Impossible de mettre à jour le profil', undefined, {
             duration: 4000,
+            panelClass: 'snackbar-error',
           });
         },
       });

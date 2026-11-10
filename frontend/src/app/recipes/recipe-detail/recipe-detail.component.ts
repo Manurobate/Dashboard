@@ -153,7 +153,10 @@ export class RecipeDetailComponent implements OnInit {
               this.router.navigate(['/recipes']);
             },
             error: () => {
-              this.snackBar.open('Erreur lors de la suppression', undefined, { duration: 3000 });
+              this.snackBar.open('Erreur lors de la suppression', undefined, {
+                duration: 3000,
+                panelClass: 'snackbar-error',
+              });
             },
           });
       });

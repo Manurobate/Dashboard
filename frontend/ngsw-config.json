@@ -12,6 +12,7 @@
           "/index.html",
           "/manifest.webmanifest",
           "/favicon.svg",
+          "/icon-app.svg",
           "/*.css",
           "/*.js",
           "/fonts/*.woff2"

@@ -3,36 +3,34 @@
   top: 0;
   z-index: 100;
   display: block;
+  --mat-tab-divider-height: 0;
+  --mdc-tab-indicator-active-indicator-height: 0;
+  --mat-tab-active-indicator-height: 0;
 }
 
 .top-bar {
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-:host-context(.dark-theme) .top-bar {
-  background-color: #141414;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  height: 60px;
+  padding: 0 24px;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-divider);
+  box-shadow: none;
+  color: var(--color-text-primary);
 }
 
 .app-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-right: 16px;
-  color: #b71c1c;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-right: 20px;
+  color: var(--color-text-primary);
 }
 
 .app-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-}
-
-:host-context(.dark-theme) .app-title {
-  color: #ef4444;
 }
 
 .spacer {
@@ -40,7 +38,66 @@
 }
 
 .desktop-nav {
+  border-bottom: 0;
+  width: auto;
+
   @media (max-width: 767px) {
     display: none;
   }
+}
+
+a[mat-tab-link] {
+  height: 36px;
+  min-width: 0;
+  padding: 0 14px;
+  margin-right: 4px;
+  border-radius: 10px;
+  opacity: 1;
+  font-size: 14px;
+  font-weight: 500;
+  --mat-tab-inactive-label-text-color: var(--color-text-secondary);
+  --mat-tab-active-label-text-color: var(--color-text-primary);
+  --mat-tab-inactive-focus-label-text-color: var(--color-text-primary);
+  --mat-tab-inactive-hover-label-text-color: var(--color-text-primary);
+  --mat-tab-active-focus-label-text-color: var(--color-text-primary);
+  --mat-tab-active-hover-label-text-color: var(--color-text-primary);
+  transition: background-color 150ms ease;
+
+  &.mdc-tab--active {
+    background-color: var(--color-primary-soft);
+  }
+}
+
+.theme-toggle {
+  --mat-icon-button-state-layer-size: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-right: 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  color: var(--color-text-secondary);
+}
+
+.user-avatar {
+  --mat-icon-button-state-layer-size: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-divider);
+  color: var(--color-text-primary);
+}
+
+.avatar-initial {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
 }

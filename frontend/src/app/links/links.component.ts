@@ -129,7 +129,10 @@ export class LinksComponent implements OnInit {
     this.linksService.reorderLinks(items).subscribe({
       error: () => {
         this.linksService.loadLinks().subscribe();
-        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }
@@ -146,7 +149,11 @@ export class LinksComponent implements OnInit {
           this.linksService.links.update((links) => [...links, link]);
           this.snackBar.open('Lien ajouté', 'Fermer', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Erreur lors de la création', 'Fermer', { duration: 4000 }),
+        error: () =>
+          this.snackBar.open('Erreur lors de la création', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -167,7 +174,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Lien mis à jour', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la modification', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la modification', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -193,7 +203,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Lien supprimé', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -210,7 +223,11 @@ export class LinksComponent implements OnInit {
           this.linkCategoriesService.loadCategories().subscribe();
           this.snackBar.open('Catégorie ajoutée', 'Fermer', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Erreur lors de la création', 'Fermer', { duration: 4000 }),
+        error: () =>
+          this.snackBar.open('Erreur lors de la création', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -230,7 +247,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Catégorie mise à jour', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la modification', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la modification', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -259,7 +279,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Catégorie supprimée', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -286,7 +309,10 @@ export class LinksComponent implements OnInit {
         this.linksService.links.update((all) =>
           all.map((l) => (l.id === event.linkId ? { ...l, categoryId: originalCategoryId } : l)),
         );
-        this.snackBar.open('Erreur lors du déplacement', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors du déplacement', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
         this.isMoving = false;
       },
     });
@@ -302,7 +328,10 @@ export class LinksComponent implements OnInit {
     this.linkCategoriesService.reorderCategories(items).subscribe({
       error: () => {
         this.linkCategoriesService.loadCategories().subscribe();
-        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }

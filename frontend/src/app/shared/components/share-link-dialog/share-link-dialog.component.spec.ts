@@ -114,7 +114,10 @@ describe('ShareLinkDialogComponent', () => {
     expect(writeTextSpy).toHaveBeenCalledWith('http://localhost/share/abc123');
     // Le snackbar de succès dépend de la résolution de la copie (asynchrone)
     await new Promise((r) => setTimeout(r));
-    expect(snackBarSpy.open).toHaveBeenCalledWith('Lien copié ✓', undefined, { duration: 3000 });
+    expect(snackBarSpy.open).toHaveBeenCalledWith('Lien copié ✓', undefined, {
+      duration: 3000,
+      panelClass: 'snackbar-success',
+    });
   });
 
   it('generate() n\'affiche pas "Lien copié" trompeur si le presse-papier est indisponible', async () => {
@@ -132,7 +135,7 @@ describe('ShareLinkDialogComponent', () => {
     expect(snackBarSpy.open).toHaveBeenCalledWith(
       'Lien généré — copiez-le manuellement',
       'Fermer',
-      { duration: 4000 },
+      { duration: 4000, panelClass: 'snackbar-error' },
     );
   });
 
@@ -143,6 +146,7 @@ describe('ShareLinkDialogComponent', () => {
     expect(component.state()).toBe('idle');
     expect(snackBarSpy.open).toHaveBeenCalledWith('Impossible de générer le lien', 'Fermer', {
       duration: 4000,
+      panelClass: 'snackbar-error',
     });
   });
 
@@ -156,7 +160,7 @@ describe('ShareLinkDialogComponent', () => {
     expect(snackBarSpy.open).toHaveBeenCalledWith(
       'Un lien actif existe déjà pour cette recette',
       'Fermer',
-      { duration: 4000 },
+      { duration: 4000, panelClass: 'snackbar-error' },
     );
   });
 

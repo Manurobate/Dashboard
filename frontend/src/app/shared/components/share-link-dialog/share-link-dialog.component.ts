@@ -103,7 +103,10 @@ export class ShareLinkDialogComponent implements OnInit {
               this.snackBar.open(
                 copied ? 'Lien copié ✓' : 'Lien généré — copiez-le manuellement',
                 copied ? undefined : 'Fermer',
-                { duration: copied ? 3000 : 4000 },
+                {
+                  duration: copied ? 3000 : 4000,
+                  panelClass: copied ? 'snackbar-success' : 'snackbar-error',
+                },
               );
             },
           );
@@ -114,12 +117,14 @@ export class ShareLinkDialogComponent implements OnInit {
           if (err.status === 409) {
             this.snackBar.open('Un lien actif existe déjà pour cette recette', 'Fermer', {
               duration: 4000,
+              panelClass: 'snackbar-error',
             });
             this.loadActiveLink();
           } else {
             this.state.set('idle');
             this.snackBar.open('Impossible de générer le lien', 'Fermer', {
               duration: 4000,
+              panelClass: 'snackbar-error',
             });
           }
         },
@@ -142,6 +147,7 @@ export class ShareLinkDialogComponent implements OnInit {
         error: () => {
           this.snackBar.open('Impossible de vérifier les liens de partage existants', 'Fermer', {
             duration: 4000,
+            panelClass: 'snackbar-error',
           });
         },
       });
@@ -152,7 +158,7 @@ export class ShareLinkDialogComponent implements OnInit {
       this.snackBar.open(
         copied ? 'Lien copié ✓' : 'Impossible de copier dans le presse-papier',
         copied ? undefined : 'Fermer',
-        { duration: 3000 },
+        { duration: 3000, panelClass: copied ? 'snackbar-success' : 'snackbar-error' },
       );
     });
   }
@@ -194,6 +200,7 @@ export class ShareLinkDialogComponent implements OnInit {
         error: () =>
           this.snackBar.open('Impossible de régénérer le lien', 'Fermer', {
             duration: 4000,
+            panelClass: 'snackbar-error',
           }),
       });
     });
@@ -216,6 +223,7 @@ export class ShareLinkDialogComponent implements OnInit {
         error: () =>
           this.snackBar.open('Impossible de révoquer le lien', 'Fermer', {
             duration: 4000,
+            panelClass: 'snackbar-error',
           }),
       });
     });

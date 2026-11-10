@@ -125,7 +125,7 @@ describe('NotesSettingsComponent', () => {
     expect(snackBar.open).toHaveBeenCalledWith(
       'Impossible de sauvegarder les paramètres',
       undefined,
-      { duration: 4000 },
+      { duration: 4000, panelClass: 'snackbar-error' },
     );
     expect(component.isLoading()).toBe(false);
   });
