@@ -217,5 +217,34 @@ describe('MaterialIconPickerComponent', () => {
       const noResult = fixture.debugElement.query(By.css('.no-result'));
       expect(noResult).toBeTruthy();
     });
+
+    it('champ de recherche Ember : placeholder et aria-label, sans label flottant', async () => {
+      const { fixture } = await setup();
+      const field = fixture.debugElement.query(By.css('mat-form-field.ember-field'));
+      expect(field).toBeTruthy();
+      expect(field.query(By.css('mat-label'))).toBeNull();
+      const input = field.query(By.css('input')).nativeElement as HTMLInputElement;
+      expect(input.placeholder).toBe('Rechercher une icône');
+      expect(input.getAttribute('aria-label')).toBe('Rechercher une icône');
+    });
+
+    it("marque la tuile de l'icône sélectionnée avec la classe selected", async () => {
+      const { fixture, component } = await setup('star');
+      component.select('home');
+      fixture.detectChanges();
+      const selected = fixture.debugElement.queryAll(By.css('.icon-btn.selected'));
+      expect(selected).toHaveLength(1);
+      expect(selected[0].nativeElement.getAttribute('aria-label')).toBe('Maison');
+    });
+
+    it('« Effacer » est neutre et « Choisir » porte la classe d’action principale', async () => {
+      const { fixture } = await setup();
+      const buttons = fixture.debugElement
+        .queryAll(By.css('mat-dialog-actions button'))
+        .map((b) => b.nativeElement as HTMLButtonElement);
+      expect(buttons.map((b) => b.textContent?.trim())).toEqual(['Annuler', 'Effacer', 'Choisir']);
+      expect(buttons[1].getAttribute('color')).toBeNull();
+      expect(buttons[2].classList).toContain('dialog-primary-action');
+    });
   });
 });

@@ -130,11 +130,6 @@
   @media (min-width: 600px) {
     grid-template-columns: repeat(var(--link-columns, 3), minmax(0, var(--link-card-width, 280px)));
     gap: var(--link-gap-v, 16px) var(--link-gap-h, 16px);
-
-    &.edit-mode {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
   }
 }
 
@@ -147,10 +142,21 @@
   flex-wrap: wrap;
   margin-bottom: 8px;
 
-  &.read-mode {
+  &.read-mode,
+  &.edit-mode {
     gap: 12px;
     margin-bottom: 24px;
   }
+}
+
+// Mode édition (maquette 03-edit) : bouton bordé ; la pastille est dans styles.scss (budget de style)
+.add-category-btn {
+  height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+  --mat-button-outlined-container-shape: 12px;
+  --mat-button-outlined-outline-color: var(--color-border-strong);
+  --mat-button-outlined-label-text-color: var(--color-text-primary);
 }
 
 // Recherche ⌘K : affordance seule (FR50), champ désactivé
@@ -209,6 +215,9 @@
 }
 
 .grid-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 46px;
   height: 46px;
   padding: 0;

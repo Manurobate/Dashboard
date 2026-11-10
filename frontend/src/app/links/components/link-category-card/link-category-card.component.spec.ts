@@ -49,13 +49,11 @@ describe('LinkCategoryCardComponent', () => {
     expect(nameEl.nativeElement.textContent.trim()).toBe('Dev');
   });
 
-  it('affiche le nombre de liens de la catégorie', async () => {
+  it("n'affiche pas de compteur de liens à côté du nom (décision de Manu)", async () => {
     const { fixture } = await setup(false, [mockLink, { ...mockLink, id: 11 }]);
-    const count = fixture.debugElement.query(By.css('.category-count'));
-    expect(count.nativeElement.textContent.trim()).toBe('2 lien(s)');
-    expect(count.query(By.css('.visually-hidden')).nativeElement.textContent.trim()).toBe(
-      'lien(s)',
-    );
+    const header = fixture.debugElement.query(By.css('.category-header'));
+    expect(header.query(By.css('.category-count'))).toBeNull();
+    expect(header.nativeElement.textContent).not.toContain('2');
   });
 
   it('pose la classe edit-mode sur la carte seulement en édition (coupe le survol)', async () => {
@@ -144,6 +142,20 @@ describe('LinkCategoryCardComponent', () => {
     expect(header.query(By.css('.drag-handle'))).toBeTruthy();
     expect(header.query(By.css('.category-actions'))).toBeTruthy();
     expect(fixture.debugElement.query(By.css('.add-link-button'))).toBeTruthy();
+  });
+
+  it('utilise la poignée drag_indicator (maquette 03-edit) sur la carte', async () => {
+    const { fixture } = await setup(true);
+    const handle = fixture.debugElement.query(By.css('.category-header mat-icon.drag-handle'));
+    expect(handle.nativeElement.textContent.trim()).toBe('drag_indicator');
+  });
+
+  it('« Ajouter un lien » est un bouton placé après les liens de la liste', async () => {
+    const { fixture } = await setup(true);
+    const list = fixture.debugElement.query(By.css('.link-list')).nativeElement as HTMLElement;
+    const button = list.lastElementChild as HTMLElement;
+    expect(button.classList).toContain('add-link-button');
+    expect(button.textContent).toContain('Ajouter un lien');
   });
 
   it('masque le drag handle et les actions en mode lecture', async () => {

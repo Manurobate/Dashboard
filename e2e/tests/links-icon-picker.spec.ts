@@ -54,7 +54,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
     // Rechercher "home"
-    await page.fill('input[placeholder*="home"]', 'home');
+    await page.fill('input[placeholder="Rechercher une icône"]', 'home');
     await page.waitForTimeout(200); // debounce 150ms
 
     // Sélectionner l'icône "home"
@@ -109,7 +109,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await expect(page.locator('h2:has-text("Choisir une icône")')).toBeVisible();
 
     // Rechercher "calendar"
-    await page.fill('input[placeholder*="home"]', 'calendar');
+    await page.fill('input[placeholder="Rechercher une icône"]', 'calendar');
     await page.waitForTimeout(200);
 
     // Vérifier qu'au moins une icône contenant "calendar" s'affiche
@@ -150,7 +150,7 @@ test.describe('Sélecteur d\'icônes Material', () => {
     await expect(page.locator('.icon-btn').first()).toBeVisible();
 
     // Rechercher terme inexistant
-    await page.fill('input[placeholder*="home"]', 'xyznonexistent123');
+    await page.fill('input[placeholder="Rechercher une icône"]', 'xyznonexistent123');
     await page.waitForTimeout(200);
 
     // Vérifier le message "Aucune icône trouvée"

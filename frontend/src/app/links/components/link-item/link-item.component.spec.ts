@@ -124,6 +124,13 @@ describe('LinkItemComponent', () => {
     const handle = fixture.debugElement.query(By.css('.drag-handle'));
     expect(handle.nativeElement.style.visibility).toBe('visible');
   });
+
+  it('utilise la poignée drag_indicator et la ligne edit-mode en édition', async () => {
+    const { fixture } = await setup(mockLink, true);
+    const handle = fixture.debugElement.query(By.css('mat-icon.drag-handle'));
+    expect(handle.nativeElement.textContent.trim()).toBe('drag_indicator');
+    expect(fixture.debugElement.query(By.css('.link-item-wrapper.edit-mode'))).toBeTruthy();
+  });
 });
 
 describe('linkMonogram()', () => {
