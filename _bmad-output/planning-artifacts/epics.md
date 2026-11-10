@@ -68,6 +68,8 @@ FR45: L'application est déployable via un seul fichier `docker-compose.yml`
 FR46: La base de données fait l'objet de dumps automatisés
 FR47: L'application expose une PWA avec app shell mis en cache (affichage sans erreur en l'absence de réseau)
 FR48: Les routes publiques (contenu partagé) sont configurées pour ne pas être indexées par les moteurs de recherche
+FR50: Recherche / navigation rapide (command palette) : un utilisateur peut filtrer ses liens et recettes et naviguer entre modules depuis une barre unique. *Affordance désactivée en V1 (Epic 9, story 9.3) : champ visible, inactif, sans logique de recherche ni raccourci `⌘K` actif. Comportement livré plus tard, non planifié.*
+FR51: Un utilisateur peut activer ou désactiver les animations de l'interface depuis la page Paramètres. Activées par défaut, sauf si le système demande de réduire les animations et que l'utilisateur n'a encore rien choisi. Le choix est persisté dans localStorage (par device, par navigateur).
 
 ### NonFunctional Requirements
 
@@ -136,6 +138,10 @@ UX-DR22: Navigation top bar desktop — onglet actif `background: rgba(primary, 
 UX-DR23: Formulaires inline pour le module Liens (champs dans la card sans changement de route) ; formulaires sur page dédiée pour les Recettes (`/recipes/new`, `/recipes/:id/edit`) avec `FormArray` pour les ingrédients et les étapes
 UX-DR24: `MatProgressSpinner` centré pour les chargements de module ; `MatProgressSpinner` 16px inline pour les actions async courtes (fetch favicon, génération de lien de partage)
 UX-DR25: Vue publique partagée — mini top bar identifiable ("Dashboard") sans navigation vers l'intérieur de l'application, thème clair par défaut, `noindex` sur les routes publiques
+UX-DR30: design system Ember (tokens, overrides Material, Inter, Material Symbols, logo), remplace les valeurs visuelles de UX-DR1, UX-DR2 et UX-DR3.
+UX-DR31: micro-interactions Ember (cascade, survol, drag & drop stylé).
+UX-DR32: barre de recherche `⌘K` en affordance désactivée.
+UX-DR33: adaptation mobile Ember (échelle typographique, barres collantes, navigation basse restylée).
 
 ### FR Coverage Map
 
@@ -201,6 +207,8 @@ UX-DR25: Vue publique partagée — mini top bar identifiable ("Dashboard") sans
 | FR46 | Épic 1 | Dumps automatisés de la base de données |
 | FR47 | Épic 1 | PWA avec app shell mis en cache |
 | FR48 | Épic 1 | noindex sur les routes publiques |
+| FR50 | Épic 9 (affordance seule) | Recherche / navigation rapide, comportement non planifié |
+| FR51 | Épic 9 (story 9.7) | Réglage des animations dans Paramètres |
 
 ## Epic List
 
@@ -240,6 +248,15 @@ Manu peut accéder à son instance Trilium Notes depuis l'onglet Notes du Dashbo
 Manu peut rédiger et organiser ses notes directement dans Dashboard via un éditeur WYSIWYG riche (TipTap) avec une arborescence de dossiers/sous-dossiers, une sauvegarde automatique (debounce 1s) et un panneau latéral de navigation en split-pane. La page `/settings` évolue vers un sélecteur à trois états (Désactivé / Trilium / Notes intégrées Dashboard). Le partage par lien public est étendu aux notes dans cette épic (Story 8.7).
 **FRs couverts :** FR_N0, FR29, FR30, FR31, FR32, FR33, FR34, FR35 (partiel — notes), FR38 (partiel — notes), FR41 (partiel — notes)
 **UX-DRs :** UX-DR11, UX-DR12, UX-DR13 (notes), UX-DR20
+
+### Epic 9 : Refonte visuelle Ember (desktop)
+L'application adopte la direction visuelle Ember sur desktop, à fonctionnalités strictement identiques. La fin de cet epic amène la version 1.0.0.
+**FRs couverts :** FR50 (affordance seule), FR51
+**UX-DRs :** UX-DR30, UX-DR31, UX-DR32
+
+### Epic 10 : Conversion mobile Ember
+L'application offre une expérience mobile pensée pour le pouce, dans le style Ember. Backlog, après l'Epic 9.
+**UX-DRs :** UX-DR33
 
 ---
 
@@ -1479,6 +1496,8 @@ Manu peut rédiger et organiser ses notes directement dans Dashboard via un édi
 
 > **Origine :** Sprint Change Proposal 2026-06-18 — contenu de l'Epic 7 original déplacé ici pour permettre aux utilisateurs sans instance Trilium d'avoir un système de notes intégré à Dashboard.
 
+**Report (Sprint Change Proposal 2026-11-09) :** Epic reporté après la refonte Ember (Epic 9). Il sort après la 1.0.0, en version mineure.
+
 ### Story 8.0 : Migration du paramètre Notes — sélecteur 3 états
 
 En tant qu'utilisateur authentifié,
@@ -1535,3 +1554,306 @@ Afin de disposer de l'expérience notes adaptée à ma situation (avec ou sans i
 
 *Contenu identique à l'ex-Story 7.7 — voir version antérieure de epics.md. Les références "Story 7.7 (Épic 7)" sont remplacées par "Story 8.7 (Épic 8)".*
 
+---
+
+## Epic 9 : Refonte visuelle Ember (desktop)
+
+L'application adopte la direction visuelle Ember sur desktop : tokens, typographie, logo, micro-interactions et habillage de tous les écrans. Aucun changement fonctionnel, à l'exception du réglage des animations (FR51), aucune refonte de la structure du code.
+
+> **Origine :** Sprint Change Proposal 2026-11-09.
+
+**Règles communes à toutes les stories :**
+
+- Les maquettes de `refonte-ember/` sont la référence visuelle, et les arbitrages de la proposition priment sur les passations.
+- Aucune modification du backend, de l'API, des routes ou des règles métier.
+- Sur un écran sans maquette, ne pas improviser : demander à Manu. Exception : les états listés dans A14 suivent la règle « structure inchangée, tokens Ember, validation à la revue ».
+- Les E2E existants restent verts. Ils ne contrôlent pas le visuel : chaque story comporte une vérification manuelle aux maquettes, dans les deux thèmes.
+- Sujet de commit en `feat:` sans scope, sauf le dernier commit de la story 9-8.
+
+### Story 9.1 : Fondations Ember
+
+En tant qu'utilisateur,
+Je veux que l'application repose sur les tokens, polices, icônes et le logo Ember, sans dépendance externe,
+Afin que tous les écrans partagent une même base visuelle.
+
+**Critères d'acceptation :**
+
+**Étant donné** que `styles.scss` est chargé,
+**Quand** j'inspecte les deux thèmes,
+**Alors** les tokens et overrides `--mat-sys-*` correspondent à la spec UX, `--color-error`, `--color-warning` et `--color-on-primary` restent définis, et les surfaces Material sont neutres
+
+**Étant donné** que l'application charge,
+**Quand** j'inspecte les requêtes réseau,
+**Alors** aucune requête ne part vers `fonts.googleapis.com` ou `fonts.gstatic.com`, et les balises correspondantes ont disparu de `index.html`
+
+**Étant donné** que le texte s'affiche,
+**Quand** j'inspecte la police,
+**Alors** Inter est servie depuis l'application (400/500/600/700, `woff2`, `font-display: swap`) et `mat.theme()` l'utilise
+
+**Étant donné** qu'un `mat-icon` s'affiche,
+**Quand** j'inspecte son rendu,
+**Alors** il utilise Material Symbols Outlined auto-hébergée, graisse 300, FILL 0, sans changement des noms d'icônes dans les templates ni en base
+
+**Étant donné** que la police d'icônes est réduite,
+**Quand** je contrôle son contenu,
+**Alors** elle contient les noms de `material-icons.json` et ceux utilisés par l'interface, et chaque nom absent de Material Symbols est signalé à Manu
+
+**Étant donné** que `printer` n'est pas un nom valide,
+**Quand** le sélecteur est mis à jour,
+**Alors** il propose `print`, et la présence de la valeur `printer` dans les catégories existantes est vérifiée et remontée à Manu, sans reprise automatique en base
+
+**Étant donné** que le logo Ember est livré dans `brand/`,
+**Quand** j'inspecte `index.html`, le manifest et `ngsw-config.json`,
+**Alors** favicons, `apple-touch-icon` et icônes PWA proviennent du nouveau lot, aucune référence à un fichier supprimé ne subsiste, et `theme-color` vaut `#F2F1EF`
+
+**Étant donné** que l'application est installée en PWA,
+**Quand** je l'ouvre sans réseau après une première visite,
+**Alors** l'app shell s'affiche sans erreur
+
+### Story 9.2 : Coque de l'application
+
+En tant qu'utilisateur,
+Je veux une top bar, une navigation, un menu utilisateur, des snackbars et des dialogs de confirmation au style Ember,
+Afin de retrouver la même identité sur toutes les pages.
+
+**Maquettes :** `23-confirm`, `24-user-menu` (top bar visible sur toutes les maquettes).
+
+**Critères d'acceptation :**
+
+**Étant donné** que je suis authentifié sur desktop,
+**Quand** je regarde la top bar,
+**Alors** elle mesure 60px avec bordure basse hairline, affiche le logo `icon-app.svg` et « Dashboard », et l'onglet actif a le fond `--color-primary-soft`
+
+**Étant donné** que je suis sur n'importe quelle page dotée d'une top bar,
+**Quand** je la regarde,
+**Alors** le bouton clair/sombre est présent
+
+**Étant donné** que j'ouvre le menu utilisateur,
+**Quand** il s'affiche,
+**Alors** il contient Administration (admins seulement), Paramètres, Mon profil et Déconnexion, conformément à `24-user-menu`
+
+**Étant donné** qu'une action affiche un snackbar ou une confirmation destructive,
+**Quand** il apparaît,
+**Alors** son style correspond aux maquettes, sans changement de texte ni de durée
+
+### Story 9.3 : Liens en lecture
+
+En tant qu'utilisateur,
+Je veux des cartes de liens au style Ember avec cascade et survol,
+Afin que ma page d'accueil soit agréable à consulter au quotidien.
+
+**Maquettes :** `01-main`, `02-alight`, `04-grid-settings`, `25-liens-vide`.
+
+**Critères d'acceptation :**
+
+**Étant donné** que la page Liens charge,
+**Quand** les cartes apparaissent,
+**Alors** elles arrivent en cascade et réagissent au survol selon la spec Motion
+
+**Étant donné** qu'un lien possède un favicon,
+**Quand** il s'affiche,
+**Alors** le favicon réel figure dans la tuile, et le monogramme n'apparaît qu'en son absence
+
+**Étant donné** que je regarde la barre de recherche `⌘K`,
+**Quand** j'essaie de l'utiliser,
+**Alors** le champ est désactivé, sans logique de recherche, sans raccourci clavier actif, sans handler ni faux résultat (FR50)
+
+**Étant donné** que j'ouvre le widget de grille,
+**Quand** je modifie un réglage,
+**Alors** le comportement reste identique, avec écart par défaut de 16px, CSS `minmax(0, largeur)` et règle des 600px conservés
+
+**Étant donné** que je n'ai aucun lien ou que les données chargent,
+**Quand** la page s'affiche,
+**Alors** l'état vide suit `25-liens-vide`, et les squelettes appliquent les tokens Ember (A14)
+
+### Story 9.4 : Liens en édition
+
+En tant qu'utilisateur,
+Je veux un mode édition Ember avec un drag & drop stylé,
+Afin d'organiser mes liens avec un retour visuel clair.
+
+**Maquettes :** `03-edit`, `18-link-dialog`, `19-category-dialog`, `20-icon-picker`.
+
+**Critères d'acceptation :**
+
+**Étant donné** que je glisse un lien,
+**Quand** il survole une catégorie,
+**Alors** fantôme, zone de drop et placeholder suivent la spec Motion
+
+**Étant donné** que le drop réussit ou échoue,
+**Quand** le résultat arrive,
+**Alors** le comportement reste identique (snackbar 3s, retour à la source en cas d'erreur)
+
+**Étant donné** que j'ouvre les dialogs de lien, de catégorie ou le sélecteur d'icônes,
+**Quand** ils s'affichent,
+**Alors** leur style correspond aux maquettes, à champs et validations identiques
+
+### Story 9.5 : Recettes
+
+En tant qu'utilisateur,
+Je veux les écrans Recettes au style Ember,
+Afin de bénéficier de la même identité dans tout le module.
+
+**Maquettes :** `05-recipes`, `06-recipe-detail`, `17-recipe-editor`, `26-recettes-vide`, `27-recettes-sans-resultat`.
+
+**Critères d'acceptation :**
+
+**Étant donné** que j'ouvre la liste, la recherche sans résultat ou l'état vide,
+**Quand** l'écran s'affiche,
+**Alors** il correspond à sa maquette, et les squelettes appliquent les tokens Ember (A14)
+
+**Étant donné** que j'utilise le stepper convives sur le détail,
+**Quand** je change la valeur,
+**Alors** le recalcul reste identique et le rendu correspond à `06-recipe-detail`
+
+**Étant donné** que je saisis une catégorie dans l'éditeur,
+**Quand** je tape ou ouvre le champ,
+**Alors** l'autocomplétion reste active, avec création libre d'une catégorie, et l'apparence suit `17-recipe-editor`
+
+**Étant donné** que je réorganise ingrédients et étapes,
+**Quand** je les déplace,
+**Alors** le comportement reste identique
+
+### Story 9.6 : Partage et vues publiques
+
+En tant que visiteur ou propriétaire d'une recette,
+Je veux des écrans de partage au style Ember,
+Afin que l'expérience reste soignée et sans friction.
+
+**Maquettes :** `10-share`, `11-public-recipe`, `12-expired`.
+
+**Critères d'acceptation :**
+
+**Étant donné** que j'ouvre le dialog de partage,
+**Quand** il s'affiche,
+**Alors** il correspond à `10-share`, à fonctionnement identique
+
+**Étant donné** qu'un visiteur ouvre un lien valide,
+**Quand** la page s'affiche,
+**Alors** elle correspond à `11-public-recipe` avec mini top bar de 56px, sans aucune navigation interne
+
+**Étant donné** qu'un lien est expiré ou qu'une erreur survient,
+**Quand** la page s'affiche,
+**Alors** le lien expiré suit `12-expired`, et l'erreur générique applique les tokens Ember (A14)
+
+### Story 9.7 : Notes, Paramètres, Admin, Login, mots de passe et Profil
+
+En tant qu'utilisateur,
+Je veux tous les écrans restants au style Ember,
+Afin que la refonte soit complète sur desktop.
+
+**Maquettes :** `07-settings`, `08-notes-configure`, `08-notes-vide`, `09-admin`, `13-login`, `14-mdp-force`, `15-mdp-compte`, `16-profile`, `21a-user-form`, `21b-user-created`, `22a-reset-confirm`, `22b-reset-done`.
+
+**Critères d'acceptation :**
+
+**Étant donné** que j'ouvre l'un de ces écrans ou dialogs,
+**Quand** il s'affiche,
+**Alors** il correspond à sa maquette, à champs, messages et validations identiques
+
+**Étant donné** que j'ouvre `/admin`,
+**Quand** la top bar s'affiche,
+**Alors** aucun badge « Administration » ne figure près de l'avatar
+
+**Étant donné** que j'ouvre `/settings`,
+**Quand** la page s'affiche,
+**Alors** une carte « Affichage », sous la carte Notes et au même style, propose un interrupteur « Animations » (A16, validation de Manu à la revue)
+
+**Étant donné** que je n'ai encore rien choisi,
+**Quand** l'application démarre,
+**Alors** les animations sont actives, sauf si le système demande de les réduire
+
+**Étant donné** que je change l'interrupteur « Animations »,
+**Quand** je recharge l'application dans le même navigateur,
+**Alors** mon choix est conservé et prime sur le réglage du système (FR51)
+
+**Étant donné** que l'iframe Trilium dépasse le délai de chargement,
+**Quand** l'état s'affiche,
+**Alors** il applique les tokens Ember (A14)
+
+### Story 9.8 : Finitions, accessibilité, parité et non-régression
+
+En tant que porteur du projet,
+Je veux contrôler l'ensemble de la refonte avant la 1.0.0,
+Afin de livrer une version stable et cohérente.
+
+**Critères d'acceptation :**
+
+**Étant donné** que toutes les stories 9.1 à 9.7 sont terminées,
+**Quand** je lance la suite Playwright existante,
+**Alors** tous les E2E sont verts
+
+**Étant donné** que j'audite l'application avec Axe,
+**Quand** je consulte le rapport,
+**Alors** il n'y a aucune violation critique ni aucune violation de contraste
+
+**Étant donné** que je navigue au clavier,
+**Quand** je parcours les écrans,
+**Alors** le focus reste visible et les `aria-label` et `aria-expanded` sont présents
+
+**Étant donné** que je compare Chrome et Firefox desktop,
+**Quand** je parcours les écrans dans les deux thèmes,
+**Alors** le rendu est équivalent
+
+**Étant donné** que le réglage « Animations » est désactivé, par choix ou parce que le système demande de les réduire sans choix de l'utilisateur,
+**Quand** les animations Ember devraient jouer,
+**Alors** elles sont neutralisées
+
+**Étant donné** que la story est terminée,
+**Quand** son dernier commit est créé,
+**Alors** son sujet commence par `feat!:` et sa fusion préserve ce sujet, afin que le CD produise la version 1.0.0
+
+---
+
+## Epic 10 : Conversion mobile Ember
+
+L'application offre une expérience mobile pensée pour le pouce, dans le style Ember : échelle typographique réduite, cibles tactiles d'au moins 44px, barres d'action collantes. Epic en backlog, à lancer après l'Epic 9. Il sort en version mineure (`feat:`).
+
+> **Origine :** Sprint Change Proposal 2026-11-09, d'après `mobile/passation-mobile-Dashboard.md`.
+
+**À trancher au lancement de l'epic :**
+
+1. Titres de page réduits et titres de recette déplacés dans la top bar.
+2. Barre de navigation basse persistante au lieu de scroller.
+3. Tableau admin en cartes.
+4. Barre `Enregistrer` / `Annuler` collante sur l'éditeur, navigation masquée pendant l'édition.
+5. Actions de détail remontées dans la top bar.
+6. Login et vue publique sans barre de navigation.
+7. Boutons primaires pleine largeur sur les sous-pages.
+8. Écrans mobiles sans maquette : Notes, Profil, dialogs.
+
+**Corrections déjà actées par rapport à la passation mobile :** breakpoint 768px, règle des 600px de la grille Liens conservée, icônes en Material Symbols, navigation basse et cartes Admin déjà présentes, navigation basse visible sur Notes et Profil.
+
+Les critères d'acceptation détaillés seront écrits au lancement de l'epic, une fois ces points tranchés.
+
+### Story 10.0 : Breakpoint mobile et shell
+Mise en place du shell mobile à 768px, `viewport-fit=cover` et safe areas. Socle de l'epic.
+
+### Story 10.1 : Restylage de la navigation basse
+Restylage du composant existant (hauteur, état actif, safe area). Dépend de 10.0.
+
+### Story 10.2 : Liens mobile
+Maquette `m1-accueil` : 1 colonne, cartes accordéon, titre réduit, bouton Modifier compact. Dépend de 10.0 et 10.1.
+
+### Story 10.3 : Liste des recettes mobile
+Maquette `m2-recettes` : recherche pleine largeur, groupes, lignes de recette. Dépend de 10.0 et 10.1.
+
+### Story 10.4 : Détail de recette mobile
+Maquette `m3-recipe-detail` : titre en top bar, actions-icônes, image 16:9, stepper. Dépend de 10.0 et 10.1.
+
+### Story 10.5 : Éditeur de recette mobile
+Maquette `m4-recipe-editor` : champs empilés, barre Enregistrer collante, navigation masquée. Dépend de 10.0.
+
+### Story 10.6 : Restylage des cartes Admin mobiles
+Maquette `m5-admin` : restylage des cartes existantes. Dépend de 10.0 et 10.1.
+
+### Story 10.7 : Paramètres mobile
+Maquette `m6-settings` : carte Notes/Trilium, toggle, Tester et Sauvegarder. Dépend de 10.0 et 10.1.
+
+### Story 10.8 : Login mobile
+Maquette `m7-login` : logo centré, champs de 50px, CTA pleine largeur, navigation masquée. Dépend de 10.0.
+
+### Story 10.9 : Vue publique mobile
+Maquette `m8-public-recipe` : lecture seule. Dépend de 10.0.
+
+### Story 10.10 (optionnelle) : Dialogs en bottom sheets
+Ajout de lien, partage et confirmations en bottom sheets. Dépend de 10.0.
