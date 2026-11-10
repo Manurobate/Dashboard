@@ -350,3 +350,7 @@
 - source_spec: `9-1-fondations-tokens-polices-icones-pwa.md`
   summary: Ajouter un contrôle de build vérifiant qu'aucune référence du manifest, d'`index.html` ou de `ngsw.json` ne pointe vers un fichier absent.
   evidence: Le critère « aucune référence orpheline » n'est contrôlé que manuellement ; un renommage futur ne ferait échouer aucun test.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-3-liens-lecture.md`
+  summary: Tester les valeurs affichées du widget grille (`.setting-value` : largeur, espacements H et V) après ouverture du panneau et après un `valueChange`.
+  evidence: Depuis 9.3 la valeur des curseurs n'apparaît plus que dans ces `span` (`discrete` retiré) ; aucun test unitaire n'ouvre le menu et l'E2E `links-grid-settings.spec.ts` ne lit que la première ligne (colonnes).
