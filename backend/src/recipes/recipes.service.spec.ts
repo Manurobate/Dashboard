@@ -41,6 +41,7 @@ describe('RecipesService', () => {
     save: jest.fn().mockResolvedValue(mockRecipe),
     delete: jest.fn().mockResolvedValue(undefined),
     findOne: jest.fn().mockResolvedValue(mockRecipe),
+    count: jest.fn().mockResolvedValue(1),
     ...overrides,
   });
 
@@ -229,6 +230,70 @@ describe('RecipesService', () => {
       expect(manager.save).toHaveBeenCalled();
     });
 
+    it("supprime l'ancienne catégorie si plus aucune recette ne l'utilise", async () => {
+      const newCat = { id: 11, name: 'Gâteaux', userId: 42 };
+      const manager = buildManager({
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce({ ...mockRecipe, categoryId: 10 })
+          .mockResolvedValueOnce(newCat)
+          .mockResolvedValueOnce(mockRecipe),
+        count: jest.fn().mockResolvedValue(0),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.update(42, 1, { categoryName: 'Gâteaux' });
+
+      expect(manager.count).toHaveBeenCalledWith(Recipe, {
+        where: { categoryId: 10, userId: 42 },
+      });
+      expect(manager.delete).toHaveBeenCalledWith(RecipeCategoryEntity, {
+        id: 10,
+        userId: 42,
+      });
+    });
+
+    it("conserve l'ancienne catégorie si d'autres recettes l'utilisent", async () => {
+      const newCat = { id: 11, name: 'Gâteaux', userId: 42 };
+      const manager = buildManager({
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce({ ...mockRecipe, categoryId: 10 })
+          .mockResolvedValueOnce(newCat)
+          .mockResolvedValueOnce(mockRecipe),
+        count: jest.fn().mockResolvedValue(2),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.update(42, 1, { categoryName: 'Gâteaux' });
+
+      expect(manager.delete).not.toHaveBeenCalledWith(
+        RecipeCategoryEntity,
+        expect.anything(),
+      );
+    });
+
+    it('ne vérifie pas la catégorie si elle ne change pas', async () => {
+      const manager = buildManager({
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce({ ...mockRecipe, categoryId: 10 })
+          .mockResolvedValueOnce(mockCategory)
+          .mockResolvedValueOnce(mockRecipe),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.update(42, 1, { categoryName: 'Desserts' });
+
+      expect(manager.count).not.toHaveBeenCalled();
+    });
+
     it('remplace les ingrédients si fournis', async () => {
       const manager = buildManager({
         findOne: jest.fn().mockResolvedValue(mockRecipe),
@@ -295,6 +360,39 @@ describe('RecipesService', () => {
         resourceId: 1,
       });
       expect(manager.delete).toHaveBeenNthCalledWith(2, Recipe, { id: 1 });
+    });
+
+    it('supprime la catégorie de la recette si elle n’a plus de recettes', async () => {
+      repo.findOne.mockResolvedValue({ ...mockRecipe, categoryId: 10 });
+      const manager = buildManager({
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+        count: jest.fn().mockResolvedValue(0),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.remove(42, 1);
+
+      expect(manager.delete).toHaveBeenNthCalledWith(3, RecipeCategoryEntity, {
+        id: 10,
+        userId: 42,
+      });
+    });
+
+    it('conserve la catégorie si d’autres recettes l’utilisent', async () => {
+      repo.findOne.mockResolvedValue({ ...mockRecipe, categoryId: 10 });
+      const manager = buildManager({
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+        count: jest.fn().mockResolvedValue(3),
+      });
+      dataSource.transaction.mockImplementation(
+        async (cb: (m: typeof manager) => Promise<unknown>) => cb(manager),
+      );
+
+      await service.remove(42, 1);
+
+      expect(manager.delete).toHaveBeenCalledTimes(2);
     });
 
     it('lance NotFoundException si la recette est introuvable', async () => {
