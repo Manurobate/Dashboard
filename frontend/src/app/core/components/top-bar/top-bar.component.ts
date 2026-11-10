@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTabNav, MatTabLink, MatTabNavPanel } from '@angular/material/tabs';
@@ -29,6 +29,13 @@ export class TopBarComponent {
   protected readonly themeService = inject(ThemeService);
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  protected readonly userInitial = computed(() => {
+    const user = this.authService.currentUser();
+    const source = user?.name?.trim() || user?.username?.trim() || '';
+    const first = Array.from(source)[0];
+    return first ? first.toUpperCase() : '?';
+  });
 
   onLogout(): void {
     this.authService.logout().subscribe(() => {

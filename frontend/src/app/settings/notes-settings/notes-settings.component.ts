@@ -112,6 +112,7 @@ export class NotesSettingsComponent implements OnInit {
         error: () => {
           this.snackBar.open('Impossible de sauvegarder les paramètres', undefined, {
             duration: 4000,
+            panelClass: 'snackbar-error',
           });
         },
       });

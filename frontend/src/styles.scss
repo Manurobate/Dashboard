@@ -169,3 +169,102 @@ html {
   --color-success: #15803d;
   --color-on-success: #ffffff;
 }
+
+// ── Overlays Ember : menu, snackbars, dialogs ────────────────────────────────
+.ember-menu.mat-mdc-menu-panel,
+.mat-mdc-menu-panel.ember-menu {
+  min-width: 220px;
+  border-radius: 14px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--card-shadow);
+
+  .mat-mdc-menu-item {
+    --mat-menu-item-label-text-color: var(--color-text-primary);
+    --mat-menu-item-icon-color: var(--color-text-secondary);
+    min-height: 44px;
+
+    .mat-icon {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .menu-separator {
+    height: 1px;
+    margin: 4px 12px;
+    background-color: var(--color-divider);
+  }
+
+  .mat-mdc-menu-item.logout-item {
+    --mat-menu-item-label-text-color: var(--color-primary);
+    --mat-menu-item-icon-color: var(--color-primary);
+
+    .mat-icon {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--color-surface);
+  --mdc-snackbar-supporting-text-color: var(--color-text-primary);
+  --mat-snack-bar-button-color: var(--color-primary);
+  --mat-snack-bar-container-color: var(--color-surface);
+  --mat-snack-bar-supporting-text-color: var(--color-text-primary);
+  --mdc-snackbar-container-shape: 999px;
+  --mat-snack-bar-container-shape: 999px;
+
+  .mdc-snackbar__surface {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    box-shadow: var(--card-shadow);
+    background-color: var(--color-surface);
+
+    &::before {
+      font-family: 'Material Symbols Outlined';
+      font-weight: 300;
+      font-size: 20px;
+      line-height: 1;
+      font-feature-settings: 'liga';
+      content: 'check';
+      color: var(--color-primary);
+    }
+  }
+
+  &.snackbar-error .mdc-snackbar__surface::before {
+    content: 'close';
+    color: var(--color-error);
+  }
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: 16px;
+  --mdc-dialog-container-shape: 16px;
+  --mat-dialog-container-color: var(--color-surface);
+  --mdc-dialog-container-color: var(--color-surface);
+
+  .mdc-dialog__surface {
+    border: 1px solid var(--color-divider);
+    border-radius: 16px;
+  }
+
+  .dialog-cancel.mat-mdc-unelevated-button {
+    --mat-button-filled-container-color: var(--color-primary-soft);
+    --mat-button-filled-label-text-color: var(--color-on-primary-soft);
+    --mdc-filled-button-container-color: var(--color-primary-soft);
+    --mdc-filled-button-label-text-color: var(--color-on-primary-soft);
+    border-radius: 999px;
+  }
+
+  .dialog-confirm.mat-mdc-unelevated-button {
+    border-radius: 999px;
+  }
+}
+
+.cdk-overlay-dark-backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+}

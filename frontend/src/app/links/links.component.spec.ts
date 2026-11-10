@@ -172,6 +172,7 @@ describe('LinksComponent', () => {
 
       expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', {
         duration: 4000,
+        panelClass: 'snackbar-error',
       });
     });
   });
@@ -245,6 +246,7 @@ describe('LinksComponent', () => {
       expect(linkCategoriesService.loadCategories).toHaveBeenCalled();
       expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la réorganisation', 'Fermer', {
         duration: 3000,
+        panelClass: 'snackbar-error',
       });
     });
   });
@@ -292,6 +294,7 @@ describe('LinksComponent', () => {
 
       expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la création', 'Fermer', {
         duration: 4000,
+        panelClass: 'snackbar-error',
       });
     });
   });
@@ -366,6 +369,7 @@ describe('LinksComponent', () => {
       expect(linksService.loadLinks).toHaveBeenCalled();
       expect(snackBar.open).toHaveBeenCalledWith('Erreur lors de la réorganisation', 'Fermer', {
         duration: 3000,
+        panelClass: 'snackbar-error',
       });
     });
 
@@ -401,6 +405,7 @@ describe('LinksComponent', () => {
       expect(linksService.links()[0].categoryId).toBe(1);
       expect(snackBar.open).toHaveBeenCalledWith('Erreur lors du déplacement', 'Fermer', {
         duration: 3000,
+        panelClass: 'snackbar-error',
       });
     });
 

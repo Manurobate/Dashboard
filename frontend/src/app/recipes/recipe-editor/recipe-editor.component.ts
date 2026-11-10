@@ -164,6 +164,7 @@ export class RecipeEditorComponent implements OnInit {
           error: () => {
             this.snackBar.open('Erreur lors du chargement de la recette', 'Fermer', {
               duration: 3000,
+              panelClass: 'snackbar-error',
             });
             this.isLoading.set(false);
             this.router.navigate(['/recipes']);
@@ -234,7 +235,10 @@ export class RecipeEditorComponent implements OnInit {
         this.router.navigate(['/recipes', recipe.id]);
       },
       error: () => {
-        this.snackBar.open("Erreur lors de l'enregistrement", 'Fermer', { duration: 3000 });
+        this.snackBar.open("Erreur lors de l'enregistrement", 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }

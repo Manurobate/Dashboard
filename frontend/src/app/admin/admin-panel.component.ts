@@ -82,7 +82,10 @@ export class AdminPanelComponent implements OnInit {
           this.adminService.loadUsers().subscribe({ error: () => {} });
         },
         error: () => {
-          this.snackBar.open('Impossible de réactiver le compte', 'Fermer', { duration: 4000 });
+          this.snackBar.open('Impossible de réactiver le compte', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          });
         },
       });
   }
@@ -114,7 +117,10 @@ export class AdminPanelComponent implements OnInit {
             this.adminService.loadUsers().subscribe({ error: () => {} });
           },
           error: () => {
-            this.snackBar.open('Impossible de désactiver le compte', 'Fermer', { duration: 4000 });
+            this.snackBar.open('Impossible de désactiver le compte', 'Fermer', {
+              duration: 4000,
+              panelClass: 'snackbar-error',
+            });
           },
         });
     });
@@ -146,7 +152,10 @@ export class AdminPanelComponent implements OnInit {
             this.adminService.loadUsers().subscribe({ error: () => {} });
           },
           error: () => {
-            this.snackBar.open('Impossible de supprimer le compte', 'Fermer', { duration: 4000 });
+            this.snackBar.open('Impossible de supprimer le compte', 'Fermer', {
+              duration: 4000,
+              panelClass: 'snackbar-error',
+            });
           },
         });
     });

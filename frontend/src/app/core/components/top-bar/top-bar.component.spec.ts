@@ -16,13 +16,15 @@ const mockUser: AuthUser = {
   notesEnabled: true,
 };
 
+const currentUser = signal<AuthUser | null>(mockUser);
 const mockAuthService = {
-  currentUser: signal<AuthUser | null>(mockUser),
+  currentUser,
   logout: vi.fn(),
 };
 
 describe('TopBarComponent', () => {
   beforeEach(async () => {
+    currentUser.set(mockUser);
     await TestBed.configureTestingModule({
       imports: [TopBarComponent],
       providers: [provideRouter(routes), { provide: AuthService, useValue: mockAuthService }],
@@ -64,5 +66,47 @@ describe('TopBarComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const navLinks = compiled.querySelectorAll('a[mat-tab-link]');
     expect(navLinks.length).toBe(3);
+  });
+
+  const initial = async (user: Partial<AuthUser>): Promise<string | undefined> => {
+    currentUser.set({ ...mockUser, ...user });
+    const fixture = TestBed.createComponent(TopBarComponent);
+    await fixture.whenStable();
+    return (fixture.nativeElement as HTMLElement)
+      .querySelector('.avatar-initial')
+      ?.textContent?.trim();
+  };
+
+  it('should show the uppercase initial of the name', async () => {
+    expect(await initial({ name: 'manu' })).toBe('M');
+  });
+
+  it('should fall back to the username initial', async () => {
+    expect(await initial({ name: '', username: 'zoe@x.fr' })).toBe('Z');
+  });
+
+  it('should fall back to ? when name and username are empty', async () => {
+    expect(await initial({ name: '', username: '' })).toBe('?');
+  });
+
+  it('should show Administration only for admins', async () => {
+    for (const [role, expected] of [
+      ['admin', true],
+      ['user', false],
+    ] as const) {
+      currentUser.set({ ...mockUser, role });
+      const fixture = TestBed.createComponent(TopBarComponent);
+      await fixture.whenStable();
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLElement>('button.user-avatar')
+        ?.click();
+      await fixture.whenStable();
+      const items = Array.from(document.querySelectorAll('.mat-mdc-menu-item')).map((e) =>
+        e.textContent?.trim(),
+      );
+      expect(items.length).toBeGreaterThan(0);
+      expect(items.some((t) => t?.includes('Administration'))).toBe(expected);
+      fixture.destroy();
+    }
   });
 });
