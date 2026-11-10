@@ -128,8 +128,8 @@ development_status:
   epic-8-retrospective: optional
 
   # ── Epic 9 : Refonte visuelle Ember (desktop) ─────────────────────────────
-  epic-9: backlog
-  9-1-fondations-tokens-polices-icones-pwa: backlog
+  epic-9: in-progress
+  9-1-fondations-tokens-polices-icones-pwa: review
   9-2-coque-navigation-menu-snackbars-confirmations: backlog
   9-3-liens-lecture: backlog
   9-4-liens-edition: backlog

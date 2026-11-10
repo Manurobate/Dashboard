@@ -343,3 +343,10 @@
 - **Requêtes `me()` concurrentes depuis les guards** — `frontend/src/app/core/guards/notes-enabled.guard.ts:281` — Angular exécute les `canActivate` en parallèle : sur un rechargement direct de `/notes`, `authGuard`, `mustChangePasswordGuard` et `notesEnabledGuard` voient `currentUser() === null` et appellent chacun `me()` (3 `GET /api/auth/me`, voire 3 refresh concurrents si le token vient d'expirer). Pattern pré-existant imposé par la spec ; à traiter globalement en mutualisant la promesse en vol dans `AuthService.me()`.
 - **Erreur non-401 de `me()` traitée comme « non authentifié »** — `frontend/src/app/core/guards/notes-enabled.guard.ts:283` — Un 5xx/erreur réseau renvoie vers `/login` sans conserver l'URL cible. Même comportement que `authGuard` ; à revoir globalement (écran « service indisponible »).
 - **`currentUser` périmé entre onglets/appareils** — `frontend/src/app/core/guards/notes-enabled.guard.ts:278` — Si `notesEnabled`/`triliumUrl` change dans un autre onglet, le guard et l'iframe utilisent la valeur en cache jusqu'au rechargement (dans le même onglet, `updateNotesSettings` met bien à jour le signal). Comportement partagé avec la nav conditionnelle (7.1).
+
+- source_spec: `9-1-fondations-tokens-polices-icones-pwa.md`
+  summary: Versionner le script de génération de la police Material Symbols réduite et ajouter un contrôle automatisé que chaque nom de `material-icons.json` et de l'interface y figure.
+  evidence: La police est un sous-ensemble de 546 icônes généré hors dépôt ; une icône ajoutée plus tard s'afficherait en texte brut sans qu'aucun test n'échoue.
+- source_spec: `9-1-fondations-tokens-polices-icones-pwa.md`
+  summary: Ajouter un contrôle de build vérifiant qu'aucune référence du manifest, d'`index.html` ou de `ngsw.json` ne pointe vers un fichier absent.
+  evidence: Le critère « aucune référence orpheline » n'est contrôlé que manuellement ; un renommage futur ne ferait échouer aucun test.

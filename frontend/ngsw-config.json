@@ -11,8 +11,10 @@
           "/index.csr.html",
           "/index.html",
           "/manifest.webmanifest",
+          "/favicon.svg",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/fonts/*.woff2"
         ]
       }
     },
