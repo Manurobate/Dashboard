@@ -221,10 +221,12 @@ Composants Angular Material utilisés par module :
 
 - **Thème clair/sombre** : deux palettes Material définies dans `styles.scss`, switchées via une classe CSS sur `<body>` (`.dark-theme`), persistées en `localStorage`
 - **Design tokens** : couleurs primaire, secondaire et d'accentuation définies comme tokens CSS custom pour permettre l'évolution vers des thèmes supplémentaires en V2
-- **Typography** : police système par défaut (performance, pas de dépendance externe) — Material typography scale appliquée
+- **Typography** : Inter auto-hébergée, voir Typography System *(Sprint Change Proposal 2026-11-09)*
 - **Composants custom** : uniquement pour les besoins non couverts par Material (éditeur TipTap, stepper convives, drag & drop listes)
 
 ## Design Direction Decision
+
+> **Remplacée par la direction Ember (Sprint Change Proposal 2026-11-09).** Le contenu ci-dessous reste à titre historique. Les valeurs en vigueur sont dans Visual Design Foundation et dans les maquettes de `planning-artifacts/refonte-ember/`.
 
 ### Design Directions Explored
 
@@ -287,91 +289,43 @@ mat-toolbar { background: #141414; }
 
 ### Color System
 
-**Palette choisie : "Braise Profonde"** *(remplace "Noir & Braise" — Sprint Change Proposal 2026-05-20)*
+**Palette en vigueur : « Ember »** *(remplace « Braise Profonde » — Sprint Change Proposal 2026-11-09)*
 
-| Token | Thème sombre | Thème clair |
-|-------|-------------|-------------|
-| `--color-background` | `#0A0A0A` | `#F5F5F5` |
-| `--color-surface` | `#1C1C1C` | `#FFFFFF` |
-| `--color-primary` | `#EF4444` (rouge pur) | `#B71C1C` (Red-900) |
-| `--color-primary-light` | `#F87171` (survols/focus) | `#D32F2F` |
-| `--color-on-primary` | `#FFFFFF` | `#FFFFFF` |
-| `--color-text-primary` | `#FFFFFF` | `#212121` |
-| `--color-text-secondary` | `#9E9E9E` | `#757575` |
-| `--color-divider` | `#2A2A2A` | `#E0E0E0` |
-| `--color-error` | `#FF6B6B` | `#C62828` |
-| `--color-warning` | `#FFB74D` (Orange-300) | `#F57C00` (Orange-700) |
-| `--color-on-warning` | `#1C1C1C` | `#FFFFFF` |
-| `--color-success` | `#66BB6A` (Green-400) | `#2E7D32` (Green-800) |
-| `--color-on-success` | `#1C1C1C` | `#FFFFFF` |
+Esthétique d'outil de développement sobre, neutres froids, braise rouge comme accent unique. Les rouges sont ajustés par rapport aux maquettes pour respecter WCAG AA (arbitrage A1).
 
-**Overrides AM3 (cause racine des fonds rosés en thème clair) :**
+| Token | Thème clair | Thème sombre |
+|---|---|---|
+| `--color-background` | `#F2F1EF` | `#09090B` |
+| `--color-surface` | `#FFFFFF` | `#141417` |
+| `--color-surface-2` (surfaces internes, survols, champs) | `#F6F5F3` | `#1B1B1F` |
+| `--color-divider` | `rgba(22,22,26,.10)` | `rgba(255,255,255,.08)` |
+| `--color-border-strong` (survol, focus) | `rgba(22,22,26,.18)` | `rgba(255,255,255,.16)` |
+| `--color-text-primary` | `#1A1A1D` | `#EDEDEF` |
+| `--color-text-secondary` | `#64646C` | `#9A9AA2` |
+| `--color-primary` (texte, icônes) | `#CD3228` | `#F0433A` |
+| `--color-primary-fill` (fond des boutons pleins) | `#CD3228` | `#D83C34` |
+| `--color-primary-soft` (fonds d'accent, onglet actif, badges) | `rgba(214,52,42,.10)` | `rgba(240,67,58,.14)` |
+| `--color-on-primary-soft` (texte sur fond rosé) | `#B82D24` | `#F1524A` |
+| `--color-success` | `#15803D` | `#4ADE80` |
+| `--card-shadow` | `0 20px 44px -24px rgba(18,18,24,.24)` | `0 18px 40px -22px rgba(0,0,0,.7)` |
+| `--color-error`, `--color-warning`, `--color-on-primary` | Valeurs actuelles conservées | Valeurs actuelles conservées |
 
-| Token AM3 | Thème sombre | Thème clair |
-|-----------|-------------|-------------|
-| `--mat-sys-primary` | `#EF4444` | `#B71C1C` |
-| `--mat-sys-primary-container` | `#7F1D1D` | `#FECACA` |
-| `--mat-sys-on-primary-container` | `#FECACA` | `#7F1D1D` |
-| `--mat-sys-surface-container` | `#222222` | `#FFFFFF` ← cards blanches |
-| `--mat-sys-surface-container-low` | `#1C1C1C` | `#FAFAFA` |
-| `--mat-sys-surface-container-high` | `#2A2A2A` | `#F0F0F0` |
-| `--mat-sys-surface-container-highest` | `#333333` | `#E8E8E8` |
+Les noms existants (`--color-text-primary`, `--color-text-secondary`, `--color-divider`) sont gardés pour ne pas toucher aux composants qui les consomment.
 
-**Rationale :**
-- `#EF4444` (rouge pur, Tailwind red-500) sur fond sombre : zéro composante rose — WCAG AA ~5.3:1 ✓
-- `#B71C1C` (Red-900) sur fond clair : plus profond que Red-800, WCAG AA ~6.1:1 ✓
-- AM3 génère automatiquement des `surface-container` teintés depuis la palette red (ex. `#F9DDDA`). Les overrides forcent des neutres purs — cartes blanches en clair, cards sombres neutres en dark.
-- `--color-warning` / `--color-success` : ajoutés à l'Épic 3 pour les indicateurs de statut ; ratios WCAG AA ≥ 4.5:1 vérifiés sur les deux thèmes
+**Overrides Angular Material 3 :** `mat.$red-palette` reste la base de `mat.theme()`, les surfaces sont forcées en neutres purs (fin des fonds rosés).
 
-**Implémentation Angular Material :**
-```scss
-// styles.scss — nouvelle API mat.theme() (AM3)
-@use '@angular/material' as mat;
+| Token | Thème clair | Thème sombre |
+|---|---|---|
+| `--mat-sys-primary` | `#CD3228` | `#F0433A` |
+| Fond de `mat-flat-button` | `var(--color-primary-fill)` | `var(--color-primary-fill)` |
+| `--mat-sys-surface-container` | `#FFFFFF` | `#141417` |
+| `--mat-sys-surface-container-low` | `#FAFAFA` | `#1B1B1F` |
+| `--mat-sys-surface-container-high` | `#F0F0F0` | `#222222` |
+| `--mat-sys-surface-container-highest` | `#E8E8E8` | `#2A2A2A` |
 
-html {
-  @include mat.theme((
-    color: (primary: mat.$red-palette, theme-type: light),
-    typography: system-ui,
-    density: 0,
-  ));
-  --color-primary: #B71C1C;
-  --color-primary-light: #D32F2F;
-  --color-warning: #F57C00;
-  --color-on-warning: #FFFFFF;
-  --color-success: #2E7D32;
-  --color-on-success: #FFFFFF;
-  // Overrides AM3 — surfaces neutres (sans teinte rose de la palette red)
-  --mat-sys-primary: #B71C1C;
-  --mat-sys-primary-container: #FECACA;
-  --mat-sys-on-primary-container: #7F1D1D;
-  --mat-sys-surface-container: #FFFFFF;
-  --mat-sys-surface-container-low: #FAFAFA;
-  --mat-sys-surface-container-high: #F0F0F0;
-  --mat-sys-surface-container-highest: #E8E8E8;
-}
+En thème sombre, `--mat-sys-primary` garde le rouge vif `#F0433A` : le fond des `mat-flat-button` doit donc être branché explicitement sur `--color-primary-fill`, sinon le texte blanc passe sous le seuil AA.
 
-.dark-theme {
-  @include mat.theme((
-    color: (primary: mat.$red-palette, theme-type: dark),
-  ));
-  --color-primary: #EF4444;
-  --color-primary-light: #F87171;
-  --color-background: #0A0A0A;
-  --color-surface: #1C1C1C;
-  --color-warning: #FFB74D;
-  --color-on-warning: #1C1C1C;
-  --color-success: #66BB6A;
-  --color-on-success: #1C1C1C;
-  // Overrides AM3 — rouge pur en dark (sans teinte rose générée par AM3)
-  --mat-sys-primary: #EF4444;
-  --mat-sys-primary-container: #7F1D1D;
-  --mat-sys-on-primary-container: #FECACA;
-  --mat-sys-surface-container: #222222;
-  --mat-sys-surface-container-low: #1C1C1C;
-  --mat-sys-surface-container-high: #2A2A2A;
-  --mat-sys-surface-container-highest: #333333;
-}
-```
+**Logo :** tuile rouge unique pour les deux thèmes (`brand/icon-app.svg`), inchangée par l'ajustement AA.
 
 **Persistance du thème :** `localStorage.setItem('theme', 'dark' | 'light')` appliqué au bootstrap Angular avant le rendu.
 
@@ -440,21 +394,26 @@ Ne jamais mettre `color` directement sur `<mat-icon>` — utiliser la classe sur
 
 ### Typography System
 
-- **Police** : police système (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`) — zéro dépendance réseau, rendu natif optimal
-- **Échelle** : Material typography scale (mat-typography-config par défaut)
+*(Sprint Change Proposal 2026-11-09)*
+
+- **Police** : Inter, auto-hébergée en `woff2` (poids 400, 500, 600, 700), `font-display: swap`, fallback système (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`). Aucune dépendance à Google Fonts.
 - **Tailles clés** :
-  - Titre app (top bar) : `1.1rem` bold
-  - Titre de catégorie (card header) : `0.9rem` semibold
-  - Lien / item de liste : `0.85rem` regular
-  - Texte secondaire / labels : `0.75rem` regular
+  - Titre app (top bar) : `16px` / 700
+  - Titre de catégorie (card header) : `15px` / 600
+  - Lien / item de liste : `14px` / 400
+  - Labels secondaires : `11px` à `13px`
+  - Compteurs : `ui-monospace` `11px`
 - **Interlignage** : 1.5 pour le corps des notes ; 1.3 pour les listes de liens
+- **Icônes** : Material Symbols Outlined auto-hébergée, graisse 300, FILL 0, police réduite aux 490 icônes du sélecteur et à celles de l'interface. Mêmes noms de ligature qu'avant.
 
 ### Spacing & Layout Foundation
 
 - **Unité de base** : `8px` (grille Material)
 - **Espacement inter-cards** : `16px`
 - **Padding interne des cards** : `16px` desktop, `12px` mobile
-- **Top bar height** : `56px` (standard Material)
+- **Top bar height** : `60px` (`56px` sur la vue publique) *(Ember)*
+- **Rayons** : cartes `16px`, éléments internes `10px` à `13px` *(Ember)*
+- **Tuile favicon / monogramme** : `26×26px`, rayon `7px` *(Ember)*
 - **Bottom nav height** : `56px` mobile
 - **Panneau latéral Notes** : `260px` desktop (fixe), plein écran mobile
 - **Grid Liens** : colonnes, largeur des cards et espacement pilotés par CSS custom properties (`--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`), 1 colonne forcée sous 600 px
@@ -893,10 +852,10 @@ Composants Material utilisés directement sans customisation majeure :
 ### Navigation Patterns
 
 **Desktop — Top bar**
-- Fond thème clair : `#FFFFFF` + `box-shadow: 0 2px 8px rgba(0,0,0,0.1)`
-- Fond thème sombre : `#141414`
-- Onglet actif : `background: rgba(primary, 0.15)` + couleur primary + `font-weight: 700`
-- Onglet hover : `background: rgba(primary, 0.08)`
+- Fond `--color-background` + bordure basse hairline `--color-divider`, hauteur `60px` *(Ember)*
+- Onglet actif : fond `--color-primary-soft` + texte `--color-text-primary`
+- Onglet hover : fond `--color-surface-2`
+- Bouton clair/sombre présent dans toutes les top bars, même si une maquette l'omet
 - L'onglet actif ne change pas d'apparence au hover (déjà sélectionné)
 
 **Mobile — Bottom nav**
@@ -1004,12 +963,23 @@ isMobile$ = this.breakpointObserver
 
 **Contrastes de couleur (vérifiés) :**
 
+Palette Ember, variante AA (Sprint Change Proposal 2026-11-09). Les textes de l'interface font 11 à 16px : le seuil applicable est 4,5:1.
+
 | Paire | Ratio | Résultat |
 |-------|-------|----------|
-| `#EF4444` sur `#0A0A0A` (sombre, primary) | ~5.3:1 | ✅ AA (↑ vs 4.6:1) |
-| `#B71C1C` sur `#FFFFFF` (clair, top bar) | ~6.1:1 | ✅ AA (↑ vs 5.1:1) |
-| `#212121` sur `#F5F5F5` (clair, body) | 16:1 | ✅ AAA |
-| `#FFFFFF` sur `#1C1C1C` (sombre, body) | ~15:1 | ✅ AAA |
+| Blanc sur `#CD3228` (clair, bouton plein) | 5,14:1 | ✅ AA |
+| `#CD3228` sur `#F2F1EF` (clair, texte rouge sur page) | 4,56:1 | ✅ AA |
+| `#CD3228` sur `#F6F5F3` (clair, texte rouge sur surface interne) | 4,72:1 | ✅ AA |
+| `#B82D24` sur fond rosé, posé sur la page (clair) | 4,69:1 | ✅ AA |
+| `#B82D24` sur fond rosé, posé sur une carte (clair) | 5,28:1 | ✅ AA |
+| Blanc sur `#D83C34` (sombre, bouton plein) | 4,55:1 | ✅ AA |
+| `#F0433A` sur `#09090B` (sombre, texte rouge sur page) | 5,28:1 | ✅ AA |
+| `#F0433A` sur `#141417` (sombre, texte rouge sur carte) | 4,88:1 | ✅ AA |
+| `#F1524A` sur fond rosé, posé sur une carte (sombre) | 4,60:1 | ✅ AA |
+| `#64646C` sur `#F2F1EF` (clair, texte secondaire) | 5,19:1 | ✅ AA |
+| `#9A9AA2` sur `#141417` (sombre, texte secondaire) | 6,58:1 | ✅ AA |
+
+Les valeurs des maquettes (`#D6342A` en clair, `#F0433A` pour les boutons et le texte sur fond rosé en sombre) passaient sous 4,5:1 sur six combinaisons. Elles ont été remplacées par les valeurs ci-dessus, et ces écarts ne comptent pas comme des défauts lors de la vérification aux maquettes.
 
 **Keyboard navigation :**
 - Tous les éléments interactifs accessibles au clavier (Tab, Shift+Tab)
@@ -1039,7 +1009,7 @@ isMobile$ = this.breakpointObserver
 - Orientation portrait et paysage sur mobile
 
 **Accessibilité (pragmatique pour un projet solo) :**
-- Axe DevTools extension (Chrome) → zéro violation critique avant merge
+- Axe DevTools extension (Chrome) → zéro violation critique et zéro violation de contraste avant merge (axe classe le contraste en « serious », pas en « critical »)
 - Navigation clavier complète sur chaque module avant livraison
 - Pas de test avec lecteur d'écran en V1 (hors scope pour un outil personnel)
 
@@ -1068,7 +1038,7 @@ isMobile$ = this.breakpointObserver
 // Grid Liens — pilotée par CSS custom properties (story 4.8)
 .links-grid {
   display: grid;
-  grid-template-columns: repeat(var(--link-columns, 3), minmax(var(--link-card-width, 280px), 1fr));
+  grid-template-columns: repeat(var(--link-columns, 3), minmax(0, var(--link-card-width, 280px)));
   gap: var(--link-gap-v, 16px) var(--link-gap-h, 16px);
 }
 // Mobile < 600px : 1 colonne forcée
@@ -1101,7 +1071,9 @@ Lorsqu'un lien est glissé depuis une catégorie vers une autre en mode édition
 
 Nouvelle page accessible à tous les utilisateurs authentifiés depuis le menu utilisateur de la top bar ("Paramètres", aux côtés de "Mon profil" et "Déconnexion").
 
-**Mise à jour UX-DR3 (top bar) :** le `MatMenu` utilisateur contient désormais trois entrées : "Mon profil" (`/profile`), "Paramètres" (`/settings`), "Déconnexion".
+**Mise à jour UX-DR3 (top bar) :** le `MatMenu` utilisateur contient quatre entrées : "Administration" (`/admin`, admins uniquement), "Paramètres" (`/settings`), "Mon profil" (`/profile`), "Déconnexion" *(maquette `24-user-menu`, Sprint Change Proposal 2026-11-09)*.
+
+**Maquettes Ember :** `07-settings`. La carte « Affichage » (réglage « Animations », FR51) n'a pas de maquette : même style que la carte Notes, validation de Manu à la revue de la story 9.7.
 
 **Layout `/settings` :**
 - Page dédiée (pas de dialog), `<h1>Paramètres</h1>`
@@ -1137,6 +1109,8 @@ Nouvelle page accessible à tous les utilisateurs authentifiés depuis le menu u
 ## UX-DR29 — Onglet Notes avec iframe Trilium (Epic 7)
 
 L'onglet Notes (route `/notes`) affiche l'interface web Trilium dans une iframe pleine hauteur.
+
+**Maquettes Ember :** `08-notes-configure`, `08-notes-vide`. L'état « délai dépassé » n'a pas de maquette : structure inchangée, tokens Ember, validation à la revue.
 
 **État configuré (Notes ON + URL renseignée) :**
 - `<iframe src="{triliumUrl}" style="width:100%; height:calc(100vh - {topBarHeight}px); border:none;">`
@@ -1182,3 +1156,43 @@ Icône ⚙️ (`mat-icon-button`, `aria-label="Paramètres d'affichage"`) visibl
 - **Espacement vertical** : `MatSlider`, 8–48 px (pas 4 px), défaut 16 px
 
 Chaque modification met à jour la grid en temps réel via CSS custom properties. Le widget est masqué en mode édition et sur mobile (< 600 px). Les paramètres sont persistés dans `localStorage` (clé `links-grid-settings`) — par device, jamais synchronisés entre appareils.
+
+---
+
+## Motion et micro-interactions (Ember)
+
+> **Origine :** Sprint Change Proposal 2026-11-09 — UX-DR31.
+
+| Interaction | Spécification |
+|---|---|
+| Apparition des cartes | Fondu + `translateY(10px)` vers 0, cascade d'environ 60ms par carte, `cubic-bezier(.2,.7,.2,1)`, environ 500ms |
+| Survol de carte | `translateY(-3px)` + `--card-shadow` + anneau `0 0 0 1px var(--color-primary-soft)`, 200ms |
+| Survol de lien | Fond `--color-surface-2` + tick d'accent à gauche, `scaleY(0)` vers 1, 180ms |
+| Drag & drop | Fantôme `rotate(-3deg) scale(1.03)` + ombre forte ; zone cible `0 0 0 1px primary, 0 0 0 7px primary-soft` ; placeholder en pointillé accent |
+| Transitions génériques | 140 à 200ms, jamais plus de 250ms |
+| Réglage « Animations » (FR51) | Désactivé, les animations et transitions ci-dessus sont neutralisées et l'état final s'affiche directement |
+
+**Réglage « Animations » :** interrupteur dans `/settings`, carte « Affichage » sous la carte Notes. Activé par défaut. Il démarre désactivé seulement si le système demande de réduire les animations (`prefers-reduced-motion`) et que l'utilisateur n'a encore rien choisi. Une fois actionné, le choix de l'utilisateur prime. Persisté dans `localStorage`, par navigateur.
+
+## Références des maquettes Ember
+
+> **Origine :** Sprint Change Proposal 2026-11-09. Les maquettes sont la référence visuelle ; les arbitrages de la proposition priment sur les passations.
+
+**Desktop (Epic 9)** — `planning-artifacts/refonte-ember/` :
+
+| Story | Maquettes |
+|---|---|
+| 9.2 Coque | `23-confirm`, `24-user-menu` |
+| 9.3 Liens lecture | `01-main`, `02-alight`, `04-grid-settings`, `25-liens-vide` |
+| 9.4 Liens édition | `03-edit`, `18-link-dialog`, `19-category-dialog`, `20-icon-picker` |
+| 9.5 Recettes | `05-recipes`, `06-recipe-detail`, `17-recipe-editor`, `26-recettes-vide`, `27-recettes-sans-resultat` |
+| 9.6 Partage et vues publiques | `10-share`, `11-public-recipe`, `12-expired` |
+| 9.7 Notes, Paramètres, Admin, Login, Profil | `07-settings`, `08-notes-configure`, `08-notes-vide`, `09-admin`, `13-login`, `14-mdp-force`, `15-mdp-compte`, `16-profile`, `21a-user-form`, `21b-user-created`, `22a-reset-confirm`, `22b-reset-done` |
+
+Seules `02-alight`, `11-public-recipe` et `12-expired` sont en thème clair : les tokens clairs s'appliquent aux autres écrans.
+
+**Mobile (Epic 10)** — `planning-artifacts/refonte-ember/mobile/` : `m1-accueil`, `m2-recettes`, `m3-recipe-detail`, `m4-recipe-editor`, `m5-admin`, `m6-settings`, `m7-login`, `m8-public-recipe`. Les écarts de la passation mobile et les écrans sans maquette (Notes, Profil, dialogs) sont tranchés au lancement de l'Epic 10.
+
+**États sans maquette** (structure inchangée, tokens Ember, validation à la revue) : squelettes de chargement Liens et Recettes, délai dépassé Trilium, erreur générique de la vue publique, carte « Affichage » de `/settings`.
+
+**Catégorie de recette (`17-recipe-editor`) :** l'autocomplétion existante est conservée avec l'apparence de la maquette. La liste fermée dessinée n'est pas reprise, car elle empêcherait de créer une catégorie.
