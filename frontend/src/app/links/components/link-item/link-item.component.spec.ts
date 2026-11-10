@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { By } from '@angular/platform-browser';
-import { LinkItemComponent } from './link-item.component';
+import { LinkItemComponent, linkMonogram } from './link-item.component';
 import { Link } from '../../links.service';
 
 const mockLink: Link = {
@@ -40,11 +40,26 @@ describe('LinkItemComponent', () => {
     expect(img.nativeElement.getAttribute('src')).toBe('https://example.com/favicon.ico');
   });
 
-  it('affiche la lettre initiale si faviconUrl est absent', async () => {
+  it('affiche le monogramme si faviconUrl est absent', async () => {
     const { fixture } = await setup(mockLinkNoFavicon);
     const initial = fixture.debugElement.query(By.css('.link-initial'));
     expect(initial).toBeTruthy();
-    expect(initial.nativeElement.textContent.trim()).toBe('E');
+    expect(initial.nativeElement.textContent.trim()).toBe('EX');
+  });
+
+  it('recalcule le monogramme quand le lien change', async () => {
+    const { fixture } = await setup(mockLinkNoFavicon);
+    fixture.componentRef.setInput('link', { ...mockLinkNoFavicon, title: 'NBA Games' });
+    fixture.detectChanges();
+    const initial = fixture.debugElement.query(By.css('.link-initial'));
+    expect(initial.nativeElement.textContent.trim()).toBe('NG');
+  });
+
+  it('place le favicon dans la tuile, sans monogramme', async () => {
+    const { fixture } = await setup();
+    const tile = fixture.debugElement.query(By.css('.link-tile'));
+    expect(tile.query(By.css('.link-favicon'))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('.link-initial'))).toBeNull();
   });
 
   it('affiche la lettre initiale si le favicon renvoie une erreur', async () => {
@@ -108,5 +123,27 @@ describe('LinkItemComponent', () => {
     expect(fixture.debugElement.query(By.css('.link-actions'))).toBeTruthy();
     const handle = fixture.debugElement.query(By.css('.drag-handle'));
     expect(handle.nativeElement.style.visibility).toBe('visible');
+  });
+});
+
+describe('linkMonogram()', () => {
+  it.each([
+    ['Conventional Commits', 'CC'],
+    ['WeProject.Synapture', 'WS'],
+    ['NBA Games', 'NG'],
+    ['my-site_web', 'MS'],
+    ['GitHub', 'GI'],
+    ['O2switch', 'O2'],
+    ['eDocPerso', 'ED'],
+    ['X', 'X'],
+    ['  ', '?'],
+    ['', '?'],
+    ['🍕 Pizza', '🍕P'],
+    ['🇫🇷 France', '🇫🇷F'],
+    ['👨‍👩‍👧 Famille', '👨‍👩‍👧F'],
+    ['e\u0301cole', 'E\u0301C'],
+    ['ßtudio', 'SS'],
+  ])('« %s » donne « %s »', (title, expected) => {
+    expect(linkMonogram(title)).toBe(expected);
   });
 });

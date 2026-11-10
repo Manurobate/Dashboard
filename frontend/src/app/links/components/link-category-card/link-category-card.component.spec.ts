@@ -49,6 +49,32 @@ describe('LinkCategoryCardComponent', () => {
     expect(nameEl.nativeElement.textContent.trim()).toBe('Dev');
   });
 
+  it('affiche le nombre de liens de la catégorie', async () => {
+    const { fixture } = await setup(false, [mockLink, { ...mockLink, id: 11 }]);
+    const count = fixture.debugElement.query(By.css('.category-count'));
+    expect(count.nativeElement.textContent.trim()).toBe('2 lien(s)');
+    expect(count.query(By.css('.visually-hidden')).nativeElement.textContent.trim()).toBe(
+      'lien(s)',
+    );
+  });
+
+  it('pose la classe edit-mode sur la carte seulement en édition (coupe le survol)', async () => {
+    const { fixture } = await setup(false);
+    const card = fixture.debugElement.query(By.css('.category-card'));
+    expect(card.nativeElement.classList).not.toContain('edit-mode');
+    fixture.componentRef.setInput('editMode', true);
+    fixture.detectChanges();
+    expect(card.nativeElement.classList).toContain('edit-mode');
+  });
+
+  it("place l'icône dans sa tuile et n'affiche pas de chevron", async () => {
+    const { fixture } = await setup();
+    const tile = fixture.debugElement.query(By.css('.category-icon-tile'));
+    expect(tile.query(By.css('.category-icon'))).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('expand_less');
+    expect(fixture.debugElement.queryAll(By.css('button')).length).toBe(0);
+  });
+
   it("affiche l'icône Material de la catégorie", async () => {
     const { fixture } = await setup();
     const iconEl = fixture.debugElement.query(By.css('.category-icon'));

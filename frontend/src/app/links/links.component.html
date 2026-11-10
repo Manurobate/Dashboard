@@ -1,5 +1,6 @@
-<h1 class="page-title">
-  Dashboard de {{ authService.currentUser()?.name || authService.currentUser()?.username }}
+<h1 class="visually-hidden">
+  Dashboard de
+  {{ authService.currentUser()?.name?.trim() || authService.currentUser()?.username }}
 </h1>
 <div class="links-page">
   @if (linkCategoriesService.isLoading()) {
@@ -24,7 +25,7 @@
     !linkCategoriesService.error()
   ) {
     <div class="empty-state">
-      <mat-icon class="empty-icon">link_off</mat-icon>
+      <mat-icon class="empty-icon" aria-hidden="true">link_off</mat-icon>
       <p class="empty-message">Aucun lien pour l'instant</p>
       <button mat-stroked-button (click)="openAddCategoryDialog()" class="empty-cta">
         <mat-icon>add</mat-icon>
@@ -33,7 +34,21 @@
     </div>
   } @else {
     <div class="links-inner">
-      <div class="header-actions">
+      <div class="header-actions" [class.read-mode]="!editMode()">
+        @if (!editMode()) {
+          <!-- Affordance seule (FR50) : champ désactivé, aucune logique ni raccourci -->
+          <div class="search-bar">
+            <mat-icon class="search-icon" aria-hidden="true">search</mat-icon>
+            <input
+              type="search"
+              class="search-input"
+              placeholder="Rechercher un lien, une recette…"
+              aria-label="Rechercher un lien, une recette…"
+              disabled
+            />
+            <kbd class="search-kbd" aria-hidden="true">⌘K</kbd>
+          </div>
+        }
         @if (editMode()) {
           <button mat-button color="primary" (click)="openAddCategoryDialog()">
             <mat-icon>add</mat-icon>
@@ -43,6 +58,7 @@
         @if (!editMode() && !isSmallScreen()) {
           <button
             mat-icon-button
+            class="grid-settings-btn"
             [matMenuTriggerFor]="gridSettingsMenu"
             aria-label="Paramètres d'affichage"
           >
@@ -50,7 +66,7 @@
           </button>
         }
         <button
-          mat-stroked-button
+          mat-flat-button
           (click)="toggleEditMode()"
           class="toggle-edit-btn"
           [attr.aria-pressed]="editMode()"
@@ -61,13 +77,17 @@
         </button>
       </div>
 
-      <mat-menu #gridSettingsMenu="matMenu">
+      <mat-menu
+        #gridSettingsMenu="matMenu"
+        class="ember-menu grid-settings-menu"
+        xPosition="before"
+      >
         <div class="grid-settings-panel" (click)="$event.stopPropagation()">
+          <p class="panel-title">Affichage de la grille</p>
+
           <div class="setting-row">
-            <span class="setting-label"
-              >Colonnes : {{ gridSettingsService.gridSettings().columns }}</span
-            >
-            <div class="stepper-controls">
+            <span class="setting-label">Nombre de colonnes</span>
+            <div class="stepper">
               <button
                 mat-icon-button
                 (click)="adjustColumns(-1)"
@@ -76,6 +96,9 @@
               >
                 <mat-icon>remove</mat-icon>
               </button>
+              <span class="stepper-value" aria-live="polite">{{
+                gridSettingsService.gridSettings().columns
+              }}</span>
               <button
                 mat-icon-button
                 (click)="adjustColumns(1)"
@@ -88,12 +111,16 @@
           </div>
 
           <div class="setting-row">
-            <span class="setting-label"
-              >Largeur : {{ gridSettingsService.gridSettings().cardWidth }}px</span
-            >
-            <mat-slider min="200" max="600" step="10" discrete>
+            <div class="setting-head">
+              <span class="setting-label">Largeur des cards</span>
+              <span class="setting-value"
+                >{{ gridSettingsService.gridSettings().cardWidth }} px</span
+              >
+            </div>
+            <mat-slider min="200" max="600" step="10">
               <input
                 matSliderThumb
+                aria-label="Largeur des cards"
                 [value]="gridSettingsService.gridSettings().cardWidth"
                 (valueChange)="updateCardWidth($event)"
               />
@@ -101,12 +128,14 @@
           </div>
 
           <div class="setting-row">
-            <span class="setting-label"
-              >Espacement H : {{ gridSettingsService.gridSettings().gapH }}px</span
-            >
-            <mat-slider min="8" max="48" step="4" discrete>
+            <div class="setting-head">
+              <span class="setting-label">Espacement horizontal</span>
+              <span class="setting-value">{{ gridSettingsService.gridSettings().gapH }} px</span>
+            </div>
+            <mat-slider min="8" max="48" step="4">
               <input
                 matSliderThumb
+                aria-label="Espacement horizontal"
                 [value]="gridSettingsService.gridSettings().gapH"
                 (valueChange)="updateGapH($event)"
               />
@@ -114,17 +143,24 @@
           </div>
 
           <div class="setting-row">
-            <span class="setting-label"
-              >Espacement V : {{ gridSettingsService.gridSettings().gapV }}px</span
-            >
-            <mat-slider min="8" max="48" step="4" discrete>
+            <div class="setting-head">
+              <span class="setting-label">Espacement vertical</span>
+              <span class="setting-value">{{ gridSettingsService.gridSettings().gapV }} px</span>
+            </div>
+            <mat-slider min="8" max="48" step="4">
               <input
                 matSliderThumb
+                aria-label="Espacement vertical"
                 [value]="gridSettingsService.gridSettings().gapV"
                 (valueChange)="updateGapV($event)"
               />
             </mat-slider>
           </div>
+
+          <p class="panel-footer">
+            <mat-icon aria-hidden="true">check</mat-icon>
+            Enregistré sur cet appareil
+          </p>
         </div>
       </mat-menu>
 
@@ -134,9 +170,10 @@
         class="category-list"
         [class.edit-mode]="editMode()"
       >
-        @for (cat of linkCategoriesService.categories(); track cat.id) {
+        @for (cat of linkCategoriesService.categories(); track cat.id; let i = $index) {
           <app-link-category-card
             cdkDrag
+            [style.--card-index]="i"
             [cdkDragDisabled]="!editMode()"
             [category]="cat"
             [links]="linksForCategory(cat.id)"
