@@ -354,3 +354,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/9-3-liens-lecture.md`
   summary: Tester les valeurs affichées du widget grille (`.setting-value` : largeur, espacements H et V) après ouverture du panneau et après un `valueChange`.
   evidence: Depuis 9.3 la valeur des curseurs n'apparaît plus que dans ces `span` (`discrete` retiré) ; aucun test unitaire n'ouvre le menu et l'E2E `links-grid-settings.spec.ts` ne lit que la première ligne (colonnes).
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: Personnaliser l'icône des catégories de recettes, aujourd'hui une icône générique `restaurant` dans les en-têtes de groupe de la liste (les recettes affichent leur photo si elle existe).
+  evidence: La maquette `05-recipes` montre une icône par catégorie et par recette, mais aucune n'existe en base ; Manu a retenu l'icône générique en 9.5 (Q3, 2026-11-11) et repoussé la personnalisation.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: Remplacer les lignes de recette `div role="link" tabindex="0"` de la liste par de vrais liens `<a>` (clic du milieu, « ouvrir dans un nouvel onglet »).
+  evidence: Balisage hérité de la story 5.2 et conservé tel quel en 9.5 (refonte visuelle sans changement fonctionnel) ; signalé par la revue de 9.5.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: En modification, ramener « Retour » et « Annuler » de l'éditeur vers le détail de la recette plutôt que vers la liste.
+  evidence: Les deux boutons pointent sur `/recipes` depuis la story 5.3, y compris en modification ; comportement inchangé en 9.5, signalé par la revue.

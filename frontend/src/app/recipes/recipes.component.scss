@@ -1,109 +1,94 @@
+// Liste des recettes (maquettes 05, 26, 27) ; tuiles et pastilles partagées dans styles.scss
 .recipes-page {
-  padding: 16px;
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
+  padding: 16px;
+
+  @media (min-width: 768px) {
+    padding: 32px 40px;
+  }
 }
 
 .page-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
-.search-field {
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.categories-accordion {
-  display: block;
-}
-
-.recipe-list-in-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.recipe-item {
+.search-box {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--mat-sys-surface-variant);
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  min-height: 48px;
-
-  &:hover {
-    background: var(--mat-sys-surface-container-high);
-  }
-}
-
-.recipe-title {
-  font-weight: 500;
-}
-
-.recipe-servings {
-  font-size: 12px;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.recipe-category-badge {
-  font-size: 12px;
-  padding: 2px 8px;
+  gap: 10px;
+  padding: 0 6px 0 16px;
   border-radius: 12px;
-  background: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
-}
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  color: var(--color-text-secondary);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 
-.skeleton-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
 
-.skeleton-card {
-  height: 56px;
-  border-radius: 8px;
-  background: linear-gradient(
-    90deg,
-    var(--mat-sys-surface-variant) 25%,
-    var(--mat-sys-outline-variant) 50%,
-    var(--mat-sys-surface-variant) 75%
-  );
-  background-size: 800px 100%;
-  animation: skeleton-shimmer 1.5s infinite linear;
+  .search-input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-text-primary);
 
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
+    &::placeholder {
+      color: var(--color-text-secondary);
+      opacity: 1;
+    }
+  }
+
+  .search-icon {
+    flex-shrink: 0;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .search-clear {
+    color: var(--color-text-secondary);
   }
 }
 
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: -400px 0;
-  }
-  100% {
-    background-position: 400px 0;
-  }
+.new-recipe-btn,
+.empty-cta {
+  flex-shrink: 0;
+  height: 46px;
+  padding: 0 22px;
+  font-size: 15px;
+  --mat-button-filled-container-shape: 999px;
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 16px;
-  color: var(--mat-sys-on-surface-variant);
+  gap: 16px;
+  padding: 96px 16px;
+  color: var(--color-text-secondary);
 
   .empty-icon {
     font-size: 48px;
     width: 48px;
     height: 48px;
-    opacity: 0.6;
   }
 
   .empty-message {
@@ -113,18 +98,85 @@
 }
 
 .no-results {
+  margin: 0;
   text-align: center;
-  padding: 32px 16px;
-  color: var(--mat-sys-on-surface-variant);
+  padding: 72px 16px;
+  font-size: 16px;
+  color: var(--color-text-secondary);
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+.categories-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.results-card {
+  padding: 8px 20px 20px;
+}
+
+.recipe-category-badge {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+}
+
+// ── Squelettes : structure inchangée, tokens Ember (A14) ──
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeleton-card {
+  height: 72px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+}
+
+.skeleton-line {
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-divider) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-color: var(--color-surface-2);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.skeleton-tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+.skeleton-title {
+  width: 180px;
+  height: 16px;
 }

@@ -1,6 +1,6 @@
 <div class="recipe-editor">
   <div class="editor-header">
-    <button mat-icon-button routerLink="/recipes" aria-label="Retour à la liste">
+    <button mat-icon-button class="back-btn" routerLink="/recipes" aria-label="Retour à la liste">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h1 class="editor-title">{{ isEditMode() ? 'Modifier la recette' : 'Nouvelle recette' }}</h1>
@@ -12,52 +12,68 @@
     </div>
   } @else {
     <form [formGroup]="form" (ngSubmit)="submit()" class="editor-form" novalidate>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Titre</mat-label>
-        <input matInput formControlName="title" maxlength="255" />
-        @if (form.get('title')?.hasError('required')) {
-          <mat-error>Le titre est obligatoire</mat-error>
-        }
-      </mat-form-field>
-
-      <div class="row-two-cols">
-        <mat-form-field appearance="outline">
-          <mat-label>Catégorie</mat-label>
-          <input
-            matInput
-            formControlName="category"
-            placeholder="Ex : Desserts, Plats…"
-            maxlength="100"
-            [matAutocomplete]="categoryAuto"
-            (input)="categoryQuery.set($any($event.target).value)"
-          />
-          <mat-autocomplete
-            #categoryAuto
-            autoActiveFirstOption
-            (optionSelected)="categoryQuery.set('')"
-          >
-            @for (cat of filteredCategories(); track cat.id) {
-              <mat-option [value]="cat.name">{{ cat.name }}</mat-option>
-            }
-          </mat-autocomplete>
-          @if (form.get('category')?.hasError('required')) {
-            <mat-error>La catégorie est obligatoire</mat-error>
+      <div class="form-row">
+        <label class="field-label" for="recipe-title"
+          >Titre<span class="field-required" aria-hidden="true">*</span></label
+        >
+        <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+          <input matInput id="recipe-title" formControlName="title" maxlength="255" />
+          @if (form.get('title')?.hasError('required')) {
+            <mat-error>Le titre est obligatoire</mat-error>
           }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Convives</mat-label>
-          <input matInput type="number" formControlName="servings" min="1" />
         </mat-form-field>
       </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Image URL</mat-label>
-        <input matInput formControlName="imageUrl" placeholder="https://…" />
-        @if (form.get('imageUrl')?.hasError('url')) {
-          <mat-error>URL invalide</mat-error>
-        }
-        <mat-hint>Optionnel — URL publique d'une image pour la recette</mat-hint>
-      </mat-form-field>
+      <div class="row-two-cols">
+        <div class="form-row">
+          <label class="field-label" for="recipe-category"
+            >Catégorie<span class="field-required" aria-hidden="true">*</span></label
+          >
+          <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+            <input
+              matInput
+              id="recipe-category"
+              formControlName="category"
+              placeholder="Ex : Desserts, Plats…"
+              maxlength="100"
+              [matAutocomplete]="categoryAuto"
+              (input)="categoryQuery.set($any($event.target).value)"
+            />
+            <mat-icon matSuffix aria-hidden="true">expand_more</mat-icon>
+            <mat-autocomplete
+              #categoryAuto
+              autoActiveFirstOption
+              (optionSelected)="categoryQuery.set('')"
+            >
+              @for (cat of filteredCategories(); track cat.id) {
+                <mat-option [value]="cat.name">{{ cat.name }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (form.get('category')?.hasError('required')) {
+              <mat-error>La catégorie est obligatoire</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <label class="field-label" for="recipe-servings"
+            >Convives<span class="field-required" aria-hidden="true">*</span></label
+          >
+          <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+            <input matInput id="recipe-servings" type="number" formControlName="servings" min="1" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="field-label" for="recipe-image">Image URL</label>
+        <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+          <input matInput id="recipe-image" formControlName="imageUrl" placeholder="https://…" />
+          @if (form.get('imageUrl')?.hasError('url')) {
+            <mat-error>URL invalide</mat-error>
+          }
+          <mat-hint>Optionnel — URL publique d'une image pour la recette</mat-hint>
+        </mat-form-field>
+      </div>
 
       <section class="section-avant-propos" aria-label="Avant-propos">
         <h2 class="section-title">
@@ -93,7 +109,7 @@
         </button>
       </section>
 
-      <mat-divider class="section-divider"></mat-divider>
+      <hr class="section-divider" />
 
       <section class="section-steps" aria-label="Étapes">
         <h2 class="section-title">Étapes</h2>
@@ -110,18 +126,20 @@
                 [formControl]="$any(ctrl.get('content'))"
                 class="step-editor"
               ></app-markdown-light-editor>
-              <button
-                type="button"
-                mat-icon-button
-                color="warn"
-                (click)="removeStep(i)"
-                aria-label="Supprimer cette étape"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-              <mat-icon cdkDragHandle class="drag-handle" aria-hidden="true"
-                >drag_indicator</mat-icon
-              >
+              <div class="step-tools">
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="delete-btn"
+                  (click)="removeStep(i)"
+                  aria-label="Supprimer cette étape"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <mat-icon cdkDragHandle class="drag-handle" aria-hidden="true"
+                  >drag_indicator</mat-icon
+                >
+              </div>
             </div>
           }
         </div>
@@ -131,10 +149,10 @@
       </section>
 
       <div class="form-actions">
-        <button mat-button type="button" routerLink="/recipes">Annuler</button>
+        <button mat-button type="button" class="cancel-btn" routerLink="/recipes">Annuler</button>
         <button
           mat-flat-button
-          color="primary"
+          class="submit-btn"
           type="submit"
           [disabled]="form.invalid || isSubmitting()"
         >
