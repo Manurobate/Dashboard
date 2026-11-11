@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+import { DisplaySettingsComponent } from './display-settings/display-settings.component';
 import { NotesSettingsComponent } from './notes-settings/notes-settings.component';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule, NotesSettingsComponent],
+  imports: [NotesSettingsComponent, DisplaySettingsComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

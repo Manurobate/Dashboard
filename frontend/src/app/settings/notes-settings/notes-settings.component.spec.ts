@@ -67,6 +67,37 @@ describe('NotesSettingsComponent', () => {
     expect(component.form.controls.triliumUrl.value).toBe('https://trilium.example.fr');
   });
 
+  it('carte 07 : en-tête « Notes » en heading, description et interrupteur nommé', () => {
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('h2.settings-card-title')?.textContent?.trim()).toBe('Notes');
+    expect(el.querySelector('.settings-card-icon mat-icon')?.textContent?.trim()).toBe(
+      'description',
+    );
+    const toggle = el.querySelector('button[role="switch"]') as HTMLButtonElement;
+    expect(toggle.getAttribute('aria-labelledby')).toBe('notes-enabled-label');
+    const label = el.querySelector('#notes-enabled-label') as HTMLLabelElement;
+    expect(label.textContent?.trim()).toBe('Activer les Notes');
+    expect(label.htmlFor).toBe(toggle.id);
+    expect(el.querySelector('#notes-enabled-description')?.textContent?.trim()).toBe(
+      "Affiche l'onglet Notes dans la navigation.",
+    );
+  });
+
+  it('URL reliée à son label existant, boutons avec icônes sync et save', () => {
+    fixture.detectChanges();
+    component.form.controls.notesEnabled.setValue(true);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const url = el.querySelector('input[formcontrolname="triliumUrl"]') as HTMLInputElement;
+    expect(url.labels?.[0]?.textContent?.trim()).toBe('URL instance Trilium');
+    const test = el.querySelector('button[mat-stroked-button]') as HTMLElement;
+    expect(test.querySelector('mat-icon')?.textContent?.trim()).toBe('sync');
+    const save = el.querySelector('button[type="submit"]') as HTMLElement;
+    expect(save.querySelector('mat-icon')?.textContent?.trim()).toBe('save');
+    expect(save.getAttribute('color')).toBeNull();
+  });
+
   it('masque le champ URL quand notesEnabled est false', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;

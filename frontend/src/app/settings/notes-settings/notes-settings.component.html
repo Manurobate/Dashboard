@@ -1,62 +1,100 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="notes-settings">
-  <h3>Notes</h3>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="settings-card notes-settings">
+  <div class="settings-card-header">
+    <span class="settings-card-icon" aria-hidden="true">
+      <mat-icon>description</mat-icon>
+    </span>
+    <div>
+      <h2 class="settings-card-title">Notes</h2>
+      <p class="settings-card-description">Intégrez votre instance Trilium Notes dans Dashboard.</p>
+    </div>
+  </div>
 
-  <mat-slide-toggle formControlName="notesEnabled">Activer les Notes</mat-slide-toggle>
-
-  @if (form.controls.notesEnabled.value) {
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>URL instance Trilium</mat-label>
-      <input
-        matInput
-        formControlName="triliumUrl"
-        placeholder="https://trilium.monserveur.fr"
-        autocomplete="url"
+  <div class="settings-card-body">
+    <!-- mat-slide-toggle nomme son bouton interne « {id}-button » : cible du label visible -->
+    <div class="settings-row">
+      <div>
+        <label class="settings-row-label" id="notes-enabled-label" for="notes-enabled-button"
+          >Activer les Notes</label
+        >
+        <p class="settings-row-description" id="notes-enabled-description">
+          Affiche l'onglet Notes dans la navigation.
+        </p>
+      </div>
+      <mat-slide-toggle
+        id="notes-enabled"
+        class="ember-toggle"
+        formControlName="notesEnabled"
+        hideIcon
+        aria-labelledby="notes-enabled-label"
+        aria-describedby="notes-enabled-description"
       />
-    </mat-form-field>
+    </div>
 
-    <div class="test-connection">
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="onTest()"
-        [disabled]="!canTest()"
-        [attr.aria-busy]="isTesting()"
-      >
-        @if (isTesting()) {
-          <mat-progress-spinner
-            diameter="20"
-            mode="indeterminate"
-            aria-label="Test de connexion en cours"
-          />
+    @if (form.controls.notesEnabled.value) {
+      <hr class="settings-divider" />
+
+      <label class="field-label" for="trilium-url">URL instance Trilium</label>
+      <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+        <input
+          matInput
+          id="trilium-url"
+          formControlName="triliumUrl"
+          placeholder="https://trilium.monserveur.fr"
+          autocomplete="url"
+        />
+      </mat-form-field>
+
+      <div class="test-connection">
+        <button
+          mat-stroked-button
+          class="ember-btn test-btn"
+          type="button"
+          (click)="onTest()"
+          [disabled]="!canTest()"
+          [attr.aria-busy]="isTesting()"
+        >
+          @if (isTesting()) {
+            <mat-progress-spinner
+              diameter="20"
+              mode="indeterminate"
+              aria-label="Test de connexion en cours"
+            />
+          } @else {
+            <span class="btn-content">
+              <mat-icon aria-hidden="true">sync</mat-icon>
+              Tester la connexion
+            </span>
+          }
+        </button>
+
+        <div role="status" aria-live="polite">
+          @if (testResult() === 'success') {
+            <span class="test-result success">
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              Instance accessible
+            </span>
+          }
+          @if (testResult() === 'error') {
+            <span class="test-result error">
+              <mat-icon aria-hidden="true">cancel</mat-icon>
+              Instance inaccessible — vérifiez l'URL
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="actions">
+      <button mat-flat-button class="ember-btn" type="submit" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <mat-progress-spinner diameter="20" mode="indeterminate" />
         } @else {
-          Tester la connexion
+          <span class="btn-content">
+            <mat-icon aria-hidden="true">save</mat-icon>
+            Sauvegarder
+          </span>
         }
       </button>
-
-      <div role="status" aria-live="polite">
-        @if (testResult() === 'success') {
-          <span class="test-result success">
-            <mat-icon aria-hidden="true">check_circle</mat-icon>
-            Instance accessible
-          </span>
-        }
-        @if (testResult() === 'error') {
-          <span class="test-result error">
-            <mat-icon aria-hidden="true">cancel</mat-icon>
-            Instance inaccessible — vérifiez l'URL
-          </span>
-        }
-      </div>
     </div>
-  }
-
-  <div class="actions">
-    <button mat-flat-button color="primary" type="submit" [disabled]="isLoading()">
-      @if (isLoading()) {
-        <mat-progress-spinner diameter="20" mode="indeterminate" />
-      } @else {
-        Sauvegarder
-      }
-    </button>
   </div>
 </form>

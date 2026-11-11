@@ -63,10 +63,6 @@
     border-color: var(--color-primary);
     color: var(--color-primary);
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
 }
 
 .no-result {
