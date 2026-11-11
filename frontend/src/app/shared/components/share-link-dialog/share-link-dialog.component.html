@@ -1,11 +1,29 @@
-<h2 mat-dialog-title>Partager « {{ data.resourceLabel }} »</h2>
+<header class="share-header">
+  <span class="share-tile" aria-hidden="true"><mat-icon>share</mat-icon></span>
+  <div class="share-heading">
+    <h2 mat-dialog-title>
+      {{ dialogTitle }}<span class="visually-hidden"> « {{ data.resourceLabel }} »</span>
+    </h2>
+    <p class="share-subtitle">{{ data.resourceLabel }}</p>
+  </div>
+  <button
+    mat-icon-button
+    type="button"
+    class="close-btn"
+    aria-label="Fermer"
+    [disabled]="state() === 'generating'"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
 
 <mat-dialog-content>
   @if (state() === 'idle') {
-    <p class="share-intro">Choisissez la durée de validité du lien de partage :</p>
+    <p class="share-label" id="share-expires-label">Durée de validité</p>
     <mat-radio-group
       class="expires-group"
-      aria-label="Durée d'expiration"
+      aria-labelledby="share-expires-label"
       [value]="selectedExpiresIn()"
       (change)="onExpiresInChange($event.value)"
     >
@@ -17,55 +35,69 @@
 
   @if (state() === 'generating') {
     <div class="generating-state" role="status" aria-busy="true">
-      <mat-spinner diameter="32"></mat-spinner>
+      <mat-spinner diameter="28"></mat-spinner>
       <span>Génération du lien...</span>
     </div>
   }
 
   @if (state() === 'link-ready') {
-    <p>Ce lien donne un accès public en lecture seule à la recette :</p>
+    <label class="share-label" for="share-link-value">{{ linkLabel() }}</label>
     <div class="share-link-box">
       <input
+        id="share-link-value"
         class="share-link-value"
         type="text"
         readonly
         [value]="shareUrl()"
-        aria-label="Lien de partage"
       />
-      <button mat-icon-button aria-label="Copier le lien" (click)="copyLink()">
+      <button
+        mat-flat-button
+        type="button"
+        class="copy-btn"
+        aria-label="Copier le lien"
+        (click)="copyLink()"
+      >
         <mat-icon>content_copy</mat-icon>
+        Copier
       </button>
     </div>
-    @if (currentToken(); as token) {
-      <p class="share-status">
-        <mat-icon inline="true">lock</mat-icon>
-        Lien actif — {{ formatExpiration(token) }}
-      </p>
-    }
+    <div class="share-footer">
+      <span class="share-status">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        Lien actif
+      </span>
+      <button mat-stroked-button type="button" class="regenerate-btn" (click)="regenerate()">
+        <mat-icon>refresh</mat-icon>
+        Régénérer
+      </button>
+      <button mat-stroked-button type="button" class="revoke-btn" (click)="revoke()">
+        <mat-icon>delete</mat-icon>
+        Révoquer
+      </button>
+    </div>
   }
 
   @if (state() === 'revoked') {
     <p class="share-revoked">
-      <mat-icon inline="true">link_off</mat-icon>
+      <mat-icon aria-hidden="true">link_off</mat-icon>
       Lien révoqué. Il n'est plus accessible aux visiteurs.
     </p>
   }
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  @if (state() === 'idle') {
-    <button mat-button (click)="close()">Annuler</button>
-    <button mat-flat-button color="primary" (click)="generate()">Générer le lien</button>
-  }
-  @if (state() === 'generating') {
-    <button mat-button disabled>Génération...</button>
-  }
-  @if (state() === 'link-ready') {
-    <button mat-button (click)="regenerate()">Régénérer</button>
-    <button mat-button color="warn" (click)="revoke()">Révoquer</button>
-    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
-  }
-  @if (state() === 'revoked') {
-    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
-  }
-</mat-dialog-actions>
+@if (state() === 'idle' || state() === 'generating' || state() === 'revoked') {
+  <mat-dialog-actions align="end">
+    @if (state() === 'idle') {
+      <button mat-button type="button" class="cancel-btn" (click)="close()">Annuler</button>
+      <button mat-flat-button type="button" class="pill-btn" (click)="generate()">
+        Générer le lien
+      </button>
+    }
+    @if (state() === 'generating') {
+      <button mat-flat-button type="button" class="pill-btn" disabled>Génération...</button>
+    }
+    @if (state() === 'revoked') {
+      <button mat-flat-button type="button" class="pill-btn" (click)="close()">Fermer</button>
+    }
+  </mat-dialog-actions>
+}

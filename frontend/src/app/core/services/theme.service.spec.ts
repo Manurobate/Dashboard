@@ -63,4 +63,44 @@ describe('ThemeService', () => {
     expect(mockDocument.body.classList.contains('dark-theme')).toBe(false);
     expect(mockDocument.defaultView!.localStorage.setItem).toHaveBeenCalledWith('theme', 'light');
   });
+
+  describe('forçage du clair (vue publique, story 9.6)', () => {
+    beforeEach(() => {
+      (mockDocument.defaultView!.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+        'dark',
+      );
+      service = TestBed.inject(ThemeService);
+    });
+
+    it('forceLight() affiche le clair, met isDark() à false et ne persiste rien', () => {
+      service.forceLight();
+      expect(service.isDark()).toBe(false);
+      expect(mockDocument.body.classList.contains('dark-theme')).toBe(false);
+      expect(mockDocument.defaultView!.localStorage.setItem).not.toHaveBeenCalled();
+    });
+
+    it('restorePreference() réapplique la préférence mémorisée', () => {
+      service.forceLight();
+      service.restorePreference();
+      expect(service.isDark()).toBe(true);
+      expect(mockDocument.body.classList.contains('dark-theme')).toBe(true);
+    });
+
+    it('un clic pendant le forçage bascule depuis le thème affiché et le mémorise', () => {
+      service.forceLight();
+      service.toggle();
+      expect(service.isDark()).toBe(true);
+      expect(mockDocument.defaultView!.localStorage.setItem).toHaveBeenCalledWith('theme', 'dark');
+      service.restorePreference();
+      expect(service.isDark()).toBe(true);
+    });
+
+    it('après un retour au clair pendant le forçage, la préférence restaurée est le clair', () => {
+      service.forceLight();
+      service.toggle();
+      service.toggle();
+      service.restorePreference();
+      expect(service.isDark()).toBe(false);
+    });
+  });
 });

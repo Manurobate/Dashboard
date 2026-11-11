@@ -17,6 +17,22 @@
   color: var(--color-text-primary);
 }
 
+:host(.public-view) {
+  .top-bar {
+    height: 56px;
+  }
+
+  .app-title {
+    gap: 8px;
+    color: var(--color-text-secondary);
+  }
+
+  .app-icon {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 .app-title {
   display: flex;
   align-items: center;

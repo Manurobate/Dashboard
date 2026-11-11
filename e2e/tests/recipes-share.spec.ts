@@ -55,8 +55,8 @@ test('AC2/AC3 — Générer un lien affiche le snackbar de copie et le badge « 
     await expect(page.locator('mat-snack-bar-container')).toContainText('Lien copié');
     await expect(page.locator('.share-link-value')).toHaveValue(/\/share\//);
 
-    // Fermer le dialog → le badge apparaît dans le header (refreshShareStatus)
-    await page.click('mat-dialog-container button:has-text("Fermer")');
+    // Fermer le dialog (croix de l'en-tête, story 9.6) → le badge apparaît dans le header
+    await page.click('mat-dialog-container button[aria-label="Fermer"]');
     await expect(page.locator('mat-dialog-container')).not.toBeVisible();
     await expect(page.locator('.share-badge')).toContainText('Partagé');
   } finally {

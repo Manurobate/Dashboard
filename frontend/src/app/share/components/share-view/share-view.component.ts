@@ -11,9 +11,8 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DOCUMENT, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { Meta } from '@angular/platform-browser';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { SharingService, PublicRecipeView } from '../../../shared/services/sharing.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -26,13 +25,7 @@ type ShareError = 'gone' | 'transient';
   selector: 'app-share-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DecimalPipe,
-    MatProgressSpinnerModule,
-    MatButtonModule,
-    ConvivesSteppperComponent,
-    MarkdownLightPipe,
-  ],
+  imports: [DecimalPipe, MatButtonModule, ConvivesSteppperComponent, MarkdownLightPipe],
   templateUrl: './share-view.component.html',
   styleUrls: ['./share-view.component.scss'],
 })
@@ -41,11 +34,13 @@ export class ShareViewComponent implements OnInit, OnDestroy {
   private readonly sharingService = inject(SharingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly meta = inject(Meta);
-  private readonly doc = inject(DOCUMENT);
   private readonly themeService = inject(ThemeService);
 
   private token: string | null = null;
   private inFlight = false;
+
+  /** Dépôt du projet, lié depuis « via Dashboard » (lien externe, aucune navigation interne). */
+  readonly projectUrl = 'https://github.com/Manurobate/Dashboard';
 
   readonly isLoading = signal(true);
   readonly recipe = signal<PublicRecipeView | null>(null);
@@ -64,7 +59,7 @@ export class ShareViewComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.meta.addTag({ name: 'robots', content: 'noindex' });
-    this.doc.body.classList.remove('dark-theme');
+    this.themeService.forceLight();
   }
 
   ngOnInit(): void {
@@ -110,6 +105,6 @@ export class ShareViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.meta.removeTag("name='robots'");
-    this.doc.body.classList.toggle('dark-theme', this.themeService.isDark());
+    this.themeService.restorePreference();
   }
 }
