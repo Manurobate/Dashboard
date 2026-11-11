@@ -9,10 +9,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RecipesService } from './recipes.service';
@@ -21,14 +20,7 @@ import { RecipesService } from './recipes.service';
   selector: 'app-recipes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [NgTemplateOutlet, RouterModule, MatExpansionModule, MatIconModule, MatButtonModule],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.scss',
 })
@@ -39,6 +31,8 @@ export class RecipesComponent implements OnInit {
   private readonly searchSubject = new Subject<string>();
 
   readonly searchQuery = signal('');
+  /** Ids des recettes dont la miniature n'a pas pu être chargée (repli sur l'icône). */
+  readonly brokenImages = signal<ReadonlySet<number>>(new Set());
 
   readonly categorizedRecipes = computed(() => {
     const map = new Map<string, ReturnType<typeof this.recipesService.recipes>[number][]>();
@@ -83,6 +77,14 @@ export class RecipesComponent implements OnInit {
   clearSearch(): void {
     this.searchQuery.set('');
     this.searchSubject.next('');
+  }
+
+  countLabel(count: number): string {
+    return `${count} recette${count > 1 ? 's' : ''}`;
+  }
+
+  onThumbError(id: number): void {
+    this.brokenImages.update((ids) => new Set(ids).add(id));
   }
 
   navigateToRecipe(id: number): void {

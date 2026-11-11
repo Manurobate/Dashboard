@@ -485,6 +485,15 @@ html {
     resize: vertical;
   }
 
+  .mat-mdc-form-field-hint {
+    color: var(--color-text-secondary);
+  }
+
+  .mat-mdc-form-field-hint-wrapper,
+  .mat-mdc-form-field-error-wrapper {
+    padding: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .mat-mdc-text-field-wrapper {
       transition: none;
@@ -494,6 +503,179 @@ html {
 
 .cdk-overlay-dark-backdrop {
   background-color: rgba(0, 0, 0, 0.55);
+}
+
+// ── Recettes (maquettes 05, 06, 17) : cartes de groupe, grille, tuiles, pastilles ──
+// Hors composants pour leur budget de style ; pastilles réutilisables par la vue publique (9.6)
+.recipe-group,
+.categories-accordion.mat-accordion .mat-expansion-panel.recipe-group {
+  --mat-expansion-container-background-color: var(--color-surface);
+  --mat-expansion-container-text-color: var(--color-text-primary);
+  --mat-expansion-header-text-color: var(--color-text-primary);
+  --mat-expansion-header-text-size: 17px;
+  --mat-expansion-header-text-weight: 600;
+  --mat-expansion-header-text-tracking: normal;
+  --mat-expansion-container-text-tracking: normal;
+  --mat-expansion-header-hover-state-layer-color: var(--color-surface-2);
+  --mat-expansion-header-focus-state-layer-color: var(--color-primary-soft);
+  display: block;
+  margin: 0;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  box-shadow: none;
+
+  .mat-expansion-panel-header {
+    padding: 0 20px;
+    border-radius: 16px;
+  }
+
+  .mat-expansion-panel-body {
+    padding: 0 20px 20px;
+  }
+
+  .mat-expansion-panel-header-title {
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .group-chevron {
+    color: var(--color-text-secondary);
+  }
+}
+
+.category-tile,
+.recipe-tile {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.category-tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+}
+
+.category-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-count {
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 4px 20px;
+}
+
+.recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px;
+  margin: 0 -6px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 160ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .recipe-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .recipe-servings {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.recipe-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-divider);
+  color: var(--color-primary);
+
+  .recipe-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Avant-propos (contenu injecté par innerHTML, hors encapsulation du composant)
+.avant-propos-content strong {
+  color: var(--color-text-primary);
+}
+
+.ember-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-divider);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+
+  &.ember-chip-primary {
+    border-color: transparent;
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
+    font-weight: 500;
+  }
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 // ── Utilitaire : masqué visuellement, lu par les lecteurs d'écran ────────────

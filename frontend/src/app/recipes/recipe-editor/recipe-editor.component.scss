@@ -1,20 +1,40 @@
+// Éditeur de recette (maquette 17) ; champs `.ember-field` + `.field-label` dans styles.scss
 .recipe-editor {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 16px;
+
+  @media (min-width: 768px) {
+    padding: 32px 40px 40px;
+  }
 }
 
 .editor-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.back-btn {
+  --mat-icon-button-state-layer-size: 40px;
+  --mat-icon-button-container-shape: 10px;
+  --mat-icon-button-state-layer-shape: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
 }
 
 .editor-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .loading-state {
@@ -26,92 +46,151 @@
 .editor-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.full-width {
-  width: 100%;
+  gap: 20px;
 }
 
 .row-two-cols {
   display: grid;
-  grid-template-columns: 1fr 120px;
-  gap: 16px;
-
-  mat-form-field {
-    width: 100%;
-  }
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 20px;
 }
 
 .section-title {
-  margin: 0 0 12px;
-  font-size: 1.1rem;
-  font-weight: 500;
+  margin: 8px 0 14px;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.optional-hint {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin-left: 4px;
 }
 
 .section-divider {
-  margin: 8px 0;
+  width: 100%;
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--color-divider);
 }
 
 .drag-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 14px;
+  margin-bottom: 16px;
   min-height: 4px;
 }
 
 .step-row {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 4px 0;
+  gap: 14px;
 }
 
 .step-number {
-  display: flex;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
+  width: 28px;
   height: 28px;
+  margin-top: 6px;
   border-radius: 50%;
-  background: var(--mdc-filled-button-container-color, #1976d2);
-  color: white;
-  font-size: 0.8rem;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-size: 13px;
   font-weight: 600;
-  flex-shrink: 0;
-  margin-top: 8px;
 }
 
 .step-editor {
   flex: 1;
+  min-width: 0;
+}
+
+.step-tools {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+}
+
+.delete-btn {
+  --mat-icon-button-state-layer-size: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--color-text-secondary);
 }
 
 .drag-handle {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
   cursor: grab;
-  color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
-  flex-shrink: 0;
-  margin-top: 8px;
 
   &:active {
     cursor: grabbing;
   }
 }
 
-.btn-add {
-  align-self: flex-start;
+// Placeholder et fantôme des étapes (cdkDrag sur .step-row)
+.step-row.cdk-drag-placeholder {
+  border-radius: 10px;
+  outline: 1px dashed var(--color-primary);
+  background: var(--color-primary-soft);
+
+  > * {
+    opacity: 0;
+  }
 }
 
-.optional-hint {
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: var(--color-text-secondary);
-  margin-left: 4px;
+.step-row.cdk-drag-preview {
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--drag-shadow);
+}
+
+.step-row.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.btn-add {
+  align-self: flex-start;
+  height: 42px;
+  padding: 0 20px;
+  font-size: 15px;
+  --mat-button-outlined-container-shape: 999px;
+  --mat-button-outlined-outline-color: var(--color-border-strong);
+  --mat-button-outlined-label-text-color: var(--color-on-primary-soft);
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
   padding-top: 8px;
+
+  .cancel-btn {
+    --mat-button-text-label-text-color: var(--color-primary);
+    font-size: 15px;
+  }
+
+  .submit-btn {
+    height: 46px;
+    padding: 0 26px;
+    font-size: 15px;
+    --mat-button-filled-container-shape: 999px;
+  }
 }

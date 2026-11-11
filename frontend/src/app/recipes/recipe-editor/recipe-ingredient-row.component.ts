@@ -18,6 +18,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgIf } from '@angular/common';
 
+let nextRowId = 0;
+
 @Component({
   selector: 'app-recipe-ingredient-row',
   standalone: true,
@@ -37,6 +39,8 @@ import { NgIf } from '@angular/common';
   styleUrls: ['./recipe-ingredient-row.component.scss'],
 })
 export class RecipeIngredientRowComponent {
+  /** Préfixe unique des `id` de champs, pour relier chaque label à son champ. */
+  readonly rowId = `ingredient-${++nextRowId}`;
   @Input({ required: true }) formGroup!: FormGroup;
   readonly ingredientSuggestions = input<string[]>([]);
   readonly unitSuggestions = input<string[]>([]);

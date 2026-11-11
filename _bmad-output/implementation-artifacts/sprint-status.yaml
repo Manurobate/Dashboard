@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-11-10
+# last_updated: 2026-11-11
 # project: Dashboard
 
 # project_key: NOKEY
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-11-10  # Sprint Change Proposal 2026-11-09 : Epic 7 clos, Epics 9 et 10 ajoutés, Epic 8 reporté
+last_updated: 2026-11-11  # Story 9-5 (Recettes) terminée
 project: Dashboard
 project_key: NOKEY
 tracking_system: file-system
@@ -133,7 +133,7 @@ development_status:
   9-2-coque-navigation-menu-snackbars-confirmations: done
   9-3-liens-lecture: done
   9-4-liens-edition: done
-  9-5-recettes: backlog
+  9-5-recettes: done
   9-6-partage-et-vues-publiques: backlog
   9-7-notes-parametres-admin-login-profil: backlog
   9-8-finitions-accessibilite-parite-e2e: backlog

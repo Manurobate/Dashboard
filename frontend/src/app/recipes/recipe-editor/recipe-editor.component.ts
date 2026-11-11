@@ -25,7 +25,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -52,7 +51,6 @@ import { MarkdownLightEditorComponent } from './markdown-light-editor.component'
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatDividerModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
