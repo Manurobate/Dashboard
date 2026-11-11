@@ -9,7 +9,7 @@ import { ResetPasswordDialogComponent } from './reset-password-dialog.component'
 describe('ResetPasswordDialogComponent (22a/22b)', () => {
   let fixture: ComponentFixture<ResetPasswordDialogComponent>;
   let el: HTMLElement;
-  const adminService = { resetPassword: vi.fn() };
+  const adminService = { resetPassword: vi.fn(), loadUsers: vi.fn(() => of([])) };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
