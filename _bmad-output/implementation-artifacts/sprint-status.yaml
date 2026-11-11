@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-11-11  # Story 9-5 (Recettes) terminée
+last_updated: 2026-11-11  # Story 9-6 (Partage et vues publiques) en revue
 project: Dashboard
 project_key: NOKEY
 tracking_system: file-system
@@ -134,7 +134,7 @@ development_status:
   9-3-liens-lecture: done
   9-4-liens-edition: done
   9-5-recettes: done
-  9-6-partage-et-vues-publiques: backlog
+  9-6-partage-et-vues-publiques: review
   9-7-notes-parametres-admin-login-profil: backlog
   9-8-finitions-accessibilite-parite-e2e: backlog
   epic-9-retrospective: optional

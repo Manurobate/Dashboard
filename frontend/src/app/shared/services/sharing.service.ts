@@ -35,6 +35,8 @@ export interface PublicRecipeView {
   servings: number;
   ingredients: PublicRecipeIngredient[];
   steps: PublicRecipeStep[];
+  /** Nom d'affichage du propriétaire, `null` s'il n'est pas renseigné. */
+  sharedBy: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

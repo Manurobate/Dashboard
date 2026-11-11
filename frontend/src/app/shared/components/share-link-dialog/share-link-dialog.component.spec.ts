@@ -3,7 +3,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError } from 'rxjs';
-import { ShareLinkDialogComponent, ShareLinkDialogData } from './share-link-dialog.component';
+import {
+  ShareLinkDialogComponent,
+  ShareLinkDialogData,
+  describeExpiry,
+} from './share-link-dialog.component';
 import { SharingService, PublicShareToken } from '../../services/sharing.service';
 
 const mockToken: PublicShareToken = {
@@ -206,5 +210,122 @@ describe('ShareLinkDialogComponent', () => {
     const { component } = await setup();
     component.close();
     expect(dialogRefSpy.close).toHaveBeenCalled();
+  });
+
+  describe('rendu Ember (story 9.6, maquette 10)', () => {
+    function buttonTexts(el: HTMLElement): string[] {
+      return Array.from(el.querySelectorAll('button')).map((b) => b.textContent?.trim() ?? '');
+    }
+
+    it('en-tête : tuile, titre « Partager la recette » nommant le dialog, nom de la recette, croix', async () => {
+      const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.share-tile mat-icon')?.textContent).toBe('share');
+      const title = el
+        .querySelector('[mat-dialog-title]')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim();
+      expect(title).toBe('Partager la recette « Tarte aux pommes »');
+      expect(el.querySelector('[mat-dialog-title] .visually-hidden')).toBeTruthy();
+      expect(el.querySelector('.share-subtitle')?.textContent).toBe(dialogData.resourceLabel);
+      (el.querySelector('button[aria-label="Fermer"]') as HTMLButtonElement).click();
+      expect(dialogRefSpy.close).toHaveBeenCalled();
+    });
+
+    it('état initial : durée de validité, Annuler et « Générer le lien »', async () => {
+      const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.share-label')?.textContent).toContain('Durée de validité');
+      expect(el.querySelectorAll('mat-radio-button').length).toBe(4);
+      expect(buttonTexts(el)).toEqual(expect.arrayContaining(['Annuler', 'Générer le lien']));
+    });
+
+    it('lien prêt : libellé, champ, Copier, Lien actif, Régénérer, Révoquer, sans bouton Fermer textuel', async () => {
+      const { fixture, component } = await setup();
+      component.currentToken.set({
+        ...mockToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 3_600_000).toISOString(),
+      });
+      component.state.set('link-ready');
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.share-label')?.textContent).toBe(
+        'Lien public (expire dans 7 jours)',
+      );
+      const input = el.querySelector('.share-link-value') as HTMLInputElement;
+      expect(input.readOnly).toBe(true);
+      expect(input.hasAttribute('aria-label')).toBe(false);
+      expect(Array.from(input.labels ?? []).map((l) => l.textContent)).toEqual([
+        'Lien public (expire dans 7 jours)',
+      ]);
+      expect(el.querySelector('button[aria-label="Copier le lien"]')?.textContent).toContain(
+        'Copier',
+      );
+      expect(el.querySelector('.share-status')?.textContent).toContain('Lien actif');
+      const texts = buttonTexts(el);
+      expect(texts.some((t) => t.endsWith('Régénérer'))).toBe(true);
+      expect(texts.some((t) => t.endsWith('Révoquer'))).toBe(true);
+      expect(texts).not.toContain('Fermer');
+      expect(el.querySelector('mat-dialog-actions')).toBeFalsy();
+      expect(el.querySelector('[color="warn"]')).toBeFalsy();
+    });
+
+    it('lien prêt : Régénérer et Révoquer ouvrent leur confirmation', async () => {
+      const { fixture, component } = await setup();
+      component.currentToken.set(mockToken);
+      component.state.set('link-ready');
+      fixture.detectChanges();
+      const openSpy = vi
+        .spyOn((component as unknown as { dialog: MatDialog }).dialog, 'open')
+        .mockReturnValue({ afterClosed: () => of(false) } as ReturnType<MatDialog['open']>);
+      const el: HTMLElement = fixture.nativeElement;
+      (el.querySelector('.regenerate-btn') as HTMLButtonElement).click();
+      (el.querySelector('.revoke-btn') as HTMLButtonElement).click();
+      const titles = openSpy.mock.calls.map(
+        (call) => (call[1]?.data as { title: string } | undefined)?.title,
+      );
+      expect(titles).toEqual(['Régénérer le lien de partage ?', 'Révoquer le lien de partage ?']);
+      expect(component.state()).toBe('link-ready');
+    });
+
+    it('génération en cours : la croix est désactivée', async () => {
+      const { fixture, component } = await setup();
+      component.state.set('generating');
+      fixture.detectChanges();
+      const close = fixture.nativeElement.querySelector(
+        'button[aria-label="Fermer"]',
+      ) as HTMLButtonElement;
+      expect(close.disabled).toBe(true);
+    });
+
+    it('révoqué : message et bouton « Fermer »', async () => {
+      const { fixture, component } = await setup();
+      component.state.set('revoked');
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.textContent).toContain('Lien révoqué');
+      expect(buttonTexts(el)).toContain('Fermer');
+    });
+  });
+});
+
+describe('describeExpiry', () => {
+  const now = Date.parse('2026-11-11T12:00:00Z');
+  const inMs = (ms: number) => new Date(now + ms).toISOString();
+  const H = 3_600_000;
+
+  it.each([
+    [null, 'permanent'],
+    [inMs(7 * 24 * H - 5_000), 'expire dans 7 jours'],
+    [inMs(30 * 24 * H), 'expire dans 30 jours'],
+    [inMs(24 * H - 5_000), 'expire dans 1 jour'],
+    [inMs(36 * H), 'expire dans 2 jours'],
+    [inMs(5 * H), 'expire dans 5 heures'],
+    [inMs(H), 'expire dans 1 heure'],
+    [inMs(20 * 60_000), "expire dans moins d'une heure"],
+    [inMs(45 * 60_000), "expire dans moins d'une heure"],
+    [inMs(-60_000), "expire dans moins d'une heure"],
+  ])('%s → %s', (expiresAt, expected) => {
+    expect(describeExpiry(expiresAt, now)).toBe(expected);
   });
 });

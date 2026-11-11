@@ -1,1 +1,3 @@
-<footer class="app-footer">Dashboard v{{ version }}</footer>
+@if (!isPublicView()) {
+  <footer class="app-footer">Dashboard v{{ version }}</footer>
+}

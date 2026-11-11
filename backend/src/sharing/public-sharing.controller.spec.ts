@@ -10,6 +10,7 @@ const mockPublicRecipe: PublicRecipeView = {
   servings: 4,
   ingredients: [],
   steps: [],
+  sharedBy: null,
 };
 
 describe('PublicSharingController', () => {

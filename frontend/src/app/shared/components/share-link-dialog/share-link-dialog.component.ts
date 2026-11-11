@@ -37,6 +37,27 @@ export interface ShareLinkDialogData {
 
 type DialogState = 'idle' | 'generating' | 'link-ready' | 'revoked';
 
+const HOUR_MS = 3_600_000;
+const DAY_MS = 24 * HOUR_MS;
+
+const DIALOG_TITLES: Record<ShareResourceType, string> = {
+  recipe: 'Partager la recette',
+};
+
+/**
+ * Durée restante d'un lien, en jours (arrondis) au-delà de 24 heures, en heures
+ * en dessous, « moins d'une heure » sous l'heure (maquette 10).
+ */
+export function describeExpiry(expiresAt: string | null, now = Date.now()): string {
+  if (expiresAt === null) return 'permanent';
+  const remaining = new Date(expiresAt).getTime() - now;
+  if (remaining < HOUR_MS) return "expire dans moins d'une heure";
+  const hours = Math.round(remaining / HOUR_MS);
+  if (hours < 24) return `expire dans ${hours} ${hours > 1 ? 'heures' : 'heure'}`;
+  const days = Math.round(remaining / DAY_MS);
+  return `expire dans ${days} ${days > 1 ? 'jours' : 'jour'}`;
+}
+
 interface ExpiresOption {
   value: ShareExpiresIn;
   label: string;
@@ -73,6 +94,10 @@ export class ShareLinkDialogComponent implements OnInit {
   readonly state = signal<DialogState>('idle');
   readonly selectedExpiresIn = signal<ShareExpiresIn>('7d');
   readonly currentToken = signal<PublicShareToken | null>(null);
+  readonly dialogTitle = DIALOG_TITLES[this.data.resourceType] ?? 'Partager';
+  readonly linkLabel = computed(
+    () => `Lien public (${describeExpiry(this.currentToken()?.expiresAt ?? null)})`,
+  );
   readonly shareUrl = computed(() => {
     const token = this.currentToken();
     return token ? this.sharingService.buildShareUrl(token.token) : '';
@@ -227,15 +252,6 @@ export class ShareLinkDialogComponent implements OnInit {
           }),
       });
     });
-  }
-
-  formatExpiration(token: PublicShareToken): string {
-    if (token.expiresAt === null) return 'Permanent';
-    const date = new Date(token.expiresAt);
-    return `Expire le ${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`;
   }
 
   close(): void {

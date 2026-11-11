@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { TopBarComponent } from './top-bar.component';
 import { routes } from '../../../app.routes';
@@ -108,5 +108,34 @@ describe('TopBarComponent', () => {
       expect(items.some((t) => t?.includes('Administration'))).toBe(expected);
       fixture.destroy();
     }
+  });
+
+  it('passe en mini top bar (classe public-view) sur une vue publique /share/*', async () => {
+    currentUser.set(null);
+    const router = TestBed.inject(Router);
+    const fixture = TestBed.createComponent(TopBarComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.classList.contains('public-view')).toBe(false);
+
+    await router.navigateByUrl('/share/abc123');
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.classList.contains('public-view')).toBe(true);
+    expect(host.querySelector('.desktop-nav')).toBeFalsy();
+    expect(host.querySelector('.theme-toggle')).toBeTruthy();
+
+    await router.navigateByUrl('/login');
+    fixture.detectChanges();
+    expect(host.classList.contains('public-view')).toBe(false);
+  });
+
+  it('garde la navigation du propriétaire connecté sur /share/*, en mini top bar', async () => {
+    const router = TestBed.inject(Router);
+    const fixture = TestBed.createComponent(TopBarComponent);
+    await router.navigateByUrl('/share/abc123');
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.classList.contains('public-view')).toBe(true);
+    expect(host.querySelector('.desktop-nav')).toBeTruthy();
   });
 });

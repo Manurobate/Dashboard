@@ -116,6 +116,10 @@ export class RecipeDetailComponent implements OnInit {
     const recipe = this.recipe();
     if (!recipe) return;
     const ref = this.dialog.open(ShareLinkDialogComponent, {
+      width: '460px',
+      maxWidth: '92vw',
+      // Focus sur le conteneur : pas de halo sur la croix à l'ouverture (maquette 10)
+      autoFocus: 'dialog',
       data: {
         resourceType: 'recipe',
         resourceId: recipe.id,
