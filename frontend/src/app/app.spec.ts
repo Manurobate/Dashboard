@@ -13,6 +13,24 @@ describe('App', () => {
     }).compileComponents();
   });
 
+  describe('réglage « Animations » au démarrage', () => {
+    afterEach(() => {
+      localStorage.removeItem('animations');
+      document.body.classList.remove('no-motion');
+    });
+
+    it('applique un choix « off » mémorisé dès la création de l’application', () => {
+      localStorage.setItem('animations', 'off');
+      TestBed.createComponent(App);
+      expect(document.body.classList.contains('no-motion')).toBe(true);
+    });
+
+    it('laisse les animations actives par défaut', () => {
+      TestBed.createComponent(App);
+      expect(document.body.classList.contains('no-motion')).toBe(false);
+    });
+  });
+
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;

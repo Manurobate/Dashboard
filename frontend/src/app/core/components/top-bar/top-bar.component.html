@@ -4,40 +4,43 @@
     Dashboard
   </span>
 
-  @if (authService.currentUser()) {
-    <nav
-      mat-tab-nav-bar
-      class="desktop-nav"
-      [tabPanel]="tabPanel"
-      aria-label="Navigation principale"
-    >
-      <a
-        mat-tab-link
-        routerLink="/dashboard"
-        routerLinkActive
-        #dashboardLink="routerLinkActive"
-        [active]="dashboardLink.isActive"
-        >Accueil</a
+  <!-- Onglets masqués tant que le mot de passe temporaire doit être changé (14-mdp-force) -->
+  @if (authService.currentUser(); as user) {
+    @if (!user.mustChangePassword) {
+      <nav
+        mat-tab-nav-bar
+        class="desktop-nav"
+        [tabPanel]="tabPanel"
+        aria-label="Navigation principale"
       >
-      <a
-        mat-tab-link
-        routerLink="/recipes"
-        routerLinkActive
-        #recipesLink="routerLinkActive"
-        [active]="recipesLink.isActive"
-        >Recettes</a
-      >
-      @if (authService.currentUser()?.notesEnabled) {
         <a
           mat-tab-link
-          routerLink="/notes"
+          routerLink="/dashboard"
           routerLinkActive
-          #notesLink="routerLinkActive"
-          [active]="notesLink.isActive"
-          >Notes</a
+          #dashboardLink="routerLinkActive"
+          [active]="dashboardLink.isActive"
+          >Accueil</a
         >
-      }
-    </nav>
+        <a
+          mat-tab-link
+          routerLink="/recipes"
+          routerLinkActive
+          #recipesLink="routerLinkActive"
+          [active]="recipesLink.isActive"
+          >Recettes</a
+        >
+        @if (user.notesEnabled) {
+          <a
+            mat-tab-link
+            routerLink="/notes"
+            routerLinkActive
+            #notesLink="routerLinkActive"
+            [active]="notesLink.isActive"
+            >Notes</a
+          >
+        }
+      </nav>
+    }
   }
 
   <span class="spacer"></span>

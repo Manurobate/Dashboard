@@ -68,6 +68,16 @@ describe('TopBarComponent', () => {
     expect(navLinks.length).toBe(3);
   });
 
+  it('masque les onglets tant que le mot de passe doit être changé (14-mdp-force)', async () => {
+    currentUser.set({ ...mockUser, mustChangePassword: true });
+    const fixture = TestBed.createComponent(TopBarComponent);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('nav.desktop-nav')).toBeNull();
+    expect(compiled.querySelector('button.theme-toggle')).toBeTruthy();
+    expect(compiled.querySelector('button[aria-label="Menu utilisateur"]')).toBeTruthy();
+  });
+
   const initial = async (user: Partial<AuthUser>): Promise<string | undefined> => {
     currentUser.set({ ...mockUser, ...user });
     const fixture = TestBed.createComponent(TopBarComponent);

@@ -56,7 +56,8 @@ export class AdminPanelComponent implements OnInit {
 
   openCreateUserDialog(): void {
     this.dialog.open(CreateUserDialogComponent, {
-      width: '400px',
+      width: '440px',
+      panelClass: 'ember-form-dialog',
       maxWidth: '95vw',
       disableClose: false,
     });
@@ -64,7 +65,8 @@ export class AdminPanelComponent implements OnInit {
 
   openResetPasswordDialog(user: UserListItem): void {
     this.dialog.open(ResetPasswordDialogComponent, {
-      width: '420px',
+      width: '460px',
+      panelClass: 'ember-form-dialog',
       maxWidth: '95vw',
       disableClose: false,
       data: { userId: user.id, username: user.username } satisfies ResetPasswordDialogData,

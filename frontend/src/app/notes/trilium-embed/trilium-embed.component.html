@@ -1,5 +1,5 @@
 @if (safeUrl(); as src) {
-  <div class="notes-frame">
+  <div class="notes-page">
     @if (isLoading()) {
       <mat-progress-bar
         mode="indeterminate"
@@ -7,29 +7,48 @@
         aria-label="Chargement de Trilium"
       />
     }
-    @if (loadTimedOut()) {
-      <div class="frame-help" role="status">
-        <span>
-          Si votre instance Trilium est accessible mais ne s'affiche pas, vérifiez que l'embedding
-          est autorisé dans sa configuration (<code>frame-ancestors</code>).
-        </span>
-        <a [href]="validUrl()" target="_blank" rel="noopener"
-          >Ouvrir Trilium dans un nouvel onglet</a
-        >
-      </div>
-    }
-    <iframe
-      [src]="src"
-      title="Trilium Notes"
-      allow="clipboard-read; clipboard-write; fullscreen"
-      (load)="onLoad()"
-    ></iframe>
+    <div class="notes-frame">
+      @if (loadTimedOut()) {
+        <div class="frame-help" role="status">
+          <span>
+            Si votre instance Trilium est accessible mais ne s'affiche pas, vérifiez que l'embedding
+            est autorisé dans sa configuration (<code>frame-ancestors</code>).
+          </span>
+          <a [href]="validUrl()" target="_blank" rel="noopener"
+            >Ouvrir Trilium dans un nouvel onglet</a
+          >
+        </div>
+      }
+      <iframe
+        [src]="src"
+        title="Trilium Notes"
+        allow="clipboard-read; clipboard-write; fullscreen"
+        (load)="onLoad()"
+      ></iframe>
+    </div>
   </div>
 } @else {
   <div class="empty-state" role="status">
-    <mat-icon class="empty-icon" aria-hidden="true">note_alt</mat-icon>
+    <span class="empty-tile" aria-hidden="true">
+      <!-- Page vierge (08-notes-vide) : aucun glyphe adapté dans la police sous-ensemblée -->
+      <svg
+        class="empty-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+        <path d="M14 3v5h5" />
+      </svg>
+    </span>
     <p class="empty-message">Aucune instance Trilium configurée</p>
     <p class="empty-hint">Renseignez l'URL de votre instance dans vos paramètres.</p>
-    <a mat-stroked-button routerLink="/settings">Configurer dans Paramètres</a>
+    <a mat-stroked-button class="ember-btn empty-cta" routerLink="/settings">
+      <mat-icon aria-hidden="true">settings</mat-icon>
+      Configurer dans Paramètres
+    </a>
   </div>
 }

@@ -366,3 +366,6 @@
 - source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
   summary: En modification, ramener « Retour » et « Annuler » de l'éditeur vers le détail de la recette plutôt que vers la liste.
   evidence: Les deux boutons pointent sur `/recipes` depuis la story 5.3, y compris en modification ; comportement inchangé en 9.5, signalé par la revue.
+- source_spec: `_bmad-output/implementation-artifacts/9-7-notes-parametres-admin-login-profil.md`
+  summary: Masquer la barre de navigation mobile (`app-bottom-nav`) tant que le mot de passe temporaire doit être changé, comme les onglets de la top bar depuis 9.7 (Q3).
+  evidence: `bottom-nav.component.html` n'a aucune condition sur l'utilisateur ; sous 768px, l'écran `14` affiche Accueil, Recettes et Notes, que le guard renvoie vers `/change-password`. À traiter avec l'Epic 10 (mobile).
