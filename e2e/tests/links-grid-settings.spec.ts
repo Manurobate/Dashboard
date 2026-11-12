@@ -30,7 +30,10 @@ test('widget ⚙️ visible en mode lecture sur grand écran', async ({ page }) 
 test('widget ⚙️ masqué en mode édition', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
-  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
+  // Clic sans `force` (actionnabilité vérifiée) puis attente du mode édition effectif :
+  // sous Firefox en CI, un clic forcé arrivait avant que la page ne soit prête (story 9.8).
+  await page.locator('button[aria-label="Passer en mode édition"]').click();
+  await expect(page.locator('button[aria-label="Terminer les modifications"]')).toBeVisible();
   await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).not.toBeVisible();
 });
 

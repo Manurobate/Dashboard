@@ -19,7 +19,10 @@ async function login(page: any) {
 test('drag-drop inter-catégories : le lien apparaît dans la catégorie cible', async ({ page }) => {
   await login(page);
 
-  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
+  // Clic sans `force` (actionnabilité vérifiée) puis attente du mode édition effectif :
+  // sous Firefox en CI, un clic forcé arrivait avant que la page ne soit prête (story 9.8).
+  await page.locator('button[aria-label="Passer en mode édition"]').click();
+  await expect(page.locator('button[aria-label="Terminer les modifications"]')).toBeVisible();
 
   const cards = page.locator('app-link-category-card');
   const sourceCard = cards.nth(0);
