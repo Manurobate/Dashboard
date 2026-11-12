@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-11-11
+# last_updated: 2026-11-12
 # project: Dashboard
 
 # project_key: NOKEY
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-11-11  # Story 9-7 (Notes, Paramètres, Admin, Login, Profil) terminée
+last_updated: 2026-11-12  # Story 9-8 (Finitions, accessibilité, parité) terminée
 project: Dashboard
 project_key: NOKEY
 tracking_system: file-system
@@ -136,7 +136,7 @@ development_status:
   9-5-recettes: done
   9-6-partage-et-vues-publiques: done
   9-7-notes-parametres-admin-login-profil: done
-  9-8-finitions-accessibilite-parite-e2e: backlog
+  9-8-finitions-accessibilite-parite-e2e: done
   epic-9-retrospective: optional
 
   # ── Epic 10 : Conversion mobile Ember ─────────────────────────────────────

@@ -11,10 +11,6 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost',
     headless: true,
-    // Accorde l'accès presse-papier au contexte : sans cette permission, chromium
-    // headless rejette navigator.clipboard.writeText() (NotAllowedError) et le
-    // dialog de partage retombe sur son message défensif « copiez-le manuellement ».
-    permissions: ['clipboard-read', 'clipboard-write'],
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     extraHTTPHeaders: {
@@ -24,7 +20,18 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Accorde l'accès presse-papier au contexte : sans cette permission, chromium
+        // headless rejette navigator.clipboard.writeText() (NotAllowedError) et le
+        // dialog de partage retombe sur son message défensif « copiez-le manuellement ».
+        // Ces permissions n'existent pas sous Firefox, d'où leur place ici.
+        permissions: ['clipboard-read', 'clipboard-write'],
+      },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
     },
   ],
 });

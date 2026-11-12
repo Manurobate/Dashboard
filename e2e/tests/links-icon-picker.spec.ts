@@ -17,7 +17,10 @@ async function login(page: Page): Promise<void> {
 }
 
 async function openEditMode(page: Page): Promise<void> {
-  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
+  // Clic sans `force` (actionnabilité vérifiée) puis attente du mode édition effectif :
+  // sous Firefox en CI, un clic forcé arrivait avant que la page ne soit prête (story 9.8).
+  await page.locator('button[aria-label="Passer en mode édition"]').click();
+  await expect(page.locator('button[aria-label="Terminer les modifications"]')).toBeVisible();
 }
 
 test.describe('Sélecteur d\'icônes Material', () => {

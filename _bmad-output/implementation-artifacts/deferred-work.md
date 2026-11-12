@@ -369,3 +369,6 @@
 - source_spec: `_bmad-output/implementation-artifacts/9-7-notes-parametres-admin-login-profil.md`
   summary: Masquer la barre de navigation mobile (`app-bottom-nav`) tant que le mot de passe temporaire doit être changé, comme les onglets de la top bar depuis 9.7 (Q3).
   evidence: `bottom-nav.component.html` n'a aucune condition sur l'utilisateur ; sous 768px, l'écran `14` affiche Accueil, Recettes et Notes, que le guard renvoie vers `/change-password`. À traiter avec l'Epic 10 (mobile).
+- source_spec: `_bmad-output/implementation-artifacts/9-8-finitions-accessibilite-parite-e2e.md`
+  summary: Rendre le panneau « Paramètres d'affichage » de la grille Liens utilisable au clavier (curseurs et boutons +/− aujourd'hui inatteignables).
+  evidence: Le panneau est un `mat-menu`, que Material ferme sur Tab ; vérifié par une sonde Playwright lors de l'audit 9.8. Préexistant depuis la story 4.8, hors périmètre de la refonte.
