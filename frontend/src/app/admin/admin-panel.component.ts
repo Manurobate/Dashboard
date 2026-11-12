@@ -56,7 +56,8 @@ export class AdminPanelComponent implements OnInit {
 
   openCreateUserDialog(): void {
     this.dialog.open(CreateUserDialogComponent, {
-      width: '400px',
+      width: '440px',
+      panelClass: 'ember-form-dialog',
       maxWidth: '95vw',
       disableClose: false,
     });
@@ -64,7 +65,8 @@ export class AdminPanelComponent implements OnInit {
 
   openResetPasswordDialog(user: UserListItem): void {
     this.dialog.open(ResetPasswordDialogComponent, {
-      width: '420px',
+      width: '460px',
+      panelClass: 'ember-form-dialog',
       maxWidth: '95vw',
       disableClose: false,
       data: { userId: user.id, username: user.username } satisfies ResetPasswordDialogData,
@@ -82,7 +84,10 @@ export class AdminPanelComponent implements OnInit {
           this.adminService.loadUsers().subscribe({ error: () => {} });
         },
         error: () => {
-          this.snackBar.open('Impossible de réactiver le compte', 'Fermer', { duration: 4000 });
+          this.snackBar.open('Impossible de réactiver le compte', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          });
         },
       });
   }
@@ -114,7 +119,10 @@ export class AdminPanelComponent implements OnInit {
             this.adminService.loadUsers().subscribe({ error: () => {} });
           },
           error: () => {
-            this.snackBar.open('Impossible de désactiver le compte', 'Fermer', { duration: 4000 });
+            this.snackBar.open('Impossible de désactiver le compte', 'Fermer', {
+              duration: 4000,
+              panelClass: 'snackbar-error',
+            });
           },
         });
     });
@@ -146,7 +154,10 @@ export class AdminPanelComponent implements OnInit {
             this.adminService.loadUsers().subscribe({ error: () => {} });
           },
           error: () => {
-            this.snackBar.open('Impossible de supprimer le compte', 'Fermer', { duration: 4000 });
+            this.snackBar.open('Impossible de supprimer le compte', 'Fermer', {
+              duration: 4000,
+              panelClass: 'snackbar-error',
+            });
           },
         });
     });

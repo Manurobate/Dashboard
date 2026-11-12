@@ -1,9 +1,12 @@
-.settings-container {
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 44px 16px 48px;
 
-mat-card-content {
-  padding-top: 16px;
+  .ember-page-header {
+    margin-bottom: 8px;
+  }
 }

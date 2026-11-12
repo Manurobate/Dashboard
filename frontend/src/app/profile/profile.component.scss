@@ -1,21 +1,28 @@
-.profile-container {
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+form {
+  margin-top: 16px;
 }
 
-mat-card-content {
-  padding-top: 16px;
+.readonly-chip {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border: 1px solid var(--color-divider);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  vertical-align: 1px;
+  color: var(--color-text-secondary);
 }
 
-.full-width {
-  width: 100%;
-  margin-bottom: 1rem;
+.readonly-field {
+  --mat-form-field-outlined-input-text-color: var(--color-text-secondary);
+  --mat-form-field-outlined-focus-outline-color: var(--color-border-strong);
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
 }

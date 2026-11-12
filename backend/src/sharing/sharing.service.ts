@@ -103,7 +103,7 @@ export class SharingService {
 
     const recipe = await this.recipeRepo.findOne({
       where: { id: record.resourceId },
-      relations: ['ingredients', 'steps'],
+      relations: ['ingredients', 'steps', 'user'],
     });
     if (!recipe) throw new NotFoundException();
 
@@ -125,6 +125,8 @@ export class SharingService {
         .slice()
         .sort((a, b) => a.position - b.position)
         .map((s) => ({ content: s.content, position: s.position })),
+      // Seul le nom d'affichage sort : ni username (email) ni autre champ du compte.
+      sharedBy: recipe.user?.name?.trim() || null,
     };
   }
 }

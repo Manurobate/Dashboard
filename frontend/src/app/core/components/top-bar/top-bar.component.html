@@ -1,49 +1,53 @@
 <mat-toolbar class="top-bar" role="banner">
   <span class="app-title">
-    <img src="favicon.svg" alt="" class="app-icon" aria-hidden="true" />
+    <img src="icon-app.svg" alt="" class="app-icon" aria-hidden="true" />
     Dashboard
   </span>
 
-  @if (authService.currentUser()) {
-    <nav
-      mat-tab-nav-bar
-      class="desktop-nav"
-      [tabPanel]="tabPanel"
-      aria-label="Navigation principale"
-    >
-      <a
-        mat-tab-link
-        routerLink="/dashboard"
-        routerLinkActive
-        #dashboardLink="routerLinkActive"
-        [active]="dashboardLink.isActive"
-        >Accueil</a
+  <!-- Onglets masqués tant que le mot de passe temporaire doit être changé (14-mdp-force) -->
+  @if (authService.currentUser(); as user) {
+    @if (!user.mustChangePassword) {
+      <nav
+        mat-tab-nav-bar
+        class="desktop-nav"
+        [tabPanel]="tabPanel"
+        aria-label="Navigation principale"
       >
-      <a
-        mat-tab-link
-        routerLink="/recipes"
-        routerLinkActive
-        #recipesLink="routerLinkActive"
-        [active]="recipesLink.isActive"
-        >Recettes</a
-      >
-      @if (authService.currentUser()?.notesEnabled) {
         <a
           mat-tab-link
-          routerLink="/notes"
+          routerLink="/dashboard"
           routerLinkActive
-          #notesLink="routerLinkActive"
-          [active]="notesLink.isActive"
-          >Notes</a
+          #dashboardLink="routerLinkActive"
+          [active]="dashboardLink.isActive"
+          >Accueil</a
         >
-      }
-    </nav>
+        <a
+          mat-tab-link
+          routerLink="/recipes"
+          routerLinkActive
+          #recipesLink="routerLinkActive"
+          [active]="recipesLink.isActive"
+          >Recettes</a
+        >
+        @if (user.notesEnabled) {
+          <a
+            mat-tab-link
+            routerLink="/notes"
+            routerLinkActive
+            #notesLink="routerLinkActive"
+            [active]="notesLink.isActive"
+            >Notes</a
+          >
+        }
+      </nav>
+    }
   }
 
   <span class="spacer"></span>
 
   <button
     mat-icon-button
+    class="theme-toggle"
     (click)="themeService.toggle()"
     [attr.aria-label]="themeService.isDark() ? 'Activer le thème clair' : 'Activer le thème sombre'"
   >
@@ -51,10 +55,15 @@
   </button>
 
   @if (authService.currentUser()) {
-    <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menu utilisateur">
-      <mat-icon>account_circle</mat-icon>
+    <button
+      mat-icon-button
+      class="user-avatar"
+      [matMenuTriggerFor]="userMenu"
+      aria-label="Menu utilisateur"
+    >
+      <span class="avatar-initial" aria-hidden="true">{{ userInitial() }}</span>
     </button>
-    <mat-menu #userMenu>
+    <mat-menu #userMenu class="ember-menu">
       @if (authService.currentUser()?.role === 'admin') {
         <a mat-menu-item routerLink="/admin">
           <mat-icon>admin_panel_settings</mat-icon>
@@ -69,7 +78,8 @@
         <mat-icon>person</mat-icon>
         <span>Mon profil</span>
       </a>
-      <button mat-menu-item (click)="onLogout()">
+      <div class="menu-separator" role="separator"></div>
+      <button mat-menu-item class="logout-item" (click)="onLogout()">
         <mat-icon>logout</mat-icon>
         <span>Déconnexion</span>
       </button>

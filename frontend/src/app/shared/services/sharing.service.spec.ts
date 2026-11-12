@@ -80,6 +80,7 @@ describe('SharingService', () => {
         servings: 4,
         ingredients: [{ quantity: 200, unit: 'g', name: 'Farine', position: 0 }],
         steps: [{ content: 'Cuire', position: 0 }],
+        sharedBy: 'Manu',
       };
       let result: PublicRecipeView | undefined;
       service.getPublicRecipe('abc123').subscribe((r) => (result = r));

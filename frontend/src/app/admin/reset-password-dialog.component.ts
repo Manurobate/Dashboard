@@ -48,7 +48,7 @@ export class ResetPasswordDialogComponent {
         },
         error: (err: HttpErrorResponse) => {
           const message = err.error?.message ?? 'Impossible de réinitialiser le mot de passe';
-          this.snackBar.open(message, 'Fermer', { duration: 4000 });
+          this.snackBar.open(message, 'Fermer', { duration: 4000, panelClass: 'snackbar-error' });
         },
       });
   }
@@ -57,6 +57,7 @@ export class ResetPasswordDialogComponent {
     navigator.clipboard.writeText(this.tempPassword()).catch(() => {
       this.snackBar.open('Impossible de copier dans le presse-papier', 'Fermer', {
         duration: 3000,
+        panelClass: 'snackbar-error',
       });
     });
   }

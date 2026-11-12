@@ -343,3 +343,32 @@
 - **Requêtes `me()` concurrentes depuis les guards** — `frontend/src/app/core/guards/notes-enabled.guard.ts:281` — Angular exécute les `canActivate` en parallèle : sur un rechargement direct de `/notes`, `authGuard`, `mustChangePasswordGuard` et `notesEnabledGuard` voient `currentUser() === null` et appellent chacun `me()` (3 `GET /api/auth/me`, voire 3 refresh concurrents si le token vient d'expirer). Pattern pré-existant imposé par la spec ; à traiter globalement en mutualisant la promesse en vol dans `AuthService.me()`.
 - **Erreur non-401 de `me()` traitée comme « non authentifié »** — `frontend/src/app/core/guards/notes-enabled.guard.ts:283` — Un 5xx/erreur réseau renvoie vers `/login` sans conserver l'URL cible. Même comportement que `authGuard` ; à revoir globalement (écran « service indisponible »).
 - **`currentUser` périmé entre onglets/appareils** — `frontend/src/app/core/guards/notes-enabled.guard.ts:278` — Si `notesEnabled`/`triliumUrl` change dans un autre onglet, le guard et l'iframe utilisent la valeur en cache jusqu'au rechargement (dans le même onglet, `updateNotesSettings` met bien à jour le signal). Comportement partagé avec la nav conditionnelle (7.1).
+
+- source_spec: `9-1-fondations-tokens-polices-icones-pwa.md`
+  summary: Versionner le script de génération de la police Material Symbols réduite et ajouter un contrôle automatisé que chaque nom de `material-icons.json` et de l'interface y figure.
+  evidence: La police est un sous-ensemble de 546 icônes généré hors dépôt ; une icône ajoutée plus tard s'afficherait en texte brut sans qu'aucun test n'échoue.
+- source_spec: `9-1-fondations-tokens-polices-icones-pwa.md`
+  summary: Ajouter un contrôle de build vérifiant qu'aucune référence du manifest, d'`index.html` ou de `ngsw.json` ne pointe vers un fichier absent.
+  evidence: Le critère « aucune référence orpheline » n'est contrôlé que manuellement ; un renommage futur ne ferait échouer aucun test.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-3-liens-lecture.md`
+  summary: Tester les valeurs affichées du widget grille (`.setting-value` : largeur, espacements H et V) après ouverture du panneau et après un `valueChange`.
+  evidence: Depuis 9.3 la valeur des curseurs n'apparaît plus que dans ces `span` (`discrete` retiré) ; aucun test unitaire n'ouvre le menu et l'E2E `links-grid-settings.spec.ts` ne lit que la première ligne (colonnes).
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: Personnaliser l'icône des catégories de recettes, aujourd'hui une icône générique `restaurant` dans les en-têtes de groupe de la liste (les recettes affichent leur photo si elle existe).
+  evidence: La maquette `05-recipes` montre une icône par catégorie et par recette, mais aucune n'existe en base ; Manu a retenu l'icône générique en 9.5 (Q3, 2026-11-11) et repoussé la personnalisation.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: Remplacer les lignes de recette `div role="link" tabindex="0"` de la liste par de vrais liens `<a>` (clic du milieu, « ouvrir dans un nouvel onglet »).
+  evidence: Balisage hérité de la story 5.2 et conservé tel quel en 9.5 (refonte visuelle sans changement fonctionnel) ; signalé par la revue de 9.5.
+
+- source_spec: `_bmad-output/implementation-artifacts/9-5-recettes.md`
+  summary: En modification, ramener « Retour » et « Annuler » de l'éditeur vers le détail de la recette plutôt que vers la liste.
+  evidence: Les deux boutons pointent sur `/recipes` depuis la story 5.3, y compris en modification ; comportement inchangé en 9.5, signalé par la revue.
+- source_spec: `_bmad-output/implementation-artifacts/9-7-notes-parametres-admin-login-profil.md`
+  summary: Masquer la barre de navigation mobile (`app-bottom-nav`) tant que le mot de passe temporaire doit être changé, comme les onglets de la top bar depuis 9.7 (Q3).
+  evidence: `bottom-nav.component.html` n'a aucune condition sur l'utilisateur ; sous 768px, l'écran `14` affiche Accueil, Recettes et Notes, que le guard renvoie vers `/change-password`. À traiter avec l'Epic 10 (mobile).
+- source_spec: `_bmad-output/implementation-artifacts/9-8-finitions-accessibilite-parite-e2e.md`
+  summary: Rendre le panneau « Paramètres d'affichage » de la grille Liens utilisable au clavier (curseurs et boutons +/− aujourd'hui inatteignables).
+  evidence: Le panneau est un `mat-menu`, que Material ferme sur Tab ; vérifié par une sonde Playwright lors de l'audit 9.8. Préexistant depuis la story 4.8, hors périmètre de la refonte.

@@ -1,13 +1,13 @@
 <h2 mat-dialog-title>Choisir une icône</h2>
 <mat-dialog-content class="icon-picker-content">
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher une icône</mat-label>
+  <mat-form-field appearance="outline" class="ember-field search-field" subscriptSizing="dynamic">
     <input
       matInput
       #searchInput
       [value]="searchTerm()"
       (input)="onSearchChange(searchInput.value)"
-      placeholder="ex: home, link, star"
+      placeholder="Rechercher une icône"
+      aria-label="Rechercher une icône"
     />
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
@@ -20,7 +20,7 @@
     @if (selectedIcon()) {
       <div class="selected-preview">
         <span>Sélectionnée : </span>
-        <mat-icon>{{ selectedIcon() }}</mat-icon>
+        <mat-icon aria-hidden="true">{{ selectedIcon() }}</mat-icon>
         <span class="selected-name">{{ selectedIcon() }}</span>
       </div>
     }
@@ -46,6 +46,6 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">Annuler</button>
-  <button mat-button color="warn" (click)="clear()">Effacer</button>
-  <button mat-button color="primary" (click)="confirm()">Choisir</button>
+  <button mat-button (click)="clear()">Effacer</button>
+  <button mat-button class="dialog-primary-action" (click)="confirm()">Choisir</button>
 </mat-dialog-actions>

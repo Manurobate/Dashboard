@@ -63,6 +63,24 @@ export class RecipesService {
     return cat.id;
   }
 
+  /** Supprime la catégorie si plus aucune recette ne l'utilise. */
+  private async deleteCategoryIfOrphan(
+    manager: EntityManager,
+    userId: number,
+    categoryId: number | null,
+  ): Promise<void> {
+    if (categoryId == null) return;
+    const remaining = await manager.count(Recipe, {
+      where: { categoryId, userId },
+    });
+    if (remaining === 0) {
+      await manager.delete(RecipeCategoryEntity, { id: categoryId, userId });
+      this.logger.log(
+        `Catégorie ${categoryId} supprimée (plus aucune recette) pour userId=${userId}`,
+      );
+    }
+  }
+
   async create(userId: number, dto: CreateRecipeDto): Promise<Recipe> {
     return this.dataSource.transaction(async (manager) => {
       const categoryId = await this.findOrCreateCategory(
@@ -138,6 +156,7 @@ export class RecipesService {
           `Suppression échouée pour la recette ${id}`,
         );
       }
+      await this.deleteCategoryIfOrphan(manager, userId, recipe.categoryId);
     });
     this.logger.log(`Recette ${id} supprimée pour userId=${userId}`);
   }
@@ -150,6 +169,7 @@ export class RecipesService {
     return this.dataSource.transaction(async (manager) => {
       const recipe = await manager.findOne(Recipe, { where: { id, userId } });
       if (!recipe) throw new NotFoundException(`Recette ${id} introuvable`);
+      const previousCategoryId = recipe.categoryId;
 
       const updateFields: Partial<Recipe> = {
         ...(dto.title !== undefined && { title: dto.title }),
@@ -168,6 +188,12 @@ export class RecipesService {
       }
       Object.assign(recipe, updateFields);
       await manager.save(recipe);
+      if (
+        updateFields.categoryId !== undefined &&
+        updateFields.categoryId !== previousCategoryId
+      ) {
+        await this.deleteCategoryIfOrphan(manager, userId, previousCategoryId);
+      }
 
       if (dto.ingredients !== undefined) {
         await manager.delete(RecipeIngredient, { recipeId: id });

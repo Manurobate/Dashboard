@@ -1,11 +1,9 @@
-.page-title {
-  padding: 16px 16px 0;
-  margin: 0;
-  text-align: center;
-}
-
 .links-page {
   padding: 16px;
+
+  @media (min-width: 768px) {
+    padding: 32px 40px;
+  }
 }
 
 .links-inner {
@@ -16,36 +14,50 @@
 }
 
 .error-message {
-  color: var(--mat-sys-error);
+  color: var(--color-error);
   text-align: center;
   padding: 16px;
 }
 
+// ── État vide (maquette 25-liens-vide) ──
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 16px;
-  color: var(--mat-sys-on-surface-variant);
+  gap: 16px;
+  padding: 96px 16px;
+  color: var(--color-text-secondary);
 
   .empty-icon {
     font-size: 48px;
     width: 48px;
     height: 48px;
-    opacity: 0.6;
+    color: var(--color-text-secondary);
   }
 
   .empty-message {
     margin: 0;
     font-size: 16px;
+    color: var(--color-text-secondary);
   }
 
   .empty-cta {
     margin-top: 4px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    --mat-button-outlined-outline-color: var(--color-border-strong);
+    --mat-button-outlined-label-text-color: var(--color-primary);
+    --mat-button-outlined-container-shape: 999px;
+    color: var(--color-primary);
+
+    .mat-icon {
+      color: var(--color-primary);
+    }
   }
 }
 
+// ── Squelettes : structure inchangée, tokens Ember (A14) ──
 @keyframes skeleton-shimmer {
   0% {
     background-position: -400px 0;
@@ -63,36 +75,33 @@
 
 .skeleton-card {
   height: 56px;
-  border-radius: 8px;
-  padding: 0 16px;
+  border-radius: 16px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--mat-sys-surface-variant);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
 }
 
 .skeleton-line {
   border-radius: 4px;
   background: linear-gradient(
     90deg,
-    var(--mat-sys-surface-variant) 25%,
-    var(--mat-sys-outline-variant) 50%,
-    var(--mat-sys-surface-variant) 75%
+    var(--color-surface-2) 25%,
+    var(--color-divider) 50%,
+    var(--color-surface-2) 75%
   );
+  background-color: var(--color-surface-2);
   background-size: 800px 100%;
   animation: skeleton-shimmer 1.5s infinite linear;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 .skeleton-emoji {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: 9px;
 }
 
 .skeleton-title {
@@ -102,12 +111,13 @@
 }
 
 .skeleton-badge {
-  width: 32px;
+  width: 28px;
   height: 20px;
-  border-radius: 10px;
+  border-radius: 999px;
   flex-shrink: 0;
 }
 
+// ── Grille (structure conservée : minmax(0, largeur) et règle des 600px) ──
 .category-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -116,14 +126,10 @@
   @media (min-width: 600px) {
     grid-template-columns: repeat(var(--link-columns, 3), minmax(0, var(--link-card-width, 280px)));
     gap: var(--link-gap-v, 16px) var(--link-gap-h, 16px);
-
-    &.edit-mode {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
   }
 }
 
+// ── Barre d'actions ──
 .header-actions {
   display: flex;
   align-items: center;
@@ -131,29 +137,108 @@
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 8px;
+
+  &.read-mode,
+  &.edit-mode {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
 }
 
-.grid-settings-panel {
-  padding: 8px 16px;
-  min-width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+// Mode édition (maquette 03-edit) : bouton bordé ; la pastille est dans styles.scss (budget de style)
+.add-category-btn {
+  height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+  --mat-button-outlined-container-shape: 12px;
+  --mat-button-outlined-outline-color: var(--color-border-strong);
+  --mat-button-outlined-label-text-color: var(--color-text-primary);
 }
 
-.setting-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.setting-label {
-  font-size: 12px;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.stepper-controls {
+// Recherche ⌘K : affordance seule (FR50), champ désactivé
+.search-bar {
+  flex: 1 1 280px;
+  min-width: 280px;
+  height: 46px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
+  padding: 0 12px 0 14px;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  color: var(--color-text-secondary);
+
+  .search-icon {
+    flex-shrink: 0;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-text-primary);
+    cursor: default;
+
+    &::placeholder {
+      color: var(--color-text-secondary);
+      -webkit-text-fill-color: var(--color-text-secondary);
+      opacity: 1;
+    }
+  }
+
+  .search-kbd {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--color-text-secondary);
+  }
+}
+
+.grid-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  --mat-icon-button-state-layer-shape: 12px;
+  --mat-icon-button-state-layer-size: 46px;
+  --mat-icon-button-container-shape: 12px;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+
+  &[aria-expanded='true'] {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+}
+
+.toggle-edit-btn {
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  --mat-button-filled-container-shape: 999px;
 }

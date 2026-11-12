@@ -1,5 +1,58 @@
 @use '@angular/material' as mat;
 
+// ── Polices auto-hébergées (aucune dépendance externe) ──────────────────────
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin-700-normal.woff2') format('woff2');
+}
+
+// Material Symbols Outlined : graisse 300, FILL 0 (figés dans le fichier, réduit aux icônes utilisées)
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 300;
+  font-display: block;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+}
+
 html {
   height: 100%;
   color-scheme: light;
@@ -10,24 +63,36 @@ html {
         primary: mat.$red-palette,
         theme-type: light,
       ),
-      typography: system-ui,
+      typography: (
+        plain-family: 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif',
+        brand-family: 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif',
+      ),
       density: 0,
     )
   );
 
   --bottom-nav-height: 56px;
-  --color-background: #f5f5f5;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  // ── Palette Ember — thème clair (variante AA) ──
+  --color-background: #f2f1ef;
   --color-surface: #ffffff;
-  --color-primary: #b71c1c;
-  --color-primary-light: #d32f2f;
+  --color-surface-2: #f6f5f3;
+  --color-divider: rgba(22, 22, 26, 0.1);
+  --color-border-strong: rgba(22, 22, 26, 0.18);
+  --color-text-primary: #1a1a1d;
+  --color-text-secondary: #64646c;
+  --color-primary: #cd3228;
+  --color-primary-fill: #cd3228;
+  --color-primary-soft: rgba(214, 52, 42, 0.1);
+  --color-on-primary-soft: #b82d24;
   --color-on-primary: #ffffff;
-  --color-text-primary: #212121;
-  --color-text-secondary: #757575;
-  --color-divider: #e0e0e0;
   --color-error: #c62828;
+  --card-shadow: 0 20px 44px -24px rgba(18, 18, 24, 0.24);
+  --drag-shadow: 0 24px 48px -12px rgba(18, 18, 24, 0.35);
 
   // ── Overrides AM3 — surfaces neutres (sans teinte rose de la palette red) ──
-  --mat-sys-primary: #b71c1c;
+  --mat-sys-primary: #cd3228;
   --mat-sys-primary-container: #fecaca;
   --mat-sys-on-primary-container: #7f1d1d;
   --mat-sys-surface-container: #ffffff;
@@ -60,29 +125,43 @@ html:has(body.dark-theme) {
     )
   );
 
-  --color-background: #0a0a0a;
-  --color-surface: #1c1c1c;
-  --color-primary: #ef4444;
-  --color-primary-light: #f87171;
+  // ── Palette Ember — thème sombre (variante AA) ──
+  --color-background: #09090b;
+  --color-surface: #141417;
+  --color-surface-2: #1b1b1f;
+  --color-divider: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --color-text-primary: #ededef;
+  --color-text-secondary: #9a9aa2;
+  --color-primary: #f0433a;
+  --color-primary-fill: #d83c34;
+  --color-primary-soft: rgba(240, 67, 58, 0.14);
+  --color-on-primary-soft: #f1524a;
   --color-on-primary: #ffffff;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #9e9e9e;
-  --color-divider: #2a2a2a;
   --color-error: #ff6b6b;
+  --card-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+  --drag-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85);
 
   --color-warning: #ffb74d;
   --color-on-warning: #1c1c1c;
-  --color-success: #66bb6a;
+  --color-success: #4ade80;
   --color-on-success: #1c1c1c;
 
   // ── Overrides AM3 — rouge pur en dark (sans teinte rose générée par AM3) ──
-  --mat-sys-primary: #ef4444;
+  --mat-sys-primary: #f0433a;
   --mat-sys-primary-container: #7f1d1d;
   --mat-sys-on-primary-container: #fecaca;
-  --mat-sys-surface-container: #222222;
-  --mat-sys-surface-container-low: #1c1c1c;
-  --mat-sys-surface-container-high: #2a2a2a;
-  --mat-sys-surface-container-highest: #333333;
+  --mat-sys-surface-container: #141417;
+  --mat-sys-surface-container-low: #1b1b1f;
+  --mat-sys-surface-container-high: #222222;
+  --mat-sys-surface-container-highest: #2a2a2a;
+}
+
+// ── Boutons pleins : fond --color-primary-fill (conforme AA dans les deux thèmes) ──
+html,
+.dark-theme {
+  --mat-button-filled-container-color: var(--color-primary-fill);
+  --mat-button-filled-label-text-color: var(--color-on-primary);
 }
 
 // ── Tokens de statut — états visuels des badges et indicateurs ───────────────
@@ -90,6 +169,1103 @@ html:has(body.dark-theme) {
 html {
   --color-warning: #f57c00;
   --color-on-warning: #ffffff;
-  --color-success: #2e7d32;
+  --color-success: #15803d;
   --color-on-success: #ffffff;
+}
+
+// ── Overlays Ember : menu, snackbars, dialogs ────────────────────────────────
+.ember-menu.mat-mdc-menu-panel,
+.mat-mdc-menu-panel.ember-menu {
+  min-width: 220px;
+  border-radius: 14px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--card-shadow);
+
+  .mat-mdc-menu-item {
+    --mat-menu-item-label-text-color: var(--color-text-primary);
+    --mat-menu-item-icon-color: var(--color-text-secondary);
+    min-height: 44px;
+
+    .mat-icon {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .menu-separator {
+    height: 1px;
+    margin: 4px 12px;
+    background-color: var(--color-divider);
+  }
+
+  .mat-mdc-menu-item.logout-item {
+    --mat-menu-item-label-text-color: var(--color-primary);
+    --mat-menu-item-icon-color: var(--color-primary);
+
+    .mat-icon {
+      color: var(--color-primary);
+    }
+  }
+}
+
+// Widget de réglage de la grille Liens (maquette 04-grid-settings)
+.mat-mdc-menu-panel.grid-settings-menu {
+  max-width: none;
+  border-radius: 16px;
+
+  .grid-settings-panel {
+    width: 300px;
+    padding: 6px 18px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .setting-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    mat-slider {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  .setting-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .setting-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .setting-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    padding: 0 2px;
+    border-radius: 10px;
+    border: 1px solid var(--color-divider);
+    background: var(--color-surface-2);
+
+    button {
+      --mat-icon-button-state-layer-size: 36px;
+      width: 36px;
+      height: 36px;
+      padding: 6px;
+      color: var(--color-text-primary);
+    }
+  }
+
+  .stepper-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .panel-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-divider);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+
+    .mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--color-surface);
+  --mdc-snackbar-supporting-text-color: var(--color-text-primary);
+  --mat-snack-bar-button-color: var(--color-primary);
+  --mat-snack-bar-container-color: var(--color-surface);
+  --mat-snack-bar-supporting-text-color: var(--color-text-primary);
+  --mdc-snackbar-container-shape: 999px;
+  --mat-snack-bar-container-shape: 999px;
+
+  .mdc-snackbar__surface {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    box-shadow: var(--card-shadow);
+    background-color: var(--color-surface);
+
+    &::before {
+      font-family: 'Material Symbols Outlined';
+      font-weight: 300;
+      font-size: 20px;
+      line-height: 1;
+      font-feature-settings: 'liga';
+      content: 'check';
+      color: var(--color-primary);
+    }
+  }
+
+  &.snackbar-error .mdc-snackbar__surface::before {
+    content: 'close';
+    color: var(--color-error);
+  }
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: 16px;
+  --mdc-dialog-container-shape: 16px;
+  --mat-dialog-container-color: var(--color-surface);
+  --mdc-dialog-container-color: var(--color-surface);
+
+  .mdc-dialog__surface {
+    border: 1px solid var(--color-divider);
+    border-radius: 16px;
+  }
+
+  .dialog-cancel.mat-mdc-unelevated-button {
+    --mat-button-filled-container-color: var(--color-primary-soft);
+    --mat-button-filled-label-text-color: var(--color-on-primary-soft);
+    --mdc-filled-button-container-color: var(--color-primary-soft);
+    --mdc-filled-button-label-text-color: var(--color-on-primary-soft);
+    border-radius: 999px;
+  }
+
+  .dialog-confirm.mat-mdc-unelevated-button {
+    border-radius: 999px;
+  }
+}
+
+// Pastille « Mode édition » de la page Liens (maquette 03-edit), hors composant pour son budget de style
+.links-edit-mode-badge {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+  font-size: 13px;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+// Dialogs de formulaire Ember (panelClass `ember-form-dialog`, maquettes 18 à 20)
+.ember-form-dialog .mat-mdc-dialog-container {
+  --mat-dialog-subhead-size: 20px;
+  --mat-dialog-subhead-weight: 700;
+  --mat-dialog-subhead-color: var(--color-text-primary);
+  --mat-dialog-headline-padding: 24px 26px 14px;
+  --mat-dialog-content-padding: 0 26px;
+  --mat-dialog-actions-padding: 20px 18px 18px;
+
+  .mat-mdc-dialog-title::before {
+    display: none;
+  }
+
+  .mat-mdc-dialog-actions .mat-mdc-button {
+    --mat-button-text-label-text-color: var(--color-text-secondary);
+    --mat-button-text-label-text-weight: 600;
+    --mat-button-text-container-shape: 999px;
+    font-size: 15px;
+
+    &.dialog-primary-action {
+      --mat-button-text-label-text-color: var(--color-primary);
+    }
+
+    &:disabled {
+      --mat-button-text-disabled-label-text-color: color-mix(
+        in srgb,
+        var(--color-text-secondary) 60%,
+        transparent
+      );
+    }
+  }
+}
+
+// ── Champ de formulaire Ember : label au-dessus, champ plein (9.4, réutilisé en 9.5 et 9.7) ──
+.field-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+
+  .field-required {
+    color: var(--color-primary);
+    margin-left: 2px;
+  }
+
+  .field-hint {
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+}
+
+.mat-mdc-form-field.ember-field {
+  --mat-form-field-container-height: 46px;
+  --mat-form-field-container-vertical-padding: 11px;
+  --mat-form-field-container-text-size: 15px;
+  --mat-form-field-container-text-tracking: normal;
+  --mat-form-field-subscript-text-tracking: normal;
+  --mat-form-field-outlined-container-shape: 10px;
+  --mat-form-field-outlined-outline-color: var(--color-divider);
+  --mat-form-field-outlined-hover-outline-color: var(--color-border-strong);
+  --mat-form-field-outlined-focus-outline-color: var(--color-primary);
+  --mat-form-field-outlined-focus-outline-width: 1px;
+  --mat-form-field-outlined-error-outline-color: var(--color-error);
+  --mat-form-field-outlined-error-hover-outline-color: var(--color-error);
+  --mat-form-field-outlined-error-focus-outline-color: var(--color-error);
+  --mat-form-field-outlined-input-text-color: var(--color-text-primary);
+  --mat-form-field-outlined-input-text-placeholder-color: var(--color-text-secondary);
+  --mat-form-field-outlined-caret-color: var(--color-primary);
+  --mat-form-field-trailing-icon-color: var(--color-text-secondary);
+  width: 100%;
+
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--color-surface-2);
+    border-radius: 10px;
+    transition: box-shadow 160ms ease;
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    box-shadow: none;
+  }
+
+  .mat-mdc-form-field-icon-suffix > .mat-icon {
+    padding: 0 12px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    box-sizing: content-box;
+  }
+
+  textarea.mat-mdc-input-element {
+    resize: vertical;
+  }
+
+  .mat-mdc-form-field-hint {
+    color: var(--color-text-secondary);
+  }
+
+  .mat-mdc-form-field-hint-wrapper,
+  .mat-mdc-form-field-error-wrapper {
+    padding: 0;
+  }
+}
+
+.cdk-overlay-dark-backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+// ── Recettes (maquettes 05, 06, 17) : cartes de groupe, grille, tuiles, pastilles ──
+// Hors composants pour leur budget de style ; pastilles réutilisables par la vue publique (9.6)
+.recipe-group,
+.categories-accordion.mat-accordion .mat-expansion-panel.recipe-group {
+  --mat-expansion-container-background-color: var(--color-surface);
+  --mat-expansion-container-text-color: var(--color-text-primary);
+  --mat-expansion-header-text-color: var(--color-text-primary);
+  --mat-expansion-header-text-size: 17px;
+  --mat-expansion-header-text-weight: 600;
+  --mat-expansion-header-text-tracking: normal;
+  --mat-expansion-container-text-tracking: normal;
+  --mat-expansion-header-hover-state-layer-color: var(--color-surface-2);
+  --mat-expansion-header-focus-state-layer-color: var(--color-primary-soft);
+  display: block;
+  margin: 0;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  box-shadow: none;
+
+  .mat-expansion-panel-header {
+    padding: 0 20px;
+    border-radius: 16px;
+  }
+
+  .mat-expansion-panel-body {
+    padding: 0 20px 20px;
+  }
+
+  .mat-expansion-panel-header-title {
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .group-chevron {
+    color: var(--color-text-secondary);
+  }
+}
+
+.category-tile,
+.recipe-tile {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.category-tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+}
+
+.category-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-count {
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 4px 20px;
+}
+
+.recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px;
+  margin: 0 -6px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 160ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .recipe-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .recipe-servings {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.recipe-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-divider);
+  color: var(--color-primary);
+
+  .recipe-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Fiche recette partagée par le détail (06) et la vue publique (11) : image, cartes,
+// convives, ingrédients, étapes. Hors composants pour leur budget de style.
+.recipe-sheet {
+  .recipe-image {
+    display: block;
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  .detail-card {
+    box-sizing: border-box;
+    border-radius: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+
+  .avant-propos-content {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+
+  .servings-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px 14px 20px;
+
+    .servings-label {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .servings-count {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+  }
+
+  .detail-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: stretch;
+
+    @media (min-width: 768px) {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    }
+
+    .detail-card {
+      margin-bottom: 0;
+    }
+  }
+
+  .section-title {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .ingredient-list,
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ingredient-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 16px;
+    border-bottom: 1px solid var(--color-divider);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .amount {
+      flex: 0 0 auto;
+      min-width: 72px;
+      max-width: 40%;
+      overflow-wrap: anywhere;
+      font-weight: 600;
+      color: var(--color-primary);
+
+      .unit {
+        margin-left: 0.25em;
+      }
+    }
+  }
+
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .step-number {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .step-content {
+    flex: 1;
+    min-width: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 16px;
+    line-height: 1.55;
+    margin-top: 2px;
+  }
+
+  .empty-section {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-style: italic;
+  }
+}
+
+// Avant-propos (contenu injecté par innerHTML, hors encapsulation du composant)
+.avant-propos-content strong {
+  color: var(--color-text-primary);
+}
+
+.ember-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-divider);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+
+  &.ember-chip-primary {
+    border-color: transparent;
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
+    font-weight: 500;
+  }
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ── Focus clavier (9.8) : anneau commun, contraste ≥ 3:1 sur tous les fonds ──
+// Les halos de Material (state layer) restent, mais sont trop pâles seuls (≈ 1,2:1).
+// `:where` garde une spécificité nulle : un `:focus-visible` de composant prime.
+:where(
+  a,
+  button,
+  [role='button'],
+  [role='link'],
+  [role='menuitem'],
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// Material retire le contour (`outline: none` ou `:focus { outline: 0 }`, chargé après ce
+// fichier) : le préfixe `body` suffit à l'emporter, les `:focus-visible` de composant priment.
+body .mat-mdc-button-base:focus-visible,
+body .mdc-switch:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// Entrées de menu, onglets de la top bar, en-têtes de groupe : anneau intérieur, le conteneur rogne ce qui dépasse.
+body .mat-mdc-menu-item:focus-visible,
+body .mat-mdc-tab-link:focus-visible,
+body .mat-expansion-panel-header:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+// Boutons radio : l'input natif est transparent, l'anneau va sur le cercle visible.
+.mdc-radio:has(.mdc-radio__native-control:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+// ── Parité Firefox (9.8) : pas de flèches natives permanentes sur les champs numériques ──
+// Chromium ne les montre qu'au survol, Firefox en continu (Convives, Qté de l'éditeur).
+// Les flèches du clavier et la molette restent actives.
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+// ── Utilitaire : masqué visuellement, lu par les lecteurs d'écran ────────────
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ── Réglage « Animations » désactivé (FR51, A16) : MotionService pose body.no-motion ──
+// Durées quasi nulles plutôt que `none` : les fins d'animation et de transition dont
+// dépendent Material et le CDK se déclenchent toujours, l'état final s'affiche directement.
+// Les indicateurs de chargement (barre et spinner Material) restent animés : ce sont
+// des retours d'état, pas de la décoration, et une seule itération les figerait.
+body.no-motion,
+body.no-motion
+  :not(
+    .mat-mdc-progress-bar,
+    .mat-mdc-progress-bar *,
+    .mat-mdc-progress-spinner,
+    .mat-mdc-progress-spinner *
+  ),
+body.no-motion *::before,
+body.no-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+// ── Boutons Ember des pages (9.7) : rectangles arrondis, comme sur les maquettes 07, 09, 13 à 16 ──
+.ember-btn.mat-mdc-button-base {
+  --mat-button-filled-container-shape: 10px;
+  --mat-button-outlined-container-shape: 10px;
+  --mat-button-outlined-outline-color: var(--color-border-strong);
+  --mat-button-outlined-label-text-color: var(--color-text-primary);
+  height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: normal;
+
+  &.ember-btn-accent {
+    --mat-button-outlined-label-text-color: var(--color-primary);
+  }
+
+  &.ember-btn-block {
+    width: 100%;
+  }
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  // Icône + texte sous @if/@else : regroupés, la projection Material ne s'applique pas
+  .btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// ── Paramètres (maquette 07) : en-tête de page et cartes de réglage ──
+.ember-page-header {
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    color: var(--color-text-secondary);
+  }
+}
+
+.settings-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: 16px;
+}
+
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.settings-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.settings-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.settings-card-description {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.settings-card-body {
+  padding: 4px 24px 24px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+
+  & + .settings-divider {
+    margin-bottom: 20px;
+  }
+}
+
+.settings-row-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.settings-row-description {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.settings-divider {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--color-divider);
+}
+
+// Interrupteur Ember : piste rouge pleine, poignée blanche, sans icône
+.ember-toggle.mat-mdc-slide-toggle {
+  --mat-slide-toggle-track-width: 48px;
+  --mat-slide-toggle-track-height: 28px;
+  --mat-slide-toggle-track-shape: 999px;
+  --mat-slide-toggle-track-outline-width: 0;
+  --mat-slide-toggle-selected-track-outline-width: 0;
+  --mat-slide-toggle-handle-shape: 999px;
+  --mat-slide-toggle-selected-handle-size: 22px;
+  --mat-slide-toggle-unselected-handle-size: 22px;
+  --mat-slide-toggle-pressed-handle-size: 22px;
+  --mat-slide-toggle-selected-handle-horizontal-margin: 0 23px;
+  --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0 23px;
+  --mat-slide-toggle-unselected-handle-horizontal-margin: 0 3px;
+  --mat-slide-toggle-unselected-pressed-handle-horizontal-margin: 0 3px;
+  --mat-slide-toggle-selected-track-color: var(--color-primary-fill);
+  --mat-slide-toggle-selected-hover-track-color: var(--color-primary-fill);
+  --mat-slide-toggle-selected-focus-track-color: var(--color-primary-fill);
+  --mat-slide-toggle-selected-pressed-track-color: var(--color-primary-fill);
+  --mat-slide-toggle-unselected-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-hover-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-focus-track-color: var(--color-border-strong);
+  --mat-slide-toggle-unselected-pressed-track-color: var(--color-border-strong);
+  --mat-slide-toggle-selected-handle-color: #ffffff;
+  --mat-slide-toggle-selected-hover-handle-color: #ffffff;
+  --mat-slide-toggle-selected-focus-handle-color: #ffffff;
+  --mat-slide-toggle-selected-pressed-handle-color: #ffffff;
+  --mat-slide-toggle-unselected-handle-color: #ffffff;
+  --mat-slide-toggle-unselected-hover-handle-color: #ffffff;
+  --mat-slide-toggle-unselected-focus-handle-color: #ffffff;
+  --mat-slide-toggle-unselected-pressed-handle-color: #ffffff;
+  --mat-slide-toggle-selected-focus-state-layer-color: var(--color-primary);
+  --mat-slide-toggle-selected-hover-state-layer-color: var(--color-primary);
+  --mat-slide-toggle-selected-pressed-state-layer-color: var(--color-primary);
+  --mat-slide-toggle-handle-elevation-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+// ── Formulaires en carte (maquettes 13 à 16) : login, mots de passe, profil ──
+.form-page {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+
+  &.form-page-centered {
+    align-items: center;
+    min-height: calc(100vh - 180px);
+    box-sizing: border-box;
+  }
+}
+
+.form-card {
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  padding: 28px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Aide et erreur sous les champs (14 à 16)
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+}
+
+.form-card-title {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.form-card-subtitle {
+  margin: -12px 0 20px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+// Champ en erreur imposée (mot de passe refusé au login, 13) : bordure rouge sans état du contrôle
+.mat-mdc-form-field.ember-field.field-error-state {
+  --mat-form-field-outlined-outline-color: var(--color-error);
+  --mat-form-field-outlined-hover-outline-color: var(--color-error);
+  --mat-form-field-outlined-focus-outline-color: var(--color-error);
+
+  .mat-mdc-text-field-wrapper {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 18%, transparent);
+  }
+}
+
+// Message d'erreur sous un champ, avec icône (13)
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--color-error);
+
+  .mat-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Bandeau d'erreur au-dessus des champs (14)
+.form-error.form-error-banner {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+  line-height: 1.45;
+
+  .mat-icon {
+    margin-top: 1px;
+  }
+}
+
+// ── Mot de passe temporaire (dialogs 21b, 22b) ──
+.temp-password-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 14px;
+  padding: 10px 8px 10px 16px;
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  background: var(--color-primary-soft);
+
+  .mat-mdc-icon-button {
+    --mat-icon-button-icon-color: var(--color-primary);
+    --mat-icon-button-state-layer-color: var(--color-primary);
+    flex-shrink: 0;
+  }
+}
+
+.temp-password-value {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+}
+
+.temp-password-warning {
+  margin: 0;
+  letter-spacing: normal;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+// ── Administration (09-admin) : pastilles du tableau, hors composant pour son budget de style ──
+.user-table {
+  .role-chip,
+  .temp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 11px;
+    border: 1px solid var(--color-divider);
+    border-radius: 999px;
+    font-size: 14px;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+
+  .role-chip-admin {
+    border-color: transparent;
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
+    font-weight: 500;
+  }
+
+  .temp-chip {
+    border-color: transparent;
+    // Texte orange assombri en clair, éclairci en sombre : contraste AA (≈ 5,3:1 clair, > 8:1 sombre)
+    background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+    color: color-mix(in srgb, var(--color-warning) 55%, var(--color-text-primary));
+    font-weight: 500;
+
+    .mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .temp-no {
+    color: var(--color-text-secondary);
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-success);
+    }
+
+    &.badge-inactive {
+      color: var(--color-text-secondary);
+
+      &::before {
+        background: var(--color-text-secondary);
+      }
+    }
+  }
 }

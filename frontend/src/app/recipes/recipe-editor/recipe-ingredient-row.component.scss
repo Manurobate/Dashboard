@@ -1,28 +1,57 @@
+// Ligne d'ingrédient (maquette 17) : labels au-dessus, champs `.ember-field` (styles.scss)
+:host {
+  display: block;
+}
+
 .ingredient-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  align-items: flex-start;
+  gap: 12px;
   width: 100%;
 }
 
-.drag-handle {
-  cursor: grab;
-  color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
+.field .field-label {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.drag-handle,
+.delete-btn {
   flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.drag-handle {
+  margin-top: 33px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  cursor: grab;
 
   &:active {
     cursor: grabbing;
   }
 }
 
+.delete-btn {
+  --mat-icon-button-state-layer-size: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-top: 28px;
+}
+
 .field-quantity {
-  width: 90px;
+  width: 110px;
   flex-shrink: 0;
 }
 
 .field-unit {
-  width: 100px;
+  width: 120px;
   flex-shrink: 0;
 }
 
@@ -31,10 +60,40 @@
   min-width: 120px;
 }
 
+// Écran étroit : largeurs réduites pour éviter le défilement horizontal (restyle mobile : Epic 10)
+@media (max-width: 599px) {
+  .ingredient-row {
+    gap: 6px;
+  }
+
+  .field-quantity {
+    width: 64px;
+  }
+
+  .field-unit {
+    width: 64px;
+  }
+
+  .field-name {
+    min-width: 0;
+  }
+}
+
 .drag-placeholder {
-  background: var(--mat-list-item-hover-state-layer-color, rgba(0, 0, 0, 0.04));
-  border: 2px dashed var(--mat-form-field-outlined-idle-border-color, rgba(0, 0, 0, 0.38));
-  border-radius: 4px;
-  height: 56px;
   flex: 1;
+  height: 70px;
+  border-radius: 10px;
+  border: 1px dashed var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+// Fantôme du drag (cdkDrag est sur .ingredient-row, cloné avec ses attributs)
+.ingredient-row.cdk-drag-preview {
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--drag-shadow);
+}
+
+.ingredient-row.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }

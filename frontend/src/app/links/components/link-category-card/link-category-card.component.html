@@ -1,10 +1,13 @@
-<div class="category-card">
+<div class="category-card" [class.edit-mode]="editMode">
   <div class="category-header">
     @if (editMode) {
-      <mat-icon cdkDragHandle class="drag-handle">drag_handle</mat-icon>
+      <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
     }
-    <mat-icon class="category-icon">{{ category.icon || 'folder_open' }}</mat-icon>
+    <span class="category-icon-tile" aria-hidden="true">
+      <mat-icon class="category-icon">{{ category.icon || 'folder_open' }}</mat-icon>
+    </span>
     <span class="category-name">{{ category.name }}</span>
+    <span class="category-header-spacer"></span>
     @if (editMode) {
       <div class="category-actions">
         <button

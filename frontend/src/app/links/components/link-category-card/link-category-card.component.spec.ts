@@ -49,6 +49,30 @@ describe('LinkCategoryCardComponent', () => {
     expect(nameEl.nativeElement.textContent.trim()).toBe('Dev');
   });
 
+  it("n'affiche pas de compteur de liens à côté du nom (décision de Manu)", async () => {
+    const { fixture } = await setup(false, [mockLink, { ...mockLink, id: 11 }]);
+    const header = fixture.debugElement.query(By.css('.category-header'));
+    expect(header.query(By.css('.category-count'))).toBeNull();
+    expect(header.nativeElement.textContent).not.toContain('2');
+  });
+
+  it('pose la classe edit-mode sur la carte seulement en édition (coupe le survol)', async () => {
+    const { fixture } = await setup(false);
+    const card = fixture.debugElement.query(By.css('.category-card'));
+    expect(card.nativeElement.classList).not.toContain('edit-mode');
+    fixture.componentRef.setInput('editMode', true);
+    fixture.detectChanges();
+    expect(card.nativeElement.classList).toContain('edit-mode');
+  });
+
+  it("place l'icône dans sa tuile et n'affiche pas de chevron", async () => {
+    const { fixture } = await setup();
+    const tile = fixture.debugElement.query(By.css('.category-icon-tile'));
+    expect(tile.query(By.css('.category-icon'))).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('expand_less');
+    expect(fixture.debugElement.queryAll(By.css('button')).length).toBe(0);
+  });
+
   it("affiche l'icône Material de la catégorie", async () => {
     const { fixture } = await setup();
     const iconEl = fixture.debugElement.query(By.css('.category-icon'));
@@ -118,6 +142,20 @@ describe('LinkCategoryCardComponent', () => {
     expect(header.query(By.css('.drag-handle'))).toBeTruthy();
     expect(header.query(By.css('.category-actions'))).toBeTruthy();
     expect(fixture.debugElement.query(By.css('.add-link-button'))).toBeTruthy();
+  });
+
+  it('utilise la poignée drag_indicator (maquette 03-edit) sur la carte', async () => {
+    const { fixture } = await setup(true);
+    const handle = fixture.debugElement.query(By.css('.category-header mat-icon.drag-handle'));
+    expect(handle.nativeElement.textContent.trim()).toBe('drag_indicator');
+  });
+
+  it('« Ajouter un lien » est un bouton placé après les liens de la liste', async () => {
+    const { fixture } = await setup(true);
+    const list = fixture.debugElement.query(By.css('.link-list')).nativeElement as HTMLElement;
+    const button = list.lastElementChild as HTMLElement;
+    expect(button.classList).toContain('add-link-button');
+    expect(button.textContent).toContain('Ajouter un lien');
   });
 
   it('masque le drag handle et les actions en mode lecture', async () => {

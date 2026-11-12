@@ -25,7 +25,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -52,7 +51,6 @@ import { MarkdownLightEditorComponent } from './markdown-light-editor.component'
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatDividerModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
@@ -164,6 +162,7 @@ export class RecipeEditorComponent implements OnInit {
           error: () => {
             this.snackBar.open('Erreur lors du chargement de la recette', 'Fermer', {
               duration: 3000,
+              panelClass: 'snackbar-error',
             });
             this.isLoading.set(false);
             this.router.navigate(['/recipes']);
@@ -234,7 +233,10 @@ export class RecipeEditorComponent implements OnInit {
         this.router.navigate(['/recipes', recipe.id]);
       },
       error: () => {
-        this.snackBar.open("Erreur lors de l'enregistrement", 'Fermer', { duration: 3000 });
+        this.snackBar.open("Erreur lors de l'enregistrement", 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }

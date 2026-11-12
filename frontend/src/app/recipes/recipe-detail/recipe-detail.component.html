@@ -1,73 +1,100 @@
-<div class="recipe-detail">
+<div class="recipe-detail recipe-sheet">
   @if (isLoading()) {
     <div class="loading-state" role="status" aria-label="Chargement..." aria-busy="true">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
   } @else if (recipe()) {
+    <a class="back-link" routerLink="/recipes">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Toutes les recettes
+    </a>
+
     <header class="detail-header">
-      <button mat-icon-button routerLink="/recipes" aria-label="Retour à la liste">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
       <h1 class="recipe-title">{{ recipe()!.title }}</h1>
-      @if (hasActiveShare()) {
-        <span class="share-badge" aria-label="Recette partagée">
-          <mat-icon inline="true">lock</mat-icon>
-          Partagé
-        </span>
-      }
-      <button type="button" mat-icon-button (click)="onShare()" aria-label="Partager la recette">
-        <mat-icon>share</mat-icon>
-      </button>
-      <button
-        mat-icon-button
-        [routerLink]="['/recipes', recipe()!.id, 'edit']"
-        aria-label="Modifier la recette"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button
-        type="button"
-        mat-icon-button
-        color="warn"
-        (click)="onDelete()"
-        aria-label="Supprimer la recette"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
+      <div class="detail-actions">
+        <button
+          type="button"
+          mat-stroked-button
+          class="share-btn"
+          (click)="onShare()"
+          aria-label="Partager la recette"
+        >
+          <mat-icon>share</mat-icon>
+          Partager
+        </button>
+        <button
+          mat-icon-button
+          class="square-btn"
+          [routerLink]="['/recipes', recipe()!.id, 'edit']"
+          aria-label="Modifier la recette"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          type="button"
+          mat-icon-button
+          class="square-btn delete-btn"
+          (click)="onDelete()"
+          aria-label="Supprimer la recette"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
     </header>
+
+    @if (recipe()!.category || hasActiveShare()) {
+      <div class="meta-chips">
+        @if (recipe()!.category) {
+          <span class="ember-chip ember-chip-primary">{{ recipe()!.category!.name }}</span>
+        }
+        @if (hasActiveShare()) {
+          <span class="ember-chip share-badge" aria-label="Recette partagée">
+            <mat-icon aria-hidden="true">lock</mat-icon>
+            Partagé
+          </span>
+        }
+      </div>
+    }
 
     @if (recipe()!.imageUrl) {
       <img class="recipe-image" [src]="recipe()!.imageUrl" [alt]="recipe()!.title" loading="lazy" />
     }
 
     @if (recipe()!.avantPropos) {
-      <section class="avant-propos-section" aria-label="Avant-propos">
-        <h2 class="section-title">Avant-propos</h2>
-        <div class="avant-propos-content" [innerHTML]="recipe()!.avantPropos | markdownLight"></div>
-      </section>
+      <section
+        class="detail-card avant-propos-content"
+        aria-label="Avant-propos"
+        [innerHTML]="recipe()!.avantPropos | markdownLight"
+      ></section>
     }
 
+    <div class="detail-card servings-card">
+      <p class="servings-label">
+        Pour <span class="servings-count">{{ currentServings() }}</span>
+        {{ currentServings() > 1 ? 'personnes' : 'personne' }}
+      </p>
+      <app-convives-steppper
+        [value]="currentServings()"
+        [min]="1"
+        (valueChange)="onServingsChange($event)"
+      ></app-convives-steppper>
+    </div>
+
     <div class="detail-body">
-      <section class="ingredients-section" aria-label="Ingrédients">
-        <div class="ingredients-header">
-          <h2 class="section-title">Ingrédients</h2>
-          <app-convives-steppper
-            [value]="currentServings()"
-            [min]="1"
-            [compact]="true"
-            (valueChange)="onServingsChange($event)"
-          ></app-convives-steppper>
-        </div>
+      <section class="detail-card ingredients-section" aria-label="Ingrédients">
+        <h2 class="section-title">Ingrédients</h2>
         @if (computedIngredients().length === 0) {
           <p class="empty-section">Aucun ingrédient renseigné.</p>
         } @else {
           <ul class="ingredient-list">
             @for (ing of computedIngredients(); track ing.id) {
               <li class="ingredient-item">
-                <span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
-                @if (ing.unit) {
-                  <span class="unit">{{ ing.unit }}</span>
-                }
+                <span class="amount"
+                  ><span class="quantity">{{ ing.quantity | number: '1.0-2' : 'fr' }}</span>
+                  @if (ing.unit) {
+                    <span class="unit">{{ ing.unit }}</span>
+                  }
+                </span>
                 <span class="name">{{ ing.name }}</span>
               </li>
             }
@@ -75,16 +102,15 @@
         }
       </section>
 
-      <section class="steps-section" aria-label="Étapes">
-        <div class="steps-header">
-          <h2 class="section-title">Étapes</h2>
-        </div>
+      <section class="detail-card steps-section" aria-label="Préparation">
+        <h2 class="section-title">Préparation</h2>
         @if (recipe()!.steps.length === 0) {
           <p class="empty-section">Aucune étape renseignée.</p>
         } @else {
           <ol class="step-list">
             @for (step of recipe()!.steps; track step.id) {
               <li class="step-item">
+                <span class="step-number" aria-hidden="true">{{ $index + 1 }}</span>
                 <div class="step-content" [innerHTML]="step.content | markdownLight"></div>
               </li>
             }

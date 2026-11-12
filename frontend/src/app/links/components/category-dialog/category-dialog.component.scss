@@ -1,24 +1,9 @@
 .category-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 22px;
   min-width: 280px;
-  padding-top: 8px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.icon-selector {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.icon-selector-label {
-  font-size: 12px;
-  color: var(--mat-sys-on-surface-variant);
+  padding-top: 6px;
 }
 
 .icon-selector-row {
@@ -26,22 +11,50 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-height: 42px;
+}
+
+.icon-preview-tile {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--color-primary-soft);
 }
 
 .icon-preview {
-  font-size: 28px;
-  height: 28px;
-  width: 28px;
+  font-size: 22px;
+  height: 22px;
+  width: 22px;
+  color: var(--color-primary);
 }
 
 .icon-name {
-  font-family: monospace;
-  font-size: 12px;
-  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .no-icon-label {
-  font-size: 14px;
-  color: var(--mat-sys-on-surface-variant);
+  font-size: 15px;
+  color: var(--color-text-secondary);
   font-style: italic;
+}
+
+.choose-icon-btn {
+  margin-left: auto;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  --mat-button-outlined-container-shape: 10px;
+  --mat-button-outlined-outline-color: var(--color-border-strong);
+  --mat-button-outlined-label-text-color: var(--color-primary);
+  font-size: 15px;
+
+  .mat-icon {
+    color: var(--color-primary);
+  }
 }

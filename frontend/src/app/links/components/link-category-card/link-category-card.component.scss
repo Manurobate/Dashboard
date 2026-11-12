@@ -3,40 +3,129 @@
   height: 100%;
 }
 
+@keyframes category-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .category-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background: var(--mat-sys-surface-container);
-  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   height: 100%;
   box-sizing: border-box;
+  // Cascade d'apparition : l'animation porte sur la carte (enfant), pas sur l'hôte cdkDrag,
+  // et `backwards` n'applique l'état initial que pendant le délai (aucun transform résiduel).
+  animation: category-card-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  // Délai plafonné : une carte ajoutée en fin de grille n'attend pas des secondes.
+  animation-delay: calc(min(var(--card-index, 0), 10) * 60ms);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  @media (hover: hover) {
+    &:not(.edit-mode):hover {
+      transform: translateY(-3px);
+      box-shadow:
+        var(--card-shadow),
+        0 0 0 1px var(--color-primary-soft);
+    }
+  }
+
+  :host-context(body.no-motion) &:not(.edit-mode):hover {
+    transform: none;
+  }
+}
+
+// L'aperçu de drag (clone CDK de l'hôte) ne doit pas rejouer la cascade et son délai.
+:host(.cdk-drag-preview) .category-card {
+  animation: none;
+}
+
+// ── Drag & drop (spec Motion Ember) ──
+// Carte cible : la liste de liens survolée porte .cdk-drop-list-dragging.
+.category-card.edit-mode:has(.link-list.cdk-drop-list-dragging) {
+  border-color: var(--color-primary);
+  box-shadow:
+    0 0 0 1px var(--color-primary),
+    0 0 0 7px var(--color-primary-soft);
+}
+
+// Fantôme d'une catégorie glissée (clone de l'hôte cdkDrag, rendu dans body)
+:host(.cdk-drag-preview) .category-card {
+  transform: rotate(-3deg) scale(1.03);
+  box-shadow: var(--drag-shadow);
+}
+
+// Emplacement de la catégorie dans la grille : pointillé d'accent, contenu masqué
+:host(.cdk-drag-placeholder) .category-card {
+  animation: none;
+  border: 1px dashed var(--color-primary);
+  background: var(--color-primary-soft);
+
+  > * {
+    opacity: 0;
+  }
+}
+
+:host(.cdk-drag-animating) {
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+// En édition, pas de soulèvement au survol : seules bordure et anneau de la carte cible s'animent.
+.category-card.edit-mode {
+  transition:
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
 .category-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-height: 30px;
+}
+
+.category-icon-tile {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--color-primary-soft);
 }
 
 .category-icon {
   font-size: 20px;
   height: 20px;
   width: 20px;
-  flex-shrink: 0;
+  color: var(--color-primary);
 }
 
 .category-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--mat-sys-primary);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
   min-width: 0;
+}
+
+.category-header-spacer {
+  flex: 1;
 }
 
 .category-actions {
@@ -47,8 +136,11 @@
 
 .drag-handle {
   cursor: grab;
-  color: var(--mat-sys-on-surface-variant);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 
   &:active {
     cursor: grabbing;
@@ -63,13 +155,33 @@
   min-height: 80px;
 
   &.edit-mode {
-    gap: 4px;
+    gap: 6px;
     min-height: 104px;
   }
 }
 
+// « Ajouter un lien » : pleine largeur, bordure pointillée (maquette 03-edit)
 .add-link-button {
-  align-self: flex-start;
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 13px;
+  width: 100%;
+  height: 40px;
+  margin-top: 2px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 10px;
+  font-size: 14px;
+  --mat-button-text-container-shape: 10px;
+  --mat-button-text-label-text-color: var(--color-text-secondary);
+}
+
+.category-actions button {
+  --mat-icon-button-state-layer-size: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  color: var(--color-text-secondary);
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }

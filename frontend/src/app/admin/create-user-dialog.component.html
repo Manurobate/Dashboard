@@ -5,9 +5,18 @@
 <mat-dialog-content>
   @if (state() === 'form') {
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Adresse e-mail</mat-label>
-        <input matInput type="email" formControlName="username" autocomplete="email" />
+      <label class="field-label" for="create-user-email"
+        >Adresse e-mail<span class="field-required" aria-hidden="true">*</span></label
+      >
+      <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+        <input
+          matInput
+          id="create-user-email"
+          type="email"
+          formControlName="username"
+          autocomplete="email"
+          aria-required="true"
+        />
         @if (form.controls.username.hasError('required') && form.controls.username.touched) {
           <mat-error>L'adresse e-mail est obligatoire</mat-error>
         }
@@ -21,9 +30,17 @@
         <p class="conflict-error">Cette adresse e-mail est déjà utilisée</p>
       }
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nom d'affichage</mat-label>
-        <input matInput formControlName="name" autocomplete="off" />
+      <label class="field-label" for="create-user-name"
+        >Nom d'affichage<span class="field-required" aria-hidden="true">*</span></label
+      >
+      <mat-form-field appearance="outline" class="ember-field" subscriptSizing="dynamic">
+        <input
+          matInput
+          id="create-user-name"
+          formControlName="name"
+          autocomplete="off"
+          aria-required="true"
+        />
         @if (form.controls.name.hasError('required') && form.controls.name.touched) {
           <mat-error>Le nom est obligatoire</mat-error>
         }
@@ -35,7 +52,9 @@
   }
 
   @if (state() === 'password-reveal') {
-    <p>Le compte a été créé. Transmettez ce mot de passe temporaire à l'utilisateur :</p>
+    <p class="dialog-text">
+      Le compte a été créé. Transmettez ce mot de passe temporaire à l'utilisateur :
+    </p>
     <div class="temp-password-box">
       <span class="temp-password-value">{{ tempPassword() }}</span>
       <button mat-icon-button aria-label="Copier le mot de passe" (click)="copyPassword()">
@@ -51,10 +70,12 @@
 
 <mat-dialog-actions align="end">
   @if (state() === 'form') {
-    <button mat-button (click)="close()" [disabled]="isSubmitting()">Annuler</button>
+    <button mat-flat-button class="dialog-cancel" (click)="close()" [disabled]="isSubmitting()">
+      Annuler
+    </button>
     <button
       mat-flat-button
-      color="primary"
+      class="dialog-confirm"
       (click)="submit()"
       [disabled]="form.invalid || isSubmitting()"
     >
@@ -66,6 +87,6 @@
     </button>
   }
   @if (state() === 'password-reveal') {
-    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
+    <button mat-flat-button class="dialog-confirm" (click)="close()">Fermer</button>
   }
 </mat-dialog-actions>

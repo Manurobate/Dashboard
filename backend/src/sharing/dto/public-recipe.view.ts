@@ -17,4 +17,6 @@ export interface PublicRecipeView {
   servings: number;
   ingredients: PublicRecipeIngredientView[];
   steps: PublicRecipeStepView[];
+  /** Nom d'affichage du propriétaire (jamais son email), pour « Partagé par … ». */
+  sharedBy: string | null;
 }

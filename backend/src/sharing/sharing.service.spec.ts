@@ -170,6 +170,12 @@ describe('SharingService', () => {
       servings: 4,
       userId: 42,
       categoryId: 7,
+      user: {
+        id: 42,
+        name: ' Manu ',
+        username: 'manu@example.com',
+        passwordHash: 'hash',
+      } as never,
       ingredients: [
         {
           id: 2,
@@ -219,7 +225,14 @@ describe('SharingService', () => {
           { content: 'Préparer', position: 0 },
           { content: 'Cuire', position: 1 },
         ],
+        sharedBy: 'Manu',
       });
+      expect(JSON.stringify(result)).not.toContain('manu@example.com');
+      expect(recipeRepo.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          relations: ['ingredients', 'steps', 'user'],
+        }),
+      );
       const forbiddenKeys = [
         'id',
         'userId',
@@ -231,6 +244,23 @@ describe('SharingService', () => {
       for (const key of forbiddenKeys) {
         expect(result).not.toHaveProperty(key);
       }
+    });
+
+    it("sharedBy vaut null quand le propriétaire n'a pas de nom exploitable", async () => {
+      repo.findOne.mockResolvedValue({
+        token: 'abc',
+        resourceType: 'recipe',
+        resourceId: 1,
+        revokedAt: null,
+        expiresAt: null,
+      });
+      recipeRepo.findOne.mockResolvedValue({
+        ...mockRecipeDetail,
+        user: { name: '   ', username: 'manu@example.com' } as never,
+      });
+
+      const result = await service.findPublicRecipe('abc');
+      expect(result.sharedBy).toBeNull();
     });
 
     it('lance NotFoundException si le token est introuvable', async () => {

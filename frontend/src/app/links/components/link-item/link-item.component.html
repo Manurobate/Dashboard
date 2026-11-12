@@ -1,22 +1,22 @@
 <div class="link-item-wrapper" [class.edit-mode]="editMode">
   <mat-icon cdkDragHandle class="drag-handle" [style.visibility]="editMode ? 'visible' : 'hidden'"
-    >drag_handle</mat-icon
+    >drag_indicator</mat-icon
   >
 
-  @if (link.faviconUrl && !hasFaviconError()) {
-    <img
-      [src]="link.faviconUrl"
-      width="16"
-      height="16"
-      alt=""
-      class="link-favicon"
-      (error)="onFaviconError()"
-    />
-  } @else {
-    <span class="link-initial" aria-hidden="true">{{
-      (link.title.trim() || '?').charAt(0).toUpperCase()
-    }}</span>
-  }
+  <span class="link-tile" aria-hidden="true">
+    @if (link.faviconUrl && !hasFaviconError()) {
+      <img
+        [src]="link.faviconUrl"
+        width="16"
+        height="16"
+        alt=""
+        class="link-favicon"
+        (error)="onFaviconError()"
+      />
+    } @else {
+      <span class="link-initial">{{ monogram }}</span>
+    }
+  </span>
 
   <a
     [href]="link.url"

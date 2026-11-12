@@ -62,6 +62,24 @@ describe('TriliumEmbedComponent', () => {
     expect(el.querySelector('a[mat-stroked-button]')?.getAttribute('href')).toContain('/settings');
   });
 
+  it('état vide 08 : tuile avec icône SVG, texte existant, CTA avec icône settings', async () => {
+    currentUser.set({ ...baseUser, triliumUrl: null });
+    const { el } = await render();
+    expect(el.querySelector('.empty-tile svg')).toBeTruthy();
+    expect(el.querySelector('.empty-hint')?.textContent?.trim()).toBe(
+      "Renseignez l'URL de votre instance dans vos paramètres.",
+    );
+    const cta = el.querySelector('a.empty-cta') as HTMLElement;
+    expect(cta.textContent).toContain('Configurer dans Paramètres');
+    expect(cta.querySelector('mat-icon')?.textContent?.trim()).toBe('settings');
+  });
+
+  it('configuré : iframe dans la carte, barre de chargement hors de la carte', async () => {
+    const { el } = await render();
+    expect(el.querySelector('.notes-frame iframe')).toBeTruthy();
+    expect(el.querySelector('.notes-page > mat-progress-bar')).toBeTruthy();
+  });
+
   it.each(['javascript:alert(1)', 'ftp://x', 'pas une url'])(
     'rejette l’URL non http(s) %s (sécurité)',
     async (url) => {

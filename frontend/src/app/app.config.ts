@@ -3,10 +3,14 @@ import {
   provideZonelessChangeDetection,
   isDevMode,
   APP_INITIALIZER,
+  inject,
+  provideAppInitializer,
   LOCALE_ID,
 } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { MatIconRegistry } from '@angular/material/icon';
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -41,10 +45,14 @@ export const appConfig: ApplicationConfig = {
       deps: [AuthService],
       multi: true,
     },
+    provideAppInitializer(() => {
+      inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerImmediately',
     }),
+    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { panelClass: 'snackbar-success' } },
     { provide: LOCALE_ID, useValue: 'fr' },
   ],
 };

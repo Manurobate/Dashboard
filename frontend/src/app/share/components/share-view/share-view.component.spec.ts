@@ -3,7 +3,7 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 
 registerLocaleData(localeFr, 'fr');
 import { ShareViewComponent } from './share-view.component';
@@ -17,11 +17,16 @@ const mockRecipe: PublicRecipeView = {
   servings: 4,
   ingredients: [{ quantity: 200, unit: 'g', name: 'Farine', position: 0 }],
   steps: [{ content: 'Cuire 30 minutes', position: 0 }],
+  sharedBy: 'Manu',
 };
 
 describe('ShareViewComponent', () => {
   let sharingService: { getPublicRecipe: ReturnType<typeof vi.fn> };
-  let themeService: { isDark: ReturnType<typeof vi.fn> };
+  let themeService: {
+    isDark: ReturnType<typeof vi.fn>;
+    forceLight: ReturnType<typeof vi.fn>;
+    restorePreference: ReturnType<typeof vi.fn>;
+  };
   let metaSpy: { addTag: ReturnType<typeof vi.fn>; removeTag: ReturnType<typeof vi.fn> };
 
   async function setup(token: string | null = 'abc123') {
@@ -49,7 +54,11 @@ describe('ShareViewComponent', () => {
 
   beforeEach(() => {
     sharingService = { getPublicRecipe: vi.fn().mockReturnValue(of(mockRecipe)) };
-    themeService = { isDark: vi.fn().mockReturnValue(false) };
+    themeService = {
+      isDark: vi.fn().mockReturnValue(false),
+      forceLight: vi.fn(),
+      restorePreference: vi.fn(),
+    };
     metaSpy = { addTag: vi.fn(), removeTag: vi.fn() };
   });
 
@@ -135,19 +144,16 @@ describe('ShareViewComponent', () => {
     expect(el.querySelector('.error-state')).toBeFalsy();
   });
 
-  it('force le thème clair au chargement même si ThemeService.isDark() est true (AC5)', async () => {
-    document.body.classList.add('dark-theme');
-    themeService.isDark.mockReturnValue(true);
+  it('force le thème clair sans le mémoriser à la création (Q4, story 9.6)', async () => {
     await setup();
-    expect(document.body.classList.contains('dark-theme')).toBe(false);
+    expect(themeService.forceLight).toHaveBeenCalledTimes(1);
+    expect(themeService.restorePreference).not.toHaveBeenCalled();
   });
 
-  it('restaure le thème sombre à la destruction si isDark() était true (AC5)', async () => {
-    themeService.isDark.mockReturnValue(true);
+  it('réapplique la préférence mémorisée à la destruction (Q4, story 9.6)', async () => {
     const { component } = await setup();
     component.ngOnDestroy();
-    expect(document.body.classList.contains('dark-theme')).toBe(true);
-    document.body.classList.remove('dark-theme');
+    expect(themeService.restorePreference).toHaveBeenCalledTimes(1);
   });
 
   it('ajoute le meta robots=noindex à la création et le retire à la destruction (AC3)', async () => {
@@ -155,5 +161,101 @@ describe('ShareViewComponent', () => {
     expect(metaSpy.addTag).toHaveBeenCalledWith({ name: 'robots', content: 'noindex' });
     component.ngOnDestroy();
     expect(metaSpy.removeTag).toHaveBeenCalledWith("name='robots'");
+  });
+
+  describe('rendu Ember (story 9.6, maquettes 11 et 12)', () => {
+    it('affiche les cartes convives, ingrédients et préparation, et le pied « Partagé via Dashboard »', async () => {
+      const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.share-view.recipe-sheet')).toBeTruthy();
+      expect(el.querySelector('.servings-card .servings-count')?.textContent).toBe('4');
+      expect(el.querySelector('.servings-label')?.textContent).toContain('personnes');
+      expect(el.querySelector('.ingredient-item .quantity')?.textContent).toBe('200');
+      expect(el.querySelector('.ingredient-item .unit')?.textContent).toBe('g');
+      expect(el.querySelector('.steps-section')?.getAttribute('aria-label')).toBe('Préparation');
+      expect(el.querySelector('.step-number')?.textContent).toBe('1');
+      expect(el.querySelector('.shared-via')?.textContent?.trim()).toBe(
+        'Partagé par Manu via Dashboard',
+      );
+      expect(el.querySelector('.recipe-image')).toBeFalsy();
+    });
+
+    it('« Dashboard » du pied est un lien externe vers le dépôt GitHub', async () => {
+      const { fixture } = await setup();
+      const link: HTMLAnchorElement = fixture.nativeElement.querySelector('.shared-via a');
+      expect(link.textContent).toBe('Dashboard');
+      expect(link.getAttribute('href')).toBe('https://github.com/Manurobate/Dashboard');
+      expect(link.target).toBe('_blank');
+      expect(link.rel).toBe('noopener noreferrer');
+    });
+
+    it('pied « Partagé via Dashboard » sans nom de propriétaire', async () => {
+      sharingService.getPublicRecipe = vi
+        .fn()
+        .mockReturnValue(of({ ...mockRecipe, sharedBy: null }));
+      const { fixture } = await setup();
+      expect(fixture.nativeElement.querySelector('.shared-via')?.textContent?.trim()).toBe(
+        'Partagé via Dashboard',
+      );
+    });
+
+    it("n'expose aucun lien de navigation interne", async () => {
+      const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelectorAll('a[href^="/"]').length).toBe(0);
+    });
+
+    it('accorde « personne » au singulier', async () => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(of({ ...mockRecipe, servings: 1 }));
+      const { fixture } = await setup();
+      const label = fixture.nativeElement.querySelector('.servings-label')?.textContent ?? '';
+      expect(label).toContain('personne');
+      expect(label).not.toContain('personnes');
+    });
+
+    it('affiche « Aucune étape renseignée. » dans la carte Préparation sans étapes', async () => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(of({ ...mockRecipe, steps: [] }));
+      const { fixture } = await setup();
+      const steps: HTMLElement = fixture.nativeElement.querySelector('.steps-section');
+      expect(steps.textContent).toContain('Aucune étape renseignée.');
+    });
+
+    it('affiche des squelettes pendant le chargement', async () => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(NEVER);
+      const { fixture } = await setup();
+      const loading: HTMLElement = fixture.nativeElement.querySelector('.loading-state');
+      expect(loading.getAttribute('aria-busy')).toBe('true');
+      expect(loading.querySelectorAll('.skeleton-line').length).toBeGreaterThan(0);
+      expect(fixture.nativeElement.querySelector('mat-spinner')).toBeFalsy();
+    });
+
+    it('lien invalide : tuile, titre et paragraphe de la maquette 12', async () => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(throwError(() => ({ status: 404 })));
+      const { fixture } = await setup('xxxx');
+      const state: HTMLElement = fixture.nativeElement.querySelector('.error-state--gone');
+      expect(state.querySelector('.error-tile svg')).toBeTruthy();
+      expect(state.querySelector('h1')?.textContent).toBe(
+        "Ce lien a expiré ou n'est plus disponible.",
+      );
+      expect(state.querySelector('p')?.textContent).toContain(
+        "Demandez à la personne qui vous l'a envoyé de vous en partager un nouveau.",
+      );
+    });
+
+    it('erreur transitoire : « Réessayer » relance le chargement', async () => {
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(throwError(() => ({ status: 500 })));
+      const { fixture } = await setup('xxxx');
+      sharingService.getPublicRecipe = vi.fn().mockReturnValue(of(mockRecipe));
+      const retry: HTMLButtonElement = fixture.nativeElement.querySelector('.retry-btn');
+      expect(
+        fixture.nativeElement.querySelector('.error-state--transient .error-tile'),
+      ).toBeTruthy();
+      retry.click();
+      fixture.detectChanges();
+      expect(sharingService.getPublicRecipe).toHaveBeenCalledWith('xxxx');
+      expect(fixture.nativeElement.querySelector('.recipe-title')?.textContent).toContain(
+        mockRecipe.title,
+      );
+    });
   });
 });

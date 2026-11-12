@@ -1,36 +1,39 @@
+// Stepper convives Ember (maquette 06) ; `compact` accepté mais sans effet visuel
 .convives-steppper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 4px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
 }
 
 .step-btn {
-  min-width: 48px;
-  min-height: 48px;
-  width: 48px;
-  height: 48px;
+  --mat-icon-button-state-layer-size: 40px;
+  --mat-icon-button-container-shape: 10px;
+  --mat-icon-button-state-layer-shape: 10px;
+  --mat-icon-button-icon-color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
 }
 
 .value-display {
-  font-size: 1.1rem;
-  font-weight: 600;
-  min-width: 80px;
+  min-width: 64px;
   text-align: center;
-}
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
 
-.compact {
-  gap: 0;
-
-  .step-btn {
-    --mdc-icon-button-state-layer-size: 28px;
-    --mdc-icon-button-icon-size: 16px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .value-display {
-    font-size: 0.9rem;
-    font-weight: 600;
-    min-width: 52px;
+  .value-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text-primary);
   }
 }

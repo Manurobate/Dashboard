@@ -30,7 +30,10 @@ test('widget ⚙️ visible en mode lecture sur grand écran', async ({ page }) 
 test('widget ⚙️ masqué en mode édition', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
-  await page.locator('button[aria-label="Passer en mode édition"]').click({ force: true });
+  // Clic sans `force` (actionnabilité vérifiée) puis attente du mode édition effectif :
+  // sous Firefox en CI, un clic forcé arrivait avant que la page ne soit prête (story 9.8).
+  await page.locator('button[aria-label="Passer en mode édition"]').click();
+  await expect(page.locator('button[aria-label="Terminer les modifications"]')).toBeVisible();
   await expect(page.locator('button[aria-label="Paramètres d\'affichage"]')).not.toBeVisible();
 });
 
@@ -44,7 +47,9 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
 
-  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
+  // Clic sans `force` puis attente du panneau ouvert (clic forcé trop tôt sous Firefox en CI, story 9.8).
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click();
+  await expect(page.locator('button[aria-label="Plus de colonnes"]')).toBeVisible();
 
   await page.locator('button[aria-label="Plus de colonnes"]').click();
   // Attendre que le DOM reflète 4 colonnes (garantit que l'effet signal a tourné) avant le 2e clic
@@ -61,6 +66,8 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.waitForURL('/dashboard');
   await page.waitForSelector('button[aria-label="Paramètres d\'affichage"]');
 
-  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
+  // Clic sans `force` puis attente du panneau ouvert (clic forcé trop tôt sous Firefox en CI, story 9.8).
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click();
+  await expect(page.locator('button[aria-label="Plus de colonnes"]')).toBeVisible();
   await expect(page.locator('.setting-row').first()).toContainText('5');
 });

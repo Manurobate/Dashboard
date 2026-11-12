@@ -129,7 +129,10 @@ export class LinksComponent implements OnInit {
     this.linksService.reorderLinks(items).subscribe({
       error: () => {
         this.linksService.loadLinks().subscribe();
-        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }
@@ -137,7 +140,7 @@ export class LinksComponent implements OnInit {
   openAddLinkDialog(categoryId: number): void {
     const ref = this.dialog.open<LinkDialogComponent, LinkDialogData, LinkDialogResult>(
       LinkDialogComponent,
-      { width: '480px', maxWidth: '95vw', data: { categoryId } },
+      { width: '440px', maxWidth: '95vw', panelClass: 'ember-form-dialog', data: { categoryId } },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -146,7 +149,11 @@ export class LinksComponent implements OnInit {
           this.linksService.links.update((links) => [...links, link]);
           this.snackBar.open('Lien ajouté', 'Fermer', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Erreur lors de la création', 'Fermer', { duration: 4000 }),
+        error: () =>
+          this.snackBar.open('Erreur lors de la création', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -154,7 +161,12 @@ export class LinksComponent implements OnInit {
   openEditLinkDialog(link: Link): void {
     const ref = this.dialog.open<LinkDialogComponent, LinkDialogData, LinkDialogResult>(
       LinkDialogComponent,
-      { width: '480px', maxWidth: '95vw', data: { link, categoryId: link.categoryId } },
+      {
+        width: '440px',
+        maxWidth: '95vw',
+        panelClass: 'ember-form-dialog',
+        data: { link, categoryId: link.categoryId },
+      },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -167,7 +179,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Lien mis à jour', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la modification', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la modification', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -193,7 +208,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Lien supprimé', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -201,7 +219,7 @@ export class LinksComponent implements OnInit {
   openAddCategoryDialog(): void {
     const ref = this.dialog.open<CategoryDialogComponent, CategoryDialogData, CategoryDialogResult>(
       CategoryDialogComponent,
-      { width: '400px', maxWidth: '95vw', data: {} },
+      { width: '440px', maxWidth: '95vw', panelClass: 'ember-form-dialog', data: {} },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -210,7 +228,11 @@ export class LinksComponent implements OnInit {
           this.linkCategoriesService.loadCategories().subscribe();
           this.snackBar.open('Catégorie ajoutée', 'Fermer', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Erreur lors de la création', 'Fermer', { duration: 4000 }),
+        error: () =>
+          this.snackBar.open('Erreur lors de la création', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -218,7 +240,12 @@ export class LinksComponent implements OnInit {
   openEditCategoryDialog(cat: LinkCategory): void {
     const ref = this.dialog.open<CategoryDialogComponent, CategoryDialogData, CategoryDialogResult>(
       CategoryDialogComponent,
-      { width: '400px', maxWidth: '95vw', data: { category: cat } },
+      {
+        width: '440px',
+        maxWidth: '95vw',
+        panelClass: 'ember-form-dialog',
+        data: { category: cat },
+      },
     );
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
@@ -230,7 +257,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Catégorie mise à jour', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la modification', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la modification', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -259,7 +289,10 @@ export class LinksComponent implements OnInit {
           this.snackBar.open('Catégorie supprimée', 'Fermer', { duration: 3000 });
         },
         error: () =>
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 4000 }),
+          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
+            duration: 4000,
+            panelClass: 'snackbar-error',
+          }),
       });
     });
   }
@@ -281,12 +314,21 @@ export class LinksComponent implements OnInit {
           all.map((l) => (l.id === updated.id ? { ...l, ...updated } : l)),
         );
         this.isMoving = false;
+        const target = this.linkCategoriesService
+          .categories()
+          .find((c) => c.id === event.targetCategoryId);
+        this.snackBar.open(target ? `Lien déplacé vers ${target.name}` : 'Lien déplacé', 'Fermer', {
+          duration: 3000,
+        });
       },
       error: () => {
         this.linksService.links.update((all) =>
           all.map((l) => (l.id === event.linkId ? { ...l, categoryId: originalCategoryId } : l)),
         );
-        this.snackBar.open('Erreur lors du déplacement', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors du déplacement', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
         this.isMoving = false;
       },
     });
@@ -302,7 +344,10 @@ export class LinksComponent implements OnInit {
     this.linkCategoriesService.reorderCategories(items).subscribe({
       error: () => {
         this.linkCategoriesService.loadCategories().subscribe();
-        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la réorganisation', 'Fermer', {
+          duration: 3000,
+          panelClass: 'snackbar-error',
+        });
       },
     });
   }
