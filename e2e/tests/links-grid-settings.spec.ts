@@ -47,7 +47,9 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.setViewportSize({ width: 1920, height: 1080 });
   await login(page);
 
-  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
+  // Clic sans `force` puis attente du panneau ouvert (clic forcé trop tôt sous Firefox en CI, story 9.8).
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click();
+  await expect(page.locator('button[aria-label="Plus de colonnes"]')).toBeVisible();
 
   await page.locator('button[aria-label="Plus de colonnes"]').click();
   // Attendre que le DOM reflète 4 colonnes (garantit que l'effet signal a tourné) avant le 2e clic
@@ -64,6 +66,8 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await page.waitForURL('/dashboard');
   await page.waitForSelector('button[aria-label="Paramètres d\'affichage"]');
 
-  await page.locator('button[aria-label="Paramètres d\'affichage"]').click({ force: true });
+  // Clic sans `force` puis attente du panneau ouvert (clic forcé trop tôt sous Firefox en CI, story 9.8).
+  await page.locator('button[aria-label="Paramètres d\'affichage"]').click();
+  await expect(page.locator('button[aria-label="Plus de colonnes"]')).toBeVisible();
   await expect(page.locator('.setting-row').first()).toContainText('5');
 });
