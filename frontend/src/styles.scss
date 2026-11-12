@@ -817,6 +817,51 @@ html {
   }
 }
 
+// ── Focus clavier (9.8) : anneau commun, contraste ≥ 3:1 sur tous les fonds ──
+// Les halos de Material (state layer) restent, mais sont trop pâles seuls (≈ 1,2:1).
+// `:where` garde une spécificité nulle : un `:focus-visible` de composant prime.
+:where(
+  a,
+  button,
+  [role='button'],
+  [role='link'],
+  [role='menuitem'],
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// Material retire le contour (`outline: none` ou `:focus { outline: 0 }`, chargé après ce
+// fichier) : le préfixe `body` suffit à l'emporter, les `:focus-visible` de composant priment.
+body .mat-mdc-button-base:focus-visible,
+body .mdc-switch:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// Entrées de menu, onglets de la top bar, en-têtes de groupe : anneau intérieur, le conteneur rogne ce qui dépasse.
+body .mat-mdc-menu-item:focus-visible,
+body .mat-mdc-tab-link:focus-visible,
+body .mat-expansion-panel-header:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+// Boutons radio : l'input natif est transparent, l'anneau va sur le cercle visible.
+.mdc-radio:has(.mdc-radio__native-control:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+// ── Parité Firefox (9.8) : pas de flèches natives permanentes sur les champs numériques ──
+// Chromium ne les montre qu'au survol, Firefox en continu (Convives, Qté de l'éditeur).
+// Les flèches du clavier et la molette restent actives.
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 // ── Utilitaire : masqué visuellement, lu par les lecteurs d'écran ────────────
 .visually-hidden {
   position: absolute !important;
