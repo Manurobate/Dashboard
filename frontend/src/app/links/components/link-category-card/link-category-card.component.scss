@@ -152,8 +152,9 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  min-height: 80px;
 
+  // Hauteur minimale réservée au mode édition (zone de dépôt du drag & drop) : en lecture,
+  // la carte épouse ses liens, sans vide sous le dernier.
   &.edit-mode {
     gap: 6px;
     min-height: 104px;
