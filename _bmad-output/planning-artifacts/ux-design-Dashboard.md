@@ -1154,7 +1154,7 @@ Icône ⚙️ (`mat-icon-button`, `aria-label="Paramètres d'affichage"`) visibl
 - **Largeur des cards** : `MatSlider`, 200–600 px (pas 10 px), défaut 280 px
 - **Espacement horizontal** : `MatSlider`, 8–48 px (pas 4 px), défaut 16 px
 - **Espacement vertical** : `MatSlider`, 8–48 px (pas 4 px), défaut 16 px
-- **Hauteur des liens** : `MatSlider`, 32–46 px (pas 2 px), défaut 46 px — compacte les lignes de lien des cards en mode lecture (seule la marge verticale varie, tuile 26 px et texte inchangés). Ajouté le 2026-11-13 (Sprint Change Proposal 2026-11-13).
+- **Hauteur des liens** : `MatSlider`, 32–46 px (pas 2 px), défaut 32 px — compacte les lignes de lien des cards en mode lecture (seule la marge verticale varie, tuile 26 px et texte inchangés). Ajouté le 2026-11-13 (Sprint Change Proposal 2026-11-13) ; défaut porté à 32 px à la demande de Manu le même jour.
 
 Chaque modification met à jour la grid en temps réel via CSS custom properties. Le widget est masqué en mode édition et sur mobile (< 600 px). Les paramètres sont persistés dans `localStorage` (clé `links-grid-settings`) — par device, jamais synchronisés entre appareils.
 

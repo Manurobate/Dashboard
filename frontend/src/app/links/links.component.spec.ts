@@ -90,7 +90,13 @@ describe('LinksComponent', () => {
     dialog = { open: vi.fn() };
     snackBar = { open: vi.fn() };
 
-    const gs = signal<GridSettings>({ columns: 3, cardWidth: 280, gapH: 16, gapV: 16 });
+    const gs = signal<GridSettings>({
+      columns: 3,
+      cardWidth: 280,
+      gapH: 16,
+      gapV: 16,
+      linkHeight: 32,
+    });
     gridSettingsService = {
       gridSettings: gs,
       updateSettings: vi.fn().mockImplementation((partial: Partial<GridSettings>) => {
@@ -682,9 +688,29 @@ describe('LinksComponent', () => {
     });
 
     it('ne dépasse pas 6 colonnes', () => {
-      gridSettingsService.gridSettings.set({ columns: 6, cardWidth: 280, gapH: 16, gapV: 16 });
+      gridSettingsService.gridSettings.set({
+        columns: 6,
+        cardWidth: 280,
+        gapH: 16,
+        gapV: 16,
+        linkHeight: 32,
+      });
       component.adjustColumns(1);
       expect(gridSettingsService.updateSettings).toHaveBeenCalledWith({ columns: 6 });
+    });
+  });
+
+  describe('hauteur des liens', () => {
+    it('updateLinkHeight() transmet la valeur via updateSettings', () => {
+      component.updateLinkHeight(32);
+      expect(gridSettingsService.updateSettings).toHaveBeenCalledWith({ linkHeight: 32 });
+    });
+
+    it("pose --link-row-height sur l'hôte", () => {
+      component.updateLinkHeight(36);
+      TestBed.flushEffects();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.style.getPropertyValue('--link-row-height')).toBe('36px');
     });
   });
 });

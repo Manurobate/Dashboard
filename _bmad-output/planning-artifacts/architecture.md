@@ -878,15 +878,15 @@ dropLink(event: CdkDragDrop<Link[]>): void {
 
 **State management :**
 - Service `LinksGridSettingsService` (injectable root) — Signal `gridSettings` de type `{ columns: number; cardWidth: number; gapH: number; gapV: number; linkHeight: number }`
-- Valeurs par défaut : `{ columns: 3, cardWidth: 280, gapH: 16, gapV: 16, linkHeight: 46 }`
+- Valeurs par défaut : `{ columns: 3, cardWidth: 280, gapH: 16, gapV: 16, linkHeight: 32 }`
 - Rétrocompatibilité : un objet localStorage sans `linkHeight` (ou hors bornes 32–46) retombe sur le défaut, champ par champ (`clamp`)
 - Persistance : lecture/écriture dans `localStorage` (clé `links-grid-settings`) au bootstrap du service et à chaque mutation du signal
 
 **Binding CSS :**
 - `LinksComponent` applique les CSS custom properties sur son host element via `HostBinding` ou `effect()` :
   `--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`, `--link-row-height`
-- Ligne de lien en mode lecture (`LinkItemComponent`) : hauteur pilotée par `--link-row-height` (repli 46px), padding vertical = `calc((var(--link-row-height, 46px) - 26px) / 2)`, tuile 26 px fixe. Le mode édition (44 px min) n'est pas concerné.
-- Sous 600 px, `--link-row-height` n'est pas appliquée (repli 46px), comme les autres propriétés de paramétrage.
+- Ligne de lien en mode lecture (`LinkItemComponent`) : hauteur pilotée par `--link-row-height` (repli 32px), padding vertical = `calc((var(--link-row-height, 32px) - 26px) / 2)`, tuile 26 px fixe. Le mode édition (44 px min) n'est pas concerné.
+- Sous 600 px, `--link-row-height` n'est pas appliquée (lignes à 46 px, padding 10 px), comme les autres propriétés de paramétrage.
 - Grid CSS :
   `grid-template-columns: repeat(var(--link-columns, 3), minmax(var(--link-card-width, 280px), 1fr));`
   `gap: var(--link-gap-v, 16px) var(--link-gap-h, 16px);`

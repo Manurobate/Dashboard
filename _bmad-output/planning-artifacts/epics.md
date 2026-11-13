@@ -970,7 +970,7 @@ Afin que l'espace disponible de mon écran soit pleinement utilisé.
 - Largeur des cards : slider, valeurs 200–600 px (pas 10 px), défaut 280 px
 - Espacement horizontal : slider, valeurs 8–48 px (pas 4 px), défaut 16 px
 - Espacement vertical : slider, valeurs 8–48 px (pas 4 px), défaut 16 px
-- Hauteur des liens : slider, valeurs 32–46 px (pas 2 px), défaut 46 px — ajouté le 2026-11-13 hors epic (`spec-hauteur-liens.md`, Sprint Change Proposal 2026-11-13)
+- Hauteur des liens : slider, valeurs 32–46 px (pas 2 px), défaut 32 px — ajouté le 2026-11-13 hors epic (`spec-hauteur-liens.md`, Sprint Change Proposal 2026-11-13)
 
 **Étant donné** que je modifie un paramètre,
 **Quand** la valeur change,
@@ -992,14 +992,14 @@ Afin que l'espace disponible de mon écran soit pleinement utilisé.
 
 **Étant donné** qu'aucun paramètre n'est enregistré dans localStorage,
 **Quand** je charge la page pour la première fois,
-**Alors** les valeurs par défaut s'appliquent (3 colonnes, 280 px, 16 px H, 16 px V, liens 46 px)
+**Alors** les valeurs par défaut s'appliquent (3 colonnes, 280 px, 16 px H, 16 px V, liens 32 px)
 
 ### Scénarios E2E
 - Viewport 1920px : ouvrir le popover ⚙️ → passer à 5 colonnes → vérifier que la grid affiche 5 colonnes
 - Recharger la page → vérifier que 5 colonnes est restauré depuis localStorage
 - Passer en mode édition → vérifier que l'icône ⚙️ disparaît
 - Viewport 390px : vérifier que l'icône ⚙️ est masquée et que la grid est en 1 colonne
-- Régler « Hauteur des liens » sur 32 px → vérifier que les lignes de lien mesurent 32 px, recharger → valeur restaurée
+- Vérifier que les lignes de lien mesurent 32 px par défaut ; régler « Hauteur des liens » sur 46 px, recharger → valeur restaurée
 
 ---
 
