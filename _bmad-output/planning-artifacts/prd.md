@@ -351,7 +351,7 @@ Les risques V2 (collaboration temps réel, whiteboard) sont traités lors de la 
 - **FR42** : Un utilisateur peut basculer entre un thème clair et un thème sombre
 - **FR43** : Le thème choisi est persisté entre les sessions
 - **FR44** : L'application affiche un état vide actionnable lorsqu'un module ne contient pas encore de contenu
-- **FR49** : Un utilisateur peut configurer l'affichage du module Liens en mode lecture — nombre de colonnes (1–6) et espacement horizontal/vertical (8–48 px, pas de 4 px) — depuis un widget discret (icône ⚙️) visible uniquement sur viewport ≥ 600 px. Le paramétrage est persisté dans localStorage (par device, par navigateur).
+- **FR49** : Un utilisateur peut configurer l'affichage du module Liens en mode lecture — nombre de colonnes (1–6), largeur des cards (200–600 px), espacement horizontal/vertical (8–48 px, pas de 4 px) et hauteur des lignes de lien (32–46 px, pas de 2 px) — depuis un widget discret (icône ⚙️) visible uniquement sur viewport ≥ 600 px. Le paramétrage est persisté dans localStorage (par device, par navigateur).
 - **FR50** : Recherche / navigation rapide (command palette) : un utilisateur peut filtrer ses liens et recettes et naviguer entre modules depuis une barre unique. *Affordance désactivée en V1 (Epic 9, story 9.3) : champ visible, inactif, sans logique de recherche ni raccourci `⌘K` actif. Comportement livré plus tard, non planifié.*
 - **FR51** : Un utilisateur peut activer ou désactiver les animations de l'interface depuis la page Paramètres. Activées par défaut, sauf si le système demande de réduire les animations et que l'utilisateur n'a encore rien choisi. Le choix est persisté dans localStorage (par device, par navigateur).
 

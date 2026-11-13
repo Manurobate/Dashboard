@@ -416,7 +416,7 @@ Ne jamais mettre `color` directement sur `<mat-icon>` — utiliser la classe sur
 - **Tuile favicon / monogramme** : `26×26px`, rayon `7px` *(Ember)*
 - **Bottom nav height** : `56px` mobile
 - **Panneau latéral Notes** : `260px` desktop (fixe), plein écran mobile
-- **Grid Liens** : colonnes, largeur des cards et espacement pilotés par CSS custom properties (`--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`), 1 colonne forcée sous 600 px
+- **Grid Liens** : colonnes, largeur des cards et espacement pilotés par CSS custom properties (`--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`), hauteur des lignes de lien par `--link-row-height`, 1 colonne forcée sous 600 px
 
 ### Accessibility Considerations
 
@@ -1148,12 +1148,13 @@ Les UX-DRs suivantes, prévues initialement pour l'Epic 7, sont déplacées en *
 
 ## UX-DR27 — Widget de paramétrage de la grid Liens (story 4.8)
 
-Icône ⚙️ (`mat-icon-button`, `aria-label="Paramètres d'affichage"`) visible uniquement en mode lecture et sur viewport ≥ 600 px, placée à côté du bouton "Modifier" dans la barre d'action. Au clic, un `MatMenu` s'ouvre avec quatre contrôles :
+Icône ⚙️ (`mat-icon-button`, `aria-label="Paramètres d'affichage"`) visible uniquement en mode lecture et sur viewport ≥ 600 px, placée à côté du bouton "Modifier" dans la barre d'action. Au clic, un `MatMenu` s'ouvre avec cinq contrôles :
 
 - **Nombre de colonnes** : stepper, 1–6, défaut 3
 - **Largeur des cards** : `MatSlider`, 200–600 px (pas 10 px), défaut 280 px
 - **Espacement horizontal** : `MatSlider`, 8–48 px (pas 4 px), défaut 16 px
 - **Espacement vertical** : `MatSlider`, 8–48 px (pas 4 px), défaut 16 px
+- **Hauteur des liens** : `MatSlider`, 32–46 px (pas 2 px), défaut 32 px — compacte les lignes de lien des cards en mode lecture (seule la marge verticale varie, tuile 26 px et texte inchangés). Ajouté le 2026-11-13 (Sprint Change Proposal 2026-11-13) ; défaut porté à 32 px à la demande de Manu le même jour.
 
 Chaque modification met à jour la grid en temps réel via CSS custom properties. Le widget est masqué en mode édition et sur mobile (< 600 px). Les paramètres sont persistés dans `localStorage` (clé `links-grid-settings`) — par device, jamais synchronisés entre appareils.
 

@@ -10,16 +10,28 @@ describe('LinksGridSettingsService', () => {
 
   it('utilise les valeurs par défaut si localStorage est vide', () => {
     const svc = TestBed.inject(LinksGridSettingsService);
-    expect(svc.gridSettings()).toEqual({ columns: 3, cardWidth: 280, gapH: 16, gapV: 16 });
+    expect(svc.gridSettings()).toEqual({
+      columns: 3,
+      cardWidth: 280,
+      gapH: 16,
+      gapV: 16,
+      linkHeight: 32,
+    });
   });
 
   it('restaure les paramètres depuis localStorage', () => {
     localStorage.setItem(
       'links-grid-settings',
-      JSON.stringify({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24 }),
+      JSON.stringify({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24, linkHeight: 34 }),
     );
     const svc = TestBed.inject(LinksGridSettingsService);
-    expect(svc.gridSettings()).toEqual({ columns: 5, cardWidth: 350, gapH: 24, gapV: 24 });
+    expect(svc.gridSettings()).toEqual({
+      columns: 5,
+      cardWidth: 350,
+      gapH: 24,
+      gapV: 24,
+      linkHeight: 34,
+    });
   });
 
   it('updateSettings() met à jour le signal et persiste dans localStorage', () => {
@@ -32,9 +44,43 @@ describe('LinksGridSettingsService', () => {
     expect(stored.columns).toBe(5);
   });
 
+  it('un objet enregistré avant la hauteur des liens retombe sur le défaut (32 px)', () => {
+    localStorage.setItem(
+      'links-grid-settings',
+      JSON.stringify({ columns: 4, cardWidth: 300, gapH: 20, gapV: 12 }),
+    );
+    const svc = TestBed.inject(LinksGridSettingsService);
+    expect(svc.gridSettings()).toEqual({
+      columns: 4,
+      cardWidth: 300,
+      gapH: 20,
+      gapV: 12,
+      linkHeight: 32,
+    });
+  });
+
+  it('borne linkHeight entre 32 et 46 px et ignore une valeur non numérique', () => {
+    localStorage.setItem('links-grid-settings', JSON.stringify({ linkHeight: 10 }));
+    expect(TestBed.inject(LinksGridSettingsService).gridSettings().linkHeight).toBe(32);
+
+    TestBed.resetTestingModule();
+    localStorage.setItem('links-grid-settings', JSON.stringify({ linkHeight: 80 }));
+    expect(TestBed.inject(LinksGridSettingsService).gridSettings().linkHeight).toBe(46);
+
+    TestBed.resetTestingModule();
+    localStorage.setItem('links-grid-settings', JSON.stringify({ linkHeight: '40' }));
+    expect(TestBed.inject(LinksGridSettingsService).gridSettings().linkHeight).toBe(32);
+  });
+
   it('retourne les valeurs par défaut si le localStorage est corrompu', () => {
     localStorage.setItem('links-grid-settings', '{invalid-json}');
     const svc = TestBed.inject(LinksGridSettingsService);
-    expect(svc.gridSettings()).toEqual({ columns: 3, cardWidth: 280, gapH: 16, gapV: 16 });
+    expect(svc.gridSettings()).toEqual({
+      columns: 3,
+      cardWidth: 280,
+      gapH: 16,
+      gapV: 16,
+      linkHeight: 32,
+    });
   });
 });

@@ -122,6 +122,12 @@
   border-radius: 10px;
   transition: background-color 180ms ease;
 
+  // Hauteur paramétrable (widget ⚙️) : seule la marge verticale varie, tuile 26 px fixe.
+  // Ignorée sous 600 px, comme les autres réglages de grille.
+  @media (min-width: 600px) {
+    padding-block: calc((var(--link-row-height, 32px) - 26px) / 2);
+  }
+
   .drag-handle {
     display: none;
   }

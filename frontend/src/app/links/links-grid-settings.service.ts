@@ -5,9 +5,10 @@ export interface GridSettings {
   cardWidth: number;
   gapH: number;
   gapV: number;
+  linkHeight: number;
 }
 
-const DEFAULTS: GridSettings = { columns: 3, cardWidth: 280, gapH: 16, gapV: 16 };
+const DEFAULTS: GridSettings = { columns: 3, cardWidth: 280, gapH: 16, gapV: 16, linkHeight: 32 };
 const STORAGE_KEY = 'links-grid-settings';
 
 @Injectable({ providedIn: 'root' })
@@ -34,6 +35,7 @@ export class LinksGridSettingsService {
         cardWidth: this.clamp(parsed.cardWidth, 200, 600, DEFAULTS.cardWidth),
         gapH: this.clamp(parsed.gapH, 8, 48, DEFAULTS.gapH),
         gapV: this.clamp(parsed.gapV, 8, 48, DEFAULTS.gapV),
+        linkHeight: this.clamp(parsed.linkHeight, 32, 46, DEFAULTS.linkHeight),
       };
     } catch {
       return { ...DEFAULTS };

@@ -71,3 +71,58 @@ test('changement colonnes persisté dans localStorage et restauré au rechargeme
   await expect(page.locator('button[aria-label="Plus de colonnes"]')).toBeVisible();
   await expect(page.locator('.setting-row').first()).toContainText('5');
 });
+
+test('hauteur des liens : 32 px par défaut, réglée à 46 px, persistée et restaurée', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await login(page);
+
+  const rowHeight = async () =>
+    Math.round((await page.locator('app-link-item .link-item-wrapper').first().boundingBox())!.height);
+  const openPanel = async () => {
+    await page.locator('button[aria-label="Paramètres d\'affichage"]').click();
+    await expect(page.locator('input[aria-label="Hauteur des liens"]')).toBeVisible();
+  };
+  const heightRow = page.locator('.setting-row', { hasText: 'Hauteur des liens' });
+
+  await expect.poll(rowHeight).toBe(32);
+
+  await openPanel();
+  await expect(heightRow).toContainText('32 px');
+  // End → valeur maximale du slider (46 px)
+  await page.locator('input[aria-label="Hauteur des liens"]').focus();
+  await page.keyboard.press('End');
+  await expect(heightRow).toContainText('46 px');
+
+  const stored = await page.evaluate(() => localStorage.getItem('links-grid-settings'));
+  expect(JSON.parse(stored!).linkHeight).toBe(46);
+
+  await page.keyboard.press('Escape');
+  await expect.poll(rowHeight).toBe(46);
+
+  await page.reload();
+  await page.waitForURL('/dashboard');
+  await expect.poll(rowHeight).toBe(46);
+  await openPanel();
+  await expect(heightRow).toContainText('46 px');
+});
+
+test('hauteur des liens sans effet en mode édition et sous 600 px', async ({ page }) => {
+  await page.evaluate(() =>
+    localStorage.setItem('links-grid-settings', JSON.stringify({ linkHeight: 32 })),
+  );
+  const rowHeight = async () =>
+    Math.round((await page.locator('app-link-item .link-item-wrapper').first().boundingBox())!.height);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await login(page);
+  await expect.poll(rowHeight).toBe(32);
+
+  await page.locator('button[aria-label="Passer en mode édition"]').click();
+  await expect(page.locator('button[aria-label="Terminer les modifications"]')).toBeVisible();
+  await expect.poll(rowHeight).toBeGreaterThanOrEqual(44);
+  await page.locator('button[aria-label="Terminer les modifications"]').click();
+  await expect(page.locator('button[aria-label="Passer en mode édition"]')).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(rowHeight).toBe(46);
+});

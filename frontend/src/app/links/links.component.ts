@@ -81,6 +81,7 @@ export class LinksComponent implements OnInit {
       el.style.setProperty('--link-card-width', `${s.cardWidth}px`);
       el.style.setProperty('--link-gap-h', `${s.gapH}px`);
       el.style.setProperty('--link-gap-v', `${s.gapV}px`);
+      el.style.setProperty('--link-row-height', `${s.linkHeight}px`);
     });
   }
 
@@ -103,6 +104,10 @@ export class LinksComponent implements OnInit {
 
   updateGapV(value: number): void {
     this.gridSettingsService.updateSettings({ gapV: value });
+  }
+
+  updateLinkHeight(value: number): void {
+    this.gridSettingsService.updateSettings({ linkHeight: value });
   }
 
   ngOnInit(): void {

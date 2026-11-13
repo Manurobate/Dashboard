@@ -83,7 +83,15 @@
         class="ember-menu grid-settings-menu"
         xPosition="before"
       >
-        <div class="grid-settings-panel" (click)="$event.stopPropagation()">
+        <!-- Home/End/↑/↓ : sans stopPropagation, le gestionnaire clavier du mat-menu les annule et les sliders ne bougent pas -->
+        <div
+          class="grid-settings-panel"
+          (click)="$event.stopPropagation()"
+          (keydown.home)="$event.stopPropagation()"
+          (keydown.end)="$event.stopPropagation()"
+          (keydown.arrowup)="$event.stopPropagation()"
+          (keydown.arrowdown)="$event.stopPropagation()"
+        >
           <p class="panel-title">Affichage de la grille</p>
 
           <div class="setting-row">
@@ -154,6 +162,23 @@
                 aria-label="Espacement vertical"
                 [value]="gridSettingsService.gridSettings().gapV"
                 (valueChange)="updateGapV($event)"
+              />
+            </mat-slider>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-head">
+              <span class="setting-label">Hauteur des liens</span>
+              <span class="setting-value"
+                >{{ gridSettingsService.gridSettings().linkHeight }} px</span
+              >
+            </div>
+            <mat-slider min="32" max="46" step="2">
+              <input
+                matSliderThumb
+                aria-label="Hauteur des liens"
+                [value]="gridSettingsService.gridSettings().linkHeight"
+                (valueChange)="updateLinkHeight($event)"
               />
             </mat-slider>
           </div>
