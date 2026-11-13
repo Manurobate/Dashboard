@@ -202,7 +202,7 @@ UX-DR33: adaptation mobile Ember (échelle typographique, barres collantes, navi
 | FR42 | Épic 4 | Toggle thème clair/sombre |
 | FR43 | Épic 4 | Persistance du thème (localStorage) |
 | FR44 | Épic 4 | États vides actionnables par module |
-| FR49 | Épic 4 | Paramétrage d'affichage des cards Liens (colonnes, largeur, espacement) |
+| FR49 | Épic 4 | Paramétrage d'affichage des cards Liens (colonnes, largeur, espacement, hauteur des liens) |
 | FR45 | Épic 1 | Déploiement via docker-compose.yml unique |
 | FR46 | Épic 1 | Dumps automatisés de la base de données |
 | FR47 | Épic 1 | PWA avec app shell mis en cache |
@@ -965,20 +965,22 @@ Afin que l'espace disponible de mon écran soit pleinement utilisé.
 
 **Étant donné** que je clique l'icône ⚙️,
 **Quand** le popover s'ouvre (MatMenu),
-**Alors** il affiche quatre contrôles :
+**Alors** il affiche cinq contrôles :
 - Nombre de colonnes : stepper, valeurs 1–6, défaut 3
 - Largeur des cards : slider, valeurs 200–600 px (pas 10 px), défaut 280 px
 - Espacement horizontal : slider, valeurs 8–48 px (pas 4 px), défaut 16 px
 - Espacement vertical : slider, valeurs 8–48 px (pas 4 px), défaut 16 px
+- Hauteur des liens : slider, valeurs 32–46 px (pas 2 px), défaut 46 px — ajouté le 2026-11-13 hors epic (`spec-hauteur-liens.md`, Sprint Change Proposal 2026-11-13)
 
 **Étant donné** que je modifie un paramètre,
 **Quand** la valeur change,
-**Alors** la grid se met à jour immédiatement via les CSS custom properties `--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`
+**Alors** la grid se met à jour immédiatement via les CSS custom properties `--link-columns`, `--link-card-width`, `--link-gap-h`, `--link-gap-v`, `--link-row-height`
+(la hauteur ne s'applique qu'aux lignes en mode lecture ; la tuile reste à 26 px, seule la marge verticale varie)
 (grid : `repeat(var(--link-columns), minmax(var(--link-card-width), 1fr))`)
 
 **Étant donné** que je ferme et rouvre le navigateur sur le même device,
 **Quand** la page Liens charge,
-**Alors** mes paramètres sont restaurés depuis localStorage (clé `links-grid-settings : { columns, cardWidth, gapH, gapV }`) avant le premier rendu
+**Alors** mes paramètres sont restaurés depuis localStorage (clé `links-grid-settings : { columns, cardWidth, gapH, gapV, linkHeight }`, valeur absente ou hors bornes → défaut) avant le premier rendu
 
 **Étant donné** que le viewport passe sous 600 px (mobile),
 **Quand** la page s'affiche,
@@ -990,13 +992,14 @@ Afin que l'espace disponible de mon écran soit pleinement utilisé.
 
 **Étant donné** qu'aucun paramètre n'est enregistré dans localStorage,
 **Quand** je charge la page pour la première fois,
-**Alors** les valeurs par défaut s'appliquent (3 colonnes, 280 px, 16 px H, 16 px V)
+**Alors** les valeurs par défaut s'appliquent (3 colonnes, 280 px, 16 px H, 16 px V, liens 46 px)
 
 ### Scénarios E2E
 - Viewport 1920px : ouvrir le popover ⚙️ → passer à 5 colonnes → vérifier que la grid affiche 5 colonnes
 - Recharger la page → vérifier que 5 colonnes est restauré depuis localStorage
 - Passer en mode édition → vérifier que l'icône ⚙️ disparaît
 - Viewport 390px : vérifier que l'icône ⚙️ est masquée et que la grid est en 1 colonne
+- Régler « Hauteur des liens » sur 32 px → vérifier que les lignes de lien mesurent 32 px, recharger → valeur restaurée
 
 ---
 
